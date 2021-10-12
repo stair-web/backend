@@ -19,25 +19,25 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const swaggerOptions = new DocumentBuilder()
-                              .setTitle('Core')
-                              .setDescription('API Documentation')
-                              .setVersion('1.0.0')
-                              .addBearerAuth()
-                              .build();
+    .setTitle('Core')
+    .setDescription('API Documentation')
+    .setVersion('1.0.0')
+    .addBearerAuth()
+    .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerOptions);
 
-  app.use('/api/docs/swagger.json' , (req , res)=> {
+  app.use('/api/docs/swagger.json', (req, res) => {
     res.send(swaggerDocument);
   });
 
-  SwaggerModule.setup('/api/docs', app, null , {
+  SwaggerModule.setup('/api/docs', app, null, {
     swaggerUrl: `http://localhost:8888/api/docs/swagger.json`,
     explorer: true,
     swaggerOptions: {
       docExpansion: 'list',
       filter: true,
       showRequestDuration: true,
-    }
+    },
   });
 
   app.enableShutdownHooks();

@@ -22,7 +22,7 @@ import { CustomerModule } from './customer/customer.module';
       inject: [ConfigService],
 
       // eslint-disable-next-line prettier/prettier
-      useFactory: async (configService: ConfigService) => 
+      useFactory: async (configService: ConfigService) =>
         ({
           type: configService.get<string>('TYPEORM_DATABASE_TYPE'),
           host: configService.get<string>('TYPEORM_DATABASE_HOST'),

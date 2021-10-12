@@ -9,6 +9,4 @@ import {
 import { Customer } from './customer.entity';
 
 @EntityRepository(Customer)
-export class TransactionDemoRepository extends Repository<Customer>{
-
-}
+export class TransactionDemoRepository extends Repository<Customer> {}
