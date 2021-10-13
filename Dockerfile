@@ -13,7 +13,6 @@ COPY --from=builder /app .
 # Get port from source
 ARG NODE_ENV=local
 ENV NODE_ENV=${NODE_ENV}
-ENV TYPEORM_DATABASE_HOST = ${curl ifconfig.me}
 EXPOSE 8888
 CMD ["npm","run","start:prod"]
 
