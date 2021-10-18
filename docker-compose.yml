@@ -45,3 +45,7 @@ services:
                                   
           networks:
                   - web_comp_network
+          depends_on:
+                  - postgres
+          links:
+                  - postgres
