@@ -11,3 +11,6 @@ services:
                                 limits:
                                         cpus: 0.5
                                         memory: 256M
+                                        
+                networks:
+                        - web_comp_network
