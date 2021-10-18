@@ -9,6 +9,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { AwsModule } from 'src/lib/aws/aws.module';
 import { AppGateway } from './app.gateway';
 import { CustomerModule } from './customer/customer.module';
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -40,6 +41,7 @@ import { CustomerModule } from './customer/customer.module';
     TerminusModule,
     AwsModule,
     CustomerModule,
+    UserModule,
   ],
   controllers: [HealthController],
   providers: [AppGateway],
