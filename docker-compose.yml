@@ -6,9 +6,10 @@ networks:
 
 services:
   postgres:
+    container_name: postgres_database
+    image: postgres:13.1
     networks:
         - web_comp_network
-    image: postgres:13.1
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
       timeout: 45s
@@ -46,6 +47,6 @@ services:
           networks:
                   - web_comp_network
           depends_on:
-                  - postgres
+                  - postgres_database
           links:
-                  - postgres
+                  - postgres_database
