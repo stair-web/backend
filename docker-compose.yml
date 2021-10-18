@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+        back-end:
+                container_name: ari-backtend
+                build: .
+                ports:
+                        - "7003:80"
+                deploy:
+                        resources:
+                                limits:
+                                        cpus: 0.5
+                                        memory: 256M
