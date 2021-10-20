@@ -17,6 +17,9 @@ export class CreateUserDto {
     personalEmail: string;
 
     @IsString()
+    profilePhotoKey: string;
+
+    @IsString()
     @IsNotEmpty()
     password: string;
 
@@ -40,3 +43,4 @@ export class CreateUserDto {
     position: string;
 
 }
+

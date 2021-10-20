@@ -34,4 +34,7 @@ export class UpdateUserDto {
     @IsString()
     personalEmail: string;
 
+    @IsString()
+    profilePhotoKey: string;
+
 }

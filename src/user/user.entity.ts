@@ -33,6 +33,10 @@ export class User extends BaseEntity {
     @Column()
     is_deleted: boolean; 
 
+    @ApiProperty()
+    @Column()
+    is_actived: boolean;
+
     @ApiHideProperty()
     @Column()
     @Exclude()
@@ -62,6 +66,14 @@ export class User extends BaseEntity {
     @ApiProperty()
     @Column()
     dob: Date;
+
+    @ApiProperty()
+    @Column()
+    uuid: string;
+
+    @ApiProperty()
+    @Column()
+    profile_photo_key: string;
 
     async validatePassword(password: string): Promise<boolean> {
         const hash = await bcrypt.hash(password, this.salt);

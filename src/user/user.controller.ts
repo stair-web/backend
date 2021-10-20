@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Connection } from 'typeorm';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
+import { DeleteUserDto } from './dto/delete-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -49,7 +50,7 @@ export class UserController {
   }
 
 
-  @Put('/:id')
+  @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi trong quá trình chỉnh sửa thông tin người dùng.',
@@ -59,29 +60,78 @@ export class UserController {
     description: 'Chỉnh sửa thông tin người dùng thành công',
   })
   @ApiOperation({ summary: 'Chỉnh sửa người dùng.' })
-  async update(@Body() updateUserDto: UpdateUserDto, @Param('id') id: number) {
+  async update(@Body() updateUserDto: UpdateUserDto, @Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
+      
       return this.userService.updateUser(
         transactionManager,
         updateUserDto,
-        id
+        uuid
       );
       })
     // return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+
+  @Post('send-email-reset-password/:email')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình gửi email, hoặc email không đúng.',
+  })
+  @ApiResponse({ status: 201, description: 'Gửi mail thành công' })
+  @ApiOperation({ summary: 'Gửi email quên mật khẩu.' })
+  async sendResetPasswordEmail(@Param('email') email: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.sendResetPasswordEmail(
+        transactionManager,
+        email,
+      );
+    });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Get('/:id')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình lấy thông tin người dùng.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy dữ liệu người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
+  async getUserById(@Param('id') id: number) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.getUserById(transactionManager, id);
+    });
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+
+  @Delete('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình xóa người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Xóa người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Xóa người dùng.' })
+  async deleteUser(
+    @Body() deleteUserDto: DeleteUserDto,
+    @Param('uuid') uuid: string,
+  ) {
+
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.deleteUser(
+        transactionManager,
+        deleteUserDto,
+        uuid,
+      );
+    });
   }
+  
 }
