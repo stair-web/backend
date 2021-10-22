@@ -1,0 +1,4 @@
+export enum TokenEmailType {
+  RESET_PASSWORD = 'RESET_PASSWORD',
+  ACTIVE_ACCOUNT = 'ACTIVE_ACCOUNT',
+}

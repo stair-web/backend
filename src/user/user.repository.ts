@@ -36,7 +36,6 @@ export class UserRepository extends Repository<User>{
       profilePhotoKey:profilePhotoKey
     } = createUserDto
     // Check user existed?
-    try {
       const query = transactionEntityManager
       .getRepository(User)
       .createQueryBuilder('user')
@@ -50,14 +49,7 @@ export class UserRepository extends Repository<User>{
         );
       }
 
-    } catch (error) {
-      console.log(error);
-      
-    }
- 
-
-
-   
+  
 
     // hash password
     const salt = await bcrypt.genSalt();

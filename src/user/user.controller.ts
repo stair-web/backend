@@ -46,7 +46,6 @@ export class UserController {
         createUserDto,
       );
       })
-    // return this.userService.create(createUserDto);
   }
 
 
@@ -69,7 +68,6 @@ export class UserController {
         uuid
       );
       })
-    // return this.userService.create(createUserDto);
   }
 
 

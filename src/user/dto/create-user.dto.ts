@@ -42,5 +42,7 @@ export class CreateUserDto {
     @IsNotEmpty()
     position: string;
 
+    @IsString()
+    personalId: string;
 }
 

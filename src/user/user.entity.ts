@@ -37,10 +37,18 @@ export class User extends BaseEntity {
     @Column()
     is_actived: boolean;
 
+    @ApiProperty()
+    @Column()
+    is_first_login: boolean;
+
     @ApiHideProperty()
     @Column()
     @Exclude()
     password: string; 
+
+    @Column({length: 6})
+    @Exclude()
+    personal_id: string; 
 
     @Column()
     @Exclude()
