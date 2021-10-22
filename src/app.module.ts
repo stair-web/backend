@@ -9,6 +9,9 @@ import { TerminusModule } from '@nestjs/terminus';
 import { AwsModule } from 'src/lib/aws/aws.module';
 import { AppGateway } from './app.gateway';
 import { CustomerModule } from './customer/customer.module';
+import { UserModule } from './user/user.module';
+import { EmailModule } from './email/email.module';
+import { TokenEmailModule } from './token-email/token-email.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -22,7 +25,7 @@ import { CustomerModule } from './customer/customer.module';
       inject: [ConfigService],
 
       // eslint-disable-next-line prettier/prettier
-      useFactory: async (configService: ConfigService) => 
+      useFactory: async (configService: ConfigService) =>
         ({
           type: configService.get<string>('TYPEORM_DATABASE_TYPE'),
           host: configService.get<string>('TYPEORM_DATABASE_HOST'),
@@ -40,6 +43,9 @@ import { CustomerModule } from './customer/customer.module';
     TerminusModule,
     AwsModule,
     CustomerModule,
+    UserModule,
+    EmailModule,
+    TokenEmailModule,
   ],
   controllers: [HealthController],
   providers: [AppGateway],
