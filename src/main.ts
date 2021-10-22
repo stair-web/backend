@@ -42,13 +42,8 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   const port = 8888;
-  let nodeAppInstance = 0;
-  if (process.env.NODE_APP_INSTANCE) {
-    nodeAppInstance = Number(process.env.NODE_APP_INSTANCE);
-  }
-  const server = await app.listen(port + nodeAppInstance);
-  logger.log(`Application listening on port ${port + nodeAppInstance}`);
-  logger.log(`Environment: ${process.env.NODE_ENV}`);
+  const server = await app.listen(port);
+  logger.log(`Application listening on port ${port}`);
 
   server.setTimeout(180000);
 }
