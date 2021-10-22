@@ -6,7 +6,7 @@ networks:
 
 services:
   postgres:
-    container_name: postgres_database
+    container_name: postgres
     image: postgres:13.1
     networks:
         - web_comp_network
@@ -30,7 +30,7 @@ services:
     volumes:
       - /home/nhanvu/Database/postgres/web-comp/db:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
 
 
   back-end:
@@ -43,10 +43,10 @@ services:
                           limits:
                                   cpus: 0.5
                                   memory: 256M
-                                  
+
           networks:
                   - web_comp_network
           depends_on:
-                  - postgres_database
+                  - postgres
           links:
-                  - postgres_database
+                  - "postgres:database"
