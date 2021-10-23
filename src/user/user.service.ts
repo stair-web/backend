@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TokenEmailType } from 'src/common/enum/token-email-type.enum';
 import { isNullOrUndefined } from 'src/lib/utils/util';
@@ -18,6 +18,7 @@ import { DeleteUserDto } from './dto/delete-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { v4 as uuidv4 } from 'uuid';
 import e from 'express';
+import { AcitveUserDto } from './dto/active-user.dto';
 
 @Injectable()
 export class UserService {
@@ -52,6 +53,7 @@ export class UserService {
         email: userCreated.personal_email,
         timeStamp: expired.toString(),
         isActive: true,
+        uuid: userCreated.uuid,
         type: TokenEmailType.ACTIVE_ACCOUNT,
       };
 
@@ -144,6 +146,40 @@ export class UserService {
     getAllUserDto: GetAllUserDto,
   ) {
     return this.usersRepository.getAllUser(transactionManager, getAllUserDto);
+  }
+  async activeUser(
+    transactionManager: EntityManager,
+    acitveUserDto: AcitveUserDto,
+  ) {
+    let data =  this.decryptTokenToData(acitveUserDto.token)
+
+    let dateNow = Date();
+    //token het han
+    if(Date.parse(dateNow) > Date.parse(data.timeStamp)){
+      return { statusCode: 500, message: 'Token đã hết hạn' };
+    }
+
+    let userRes = await this.usersRepository.getUserByUuid(transactionManager,data.uuid);
+
+    //Khong tim thay nguoi dung
+    if (isNullOrUndefined(userRes.data)) {
+      return { statusCode: 500, message: 'Không tìm thấy người dùng' };
+    }
+
+    //user da duoc kich hoat
+    if(!userRes.data)
+    if(userRes.data.is_actived){
+      return { statusCode: 500, message: 'Người dùng đã được kích hoạt' };
+    }
+
+    
+
+     await transactionManager.update(
+      User,{id:userRes.data.id},{
+          is_actived:true,
+      }
+    )
+    return { statusCode: 201, message: 'Kích hoạt người dùng thành công.' };
   }
   genPersonalId(id) {
     let pId = '';
@@ -250,6 +286,17 @@ export class UserService {
       console.log(error);
     }
 
+  }
+  private decryptTokenToData(token: string) {
+    const cipherText: string = token.replace(/\-/g, '+').replace(/\_/g, '/');
+    const data = JSON.parse(
+      cryptojs.AES.decrypt(
+        cipherText,
+        this.configService.get<string>('EMAIL_TOKEN_KEY'),
+      ).toString(cryptojs.enc.Utf8),
+    );
+
+    return data;
   }
 
 }

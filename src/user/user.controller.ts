@@ -6,6 +6,7 @@ import { Connection } from 'typeorm';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
+import { AcitveUserDto } from './dto/active-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -48,6 +49,22 @@ export class UserController {
       })
   }
 
+  @Post('/active')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
+  })
+
+  @ApiOperation({ summary: 'Kích hoạt người dùng' })
+  @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
+  async activeUser(@Body() acitveUserDto: AcitveUserDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.activeUser(
+        transactionManager,
+        acitveUserDto,
+      );
+      })
+  }
 
   @Put('/:uuid')
   @ApiResponse({
