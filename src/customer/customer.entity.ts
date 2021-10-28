@@ -23,7 +23,9 @@ export class Customer extends BaseEntity {
   id: number;
 
   @ApiProperty()
-  @Column()
+  @Column(
+    {name:'full_name'}
+  )
   fullName: string;
 
   @ApiProperty()
@@ -31,7 +33,7 @@ export class Customer extends BaseEntity {
   note: string;
 
   @ApiProperty()
-  @Column({ length: 50 })
+  @Column({ length: 50,name:'phone_number' })
   phoneNumber: string;
 
   @ApiProperty()
@@ -42,6 +44,7 @@ export class Customer extends BaseEntity {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'send_time'
   })
   sendTime: Date;
 
@@ -50,6 +53,7 @@ export class Customer extends BaseEntity {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'created_at'
   })
   createdAt: Date;
 
@@ -57,12 +61,16 @@ export class Customer extends BaseEntity {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'updated_at'
   })
   updatedAt: Date;
 
   
   @ApiProperty()
-  @Column()
+@Column(
+  {name:'is_deleted'}
+
+  )
   isDeleted: boolean;
 
 

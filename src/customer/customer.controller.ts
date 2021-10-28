@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/create-customer.dto copy';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 
 @Controller('customer')
@@ -59,13 +59,12 @@ export class CustomerController {
     description: 'Chỉnh sửa thông tin khách hàng',
   })
   @ApiOperation({ summary: 'Chỉnh sửa khách hàng.' })
-  async update(@Body() updateCustomerDto: UpdateCustomerDto, @Param('uuid') uuid: string) {
+  async update(@Body() updateCustomerDto: UpdateCustomerDto, @Param('id') id: number) {
     return await this.connection.transaction((transactionManager) => {
-      
       return this.customerService.updateCustomer(
         transactionManager,
         updateCustomerDto,
-        uuid
+        id
       );
       })
   }

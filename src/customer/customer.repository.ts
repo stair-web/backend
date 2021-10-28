@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { ConflictException, InternalServerErrorException, Logger } from '@nestjs/common';
+import { ConflictException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { paramStringToJson } from 'src/lib/utils/util';
 import {
   Repository,
@@ -14,6 +14,7 @@ import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 
 @EntityRepository(Customer)
 export class CustomerRepository extends Repository<Customer> {
+ 
  async getAllUser(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
   const { page, filter, sorts, fullTextSearch } = getAllCustomerDto;
   let { perPage } = getAllCustomerDto;
@@ -129,6 +130,30 @@ export class CustomerRepository extends Repository<Customer> {
   }
   
  }
+ async getUserById(transactionManager: EntityManager, id: number) {
+  const query = transactionManager
+    .getRepository(Customer)
+    .createQueryBuilder('customer')
+    .select([
+      'customer.id',
+      'customer.email',
+      'customer.full_name',
+      'customer.note',
+      'customer.phone_number',
+      'customer.send_time',
+    
+    ])
+    .andWhere('customer.id = :id', { id })
+    .andWhere('customer.is_deleted = FALSE');
+
+  const data = await query.getOne();
+
+  if (isNullOrUndefined(data)) {
+    throw new NotFoundException(`Không tìm thấy người dùng.`);
+  }
+
+  return { statusCode: 200, data };
+}
  async   createCustomer(transactionEntityManager: any, createCustomerDto: any) {
   const { 
     email,
@@ -165,18 +190,6 @@ export class CustomerRepository extends Repository<Customer> {
   });
 
  
-
-  // const customer = transactionEntityManager.create(Customer, {
-  //   full_name: fullName,
-  //   email: email,
-  //   note: note,
-  //   phone_number: phoneNumber,
-  //   send_time: sendTime,
-  //   created_at: new Date(),
-  //   updated_at: new Date(),
-  //   is_deleted :false
-  // });
-
 
   try {
     await transactionEntityManager.save(customer);

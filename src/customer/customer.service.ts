@@ -1,10 +1,11 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { EntityManager } from 'typeorm';
 import { CustomerRepository } from './customer.repository';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/create-customer.dto copy';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
+import { Customer } from './customer.entity';
 
 @Injectable()
 export class CustomerService {
@@ -25,41 +26,36 @@ export class CustomerService {
     return this.customerRepository.getAllUser(transactionManager, getAllCustomerDto);
 
   }
-  async updateCustomer(transactionManager: EntityManager, updateCustomerDto: UpdateCustomerDto, uuid: string): Promise<unknown> {
+  async updateCustomer(transactionManager: EntityManager, updateCustomerDto: UpdateCustomerDto, id: number): Promise<unknown> {
     const {
-      firstName,
-      lastName,
+      email,
+      fullName,
       phoneNumber,
-      dob,
-      position,
-      isDeleted,
-      personalEmail,
-      profilePhotoKey,
+      note,
+      sendTime,
     } = updateCustomerDto;
 
-    const user = (await this.getUserByUuid(transactionManager, uuid)).data;
+    const customer = (await this.getCustomerById(transactionManager, id)).data;
 
 
-    if (isNullOrUndefined(user)) {
+    if (isNullOrUndefined(customer)) {
       throw new InternalServerErrorException(
-        'Tài khoản không tồn tại.',
+        'Khách hàng không tồn tại.',
       );
     }
 
     try {
 
       await transactionManager.update(
-        User,
-        { id: user.id },
+        Customer,
+        { id: customer.id },
         {
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phoneNumber,
-          dob,
-          position,
-          is_deleted: isDeleted,
-          personal_email: personalEmail,
-          profile_photo_key: profilePhotoKey,
+          email: email,
+          fullName: fullName,
+          phoneNumber: phoneNumber,
+          note: note,
+          sendTime: sendTime,
+          updatedAt: new Date(),
         },
       );
     } catch (error) {
@@ -69,5 +65,9 @@ export class CustomerService {
       );
     }
     return { statusCode: 200, message: 'Chỉnh sửa người dùng thành công.' };
+  }
+  async getCustomerById(transactionManager: EntityManager, id: number) {
+
+      return await this.customerRepository.getUserById(transactionManager, id);
   }
 }
