@@ -21,8 +21,6 @@ export class CustomerRepository extends Repository<Customer> {
   if (isNullOrUndefined(perPage)) {
     perPage = 25;
   }
-  console.log(12323);
-  console.log(perPage,page);
   
   
   const query = transactionManager
@@ -31,14 +29,14 @@ export class CustomerRepository extends Repository<Customer> {
     .select([
       'customer.id',
       'customer.email',
-      'customer.full_name',
+      'customer.fullName',
       'customer.note',
-      'customer.phone_number',
-      'customer.send_time',
-    ]).where('customer.is_deleted is false')
+      'customer.phoneNumber',
+      'customer.sendTime',
+    ]).where('customer.isDeleted is false')
     .take(perPage)
     .skip((page - 1) * perPage)
-    .orderBy('customer.full_name', 'ASC');
+    .orderBy('customer.fullName', 'ASC');
 
   // Full text search
   if (!isNullOrUndefined(fullTextSearch) && fullTextSearch !== '') {
@@ -49,7 +47,7 @@ export class CustomerRepository extends Repository<Customer> {
       },
     );
     query.orWhere(
-      'LOWER(customer.full_name) LIKE LOWER(:full_name)',
+      'LOWER(customer.fullName) LIKE LOWER(:fullName)',
       {
         full_name: `%${fullTextSearch}%`,
       },
@@ -61,13 +59,13 @@ export class CustomerRepository extends Repository<Customer> {
       },
     );
     query.orWhere(
-      'LOWER(customer.phone_number) LIKE LOWER(:phone_number) ',
+      'LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber) ',
       {
         phone_number: `%${fullTextSearch}%`,
       },
     );
     query.orWhere(
-      'LOWER(customer.send_time) LIKE LOWER(:send_time) ',
+      'LOWER(customer.sendTime) LIKE LOWER(:sendTime) ',
       {
         send_time: `%${fullTextSearch}%`,
       },
@@ -84,7 +82,7 @@ export class CustomerRepository extends Repository<Customer> {
     }
 
     if (!isNullOrUndefined(object.full_name)) {
-      query.andWhere('LOWER(customer.full_name) LIKE LOWER(:full_name)', {
+      query.andWhere('LOWER(customer.fullName) LIKE LOWER(:fullName)', {
         full_name: `%${object.full_name}%`,
       });
     }
@@ -95,12 +93,12 @@ export class CustomerRepository extends Repository<Customer> {
       });
     }
     if (!isNullOrUndefined(object.phone_number)) {
-      query.andWhere('LOWER(customer.phone_number) LIKE LOWER(:phone_number)', {
+      query.andWhere('LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber)', {
         note: `%${object.phone_number}%`,
       });
     }
     if (!isNullOrUndefined(object.send_time)) {
-      query.andWhere('LOWER(customer.send_time) LIKE LOWER(:send_time)', {
+      query.andWhere('LOWER(customer.sendTime) LIKE LOWER(:sendTime)', {
         note: `%${object.send_time}%`,
       });
     }
@@ -121,6 +119,7 @@ export class CustomerRepository extends Repository<Customer> {
 
   try {
     const data = await query.getMany();
+    
   const total = await query.getCount();
   return { statusCode: 200, data: { data, total } };
 
@@ -130,21 +129,22 @@ export class CustomerRepository extends Repository<Customer> {
   }
   
  }
- async getUserById(transactionManager: EntityManager, id: number) {
+ async getUserById(transactionManager: EntityManager, id: string) {
+
   const query = transactionManager
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
       'customer.id',
       'customer.email',
-      'customer.full_name',
+      'customer.fullName',
       'customer.note',
-      'customer.phone_number',
-      'customer.send_time',
+      'customer.phoneNumber',
+      'customer.sendTime',
     
     ])
     .andWhere('customer.id = :id', { id })
-    .andWhere('customer.is_deleted = FALSE');
+    .andWhere('customer.isDeleted = FALSE');
 
   const data = await query.getOne();
 

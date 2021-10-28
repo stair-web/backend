@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { EntityManager } from 'typeorm';
 import { CustomerRepository } from './customer.repository';
@@ -9,43 +13,41 @@ import { Customer } from './customer.entity';
 
 @Injectable()
 export class CustomerService {
-  
-   
-    constructor(
-        private customerRepository:CustomerRepository
-    ){
+  constructor(private customerRepository: CustomerRepository) {}
+  async createCustomer(
+    transactionManager: EntityManager,
+    createCustomerDto: CreateCustomerDto,
+  ): Promise<unknown> {
+    await this.customerRepository.createCustomer(
+      transactionManager,
+      createCustomerDto,
+    );
 
-    }
-    async createCustomer(transactionManager: EntityManager, createCustomerDto: CreateCustomerDto): Promise<unknown> {
-        let createCustomer = await this.customerRepository.createCustomer(transactionManager, createCustomerDto);
-      
-        return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
+    return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
   }
-  getAllUser(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
-    
-    return this.customerRepository.getAllUser(transactionManager, getAllCustomerDto);
-
+  getAllUser(
+    transactionManager: EntityManager,
+    getAllCustomerDto: GetAllCustomerDto,
+  ): Promise<unknown> {
+    return this.customerRepository.getAllUser(
+      transactionManager,
+      getAllCustomerDto,
+    );
   }
-  async updateCustomer(transactionManager: EntityManager, updateCustomerDto: UpdateCustomerDto, id: number): Promise<unknown> {
-    const {
-      email,
-      fullName,
-      phoneNumber,
-      note,
-      sendTime,
-    } = updateCustomerDto;
+  async updateCustomer(
+    transactionManager: EntityManager,
+    updateCustomerDto: UpdateCustomerDto,
+    id: string,
+  ): Promise<unknown> {
+    const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
 
     const customer = (await this.getCustomerById(transactionManager, id)).data;
 
-
     if (isNullOrUndefined(customer)) {
-      throw new InternalServerErrorException(
-        'Khách hàng không tồn tại.',
-      );
+      throw new InternalServerErrorException('Khách hàng không tồn tại.');
     }
 
     try {
-
       await transactionManager.update(
         Customer,
         { id: customer.id },
@@ -66,8 +68,7 @@ export class CustomerService {
     }
     return { statusCode: 200, message: 'Chỉnh sửa người dùng thành công.' };
   }
-  async getCustomerById(transactionManager: EntityManager, id: number) {
-
-      return await this.customerRepository.getUserById(transactionManager, id);
+  async getCustomerById(transactionManager: EntityManager, id: string) {
+    return await this.customerRepository.getUserById(transactionManager, id);
   }
 }

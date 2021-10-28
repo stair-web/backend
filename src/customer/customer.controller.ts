@@ -8,27 +8,28 @@ import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 
 @Controller('customer')
 export class CustomerController {
-  constructor(private readonly customerService: CustomerService,
+  constructor(
+    private readonly customerService: CustomerService,
     private connection: Connection,
+  ) {}
 
-    
-    ) {}
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách khách hàng thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách khách hàng' })
+  async getAllUser(@Query() getAllCustomerDto: GetAllCustomerDto) {
+    console.log(getAllCustomerDto);
 
-    @Get()
-    @ApiResponse({
-      status: 200,
-      description: 'Lấy danh sách khách hàng thành công.',
-    })
-    @ApiOperation({ summary: 'Danh sách khách hàng' })
-    async getAllUser(@Query() getAllCustomerDto: GetAllCustomerDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.customerService.getAllUser(
+        transactionManager,
+        getAllCustomerDto,
+      );
+    });
+  }
 
-      console.log(getAllCustomerDto);
-      
-      return await this.connection.transaction((transactionManager) => {
-        return this.customerService.getAllUser(transactionManager, getAllCustomerDto);
-      });
-    }
-  
   @Post()
   @ApiResponse({
     status: 500,
@@ -46,10 +47,10 @@ export class CustomerController {
         transactionManager,
         createCustomerDto,
       );
-      })
+    });
   }
 
-  @Put('/:uuid')
+  @Put('/:id')
   @ApiResponse({
     status: 500,
     description: 'Lỗi trong quá trình chỉnh sửa thông tin khách hàng.',
@@ -59,16 +60,18 @@ export class CustomerController {
     description: 'Chỉnh sửa thông tin khách hàng',
   })
   @ApiOperation({ summary: 'Chỉnh sửa khách hàng.' })
-  async update(@Body() updateCustomerDto: UpdateCustomerDto, @Param('id') id: number) {
+  async update(
+    @Body() updateCustomerDto: UpdateCustomerDto,
+    @Param('id') id: string,
+  ) {
+    console.log(id);
+
     return await this.connection.transaction((transactionManager) => {
       return this.customerService.updateCustomer(
         transactionManager,
         updateCustomerDto,
-        id
+        id,
       );
-      })
+    });
   }
-
-
-
 }

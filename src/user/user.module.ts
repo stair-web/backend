@@ -9,18 +9,13 @@ import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserRepository,
-      TokenEmailRepository,
-
-    ]),
+    TypeOrmModule.forFeature([UserRepository, TokenEmailRepository]),
     ConfigModule.forRoot({
       envFilePath: `env/${process.env.NODE_ENV || 'local'}.env`,
     }),
     EmailModule,
   ],
   controllers: [UserController],
-  providers: [UserService,
-  ]
+  providers: [UserService],
 })
 export class UserModule {}
