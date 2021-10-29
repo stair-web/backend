@@ -127,17 +127,15 @@ export class UserRepository extends Repository<User>{
         'user.dob',
         'user.position',
         'user.is_deleted',
-      
+        'user.is_actived'
       ])
       .andWhere('user.uuid = :uuid', { uuid })
 
     const data = await query.getOne();
 
-    if (isNullOrUndefined(data)) {
-      throw new NotFoundException(`Không tìm thấy người dùng.`);
-    }
+   
 
-    return { statusCode: 200, data };
+    return { data };
   }
   async getUserById(transactionManager: EntityManager, id: number) {
     const query = transactionManager

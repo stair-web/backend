@@ -12,6 +12,11 @@ import { CustomerModule } from './customer/customer.module';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { TokenEmailModule } from './token-email/token-email.module';
+import { AppController } from './app.controller';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { PostModule } from './post/post.module';
+import { CategoryModule } from './category/category.module';
+import { TopicModule } from './topic/topic.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -24,7 +29,6 @@ import { TokenEmailModule } from './token-email/token-email.module';
       imports: [ConfigModule],
       inject: [ConfigService],
 
-      // eslint-disable-next-line prettier/prettier
       useFactory: async (configService: ConfigService) =>
         ({
           type: configService.get<string>('TYPEORM_DATABASE_TYPE'),
@@ -38,6 +42,7 @@ import { TokenEmailModule } from './token-email/token-email.module';
           logging: false,
           useUTC: false,
           uuidExtension: 'uuid-ossp',
+          namingStrategy: new SnakeNamingStrategy(),
         } as TypeOrmModuleOptions),
     }),
     TerminusModule,
@@ -46,8 +51,11 @@ import { TokenEmailModule } from './token-email/token-email.module';
     UserModule,
     EmailModule,
     TokenEmailModule,
+    PostModule,
+    CategoryModule,
+    TopicModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, AppController],
   providers: [AppGateway],
 })
 export class AppModule {}

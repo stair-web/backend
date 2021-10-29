@@ -13,14 +13,18 @@ import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'customer', schema: 'public' })
-export class Customer  {
- 
+export class Customer extends BaseEntity {
+  constructor(partial: Partial<Customer>) {
+    super();
+    Object.assign(this, partial);
+  }
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty()
   @Column(
+    {name:'full_name'}
   )
   fullName: string;
 
@@ -29,7 +33,7 @@ export class Customer  {
   note: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ length: 50,name:'phone_number' })
   phoneNumber: string;
 
   @ApiProperty()
@@ -40,6 +44,7 @@ export class Customer  {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'send_time'
   })
   sendTime: Date;
 
@@ -48,6 +53,7 @@ export class Customer  {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'created_at'
   })
   createdAt: Date;
 
@@ -55,12 +61,14 @@ export class Customer  {
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
+    name:'updated_at'
   })
   updatedAt: Date;
 
   
   @ApiProperty()
 @Column(
+  {name:'is_deleted'}
   )
   isDeleted: boolean;
 

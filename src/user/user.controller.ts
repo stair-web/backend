@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,28 +16,27 @@ import { Connection } from 'typeorm';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
+import { AcitveUserDto } from './dto/active-user.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService,
+  constructor(
+    private readonly userService: UserService,
     private connection: Connection,
+  ) {}
 
-    
-    ) {}
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách người dùng thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách người dùng' })
+  async getAllUser(@Query() getAllUserDto: GetAllUserDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.getAllUser(transactionManager, getAllUserDto);
+    });
+  }
 
-
-    @Get()
-    @ApiResponse({
-      status: 200,
-      description: 'Lấy danh sách người dùng thành công.',
-    })
-    @ApiOperation({ summary: 'Danh sách người dùng' })
-    async getAllUser(@Query() getAllUserDto: GetAllUserDto) {
-      return await this.connection.transaction((transactionManager) => {
-        return this.userService.getAllUser(transactionManager, getAllUserDto);
-      });
-    }
-  
   @Post()
   @ApiResponse({
     status: 500,
@@ -41,13 +50,22 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'Tạo người dùng thành công' })
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.connection.transaction((transactionManager) => {
-      return this.userService.createUser(
-        transactionManager,
-        createUserDto,
-      );
-      })
+      return this.userService.createUser(transactionManager, createUserDto);
+    });
   }
 
+  @Post('/active')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
+  })
+  @ApiOperation({ summary: 'Kích hoạt người dùng' })
+  @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
+  async activeUser(@Body() acitveUserDto: AcitveUserDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.activeUser(transactionManager, acitveUserDto);
+    });
+  }
 
   @Put('/:uuid')
   @ApiResponse({
@@ -59,17 +77,18 @@ export class UserController {
     description: 'Chỉnh sửa thông tin người dùng thành công',
   })
   @ApiOperation({ summary: 'Chỉnh sửa người dùng.' })
-  async update(@Body() updateUserDto: UpdateUserDto, @Param('uuid') uuid: string) {
+  async update(
+    @Body() updateUserDto: UpdateUserDto,
+    @Param('uuid') uuid: string,
+  ) {
     return await this.connection.transaction((transactionManager) => {
-      
       return this.userService.updateUser(
         transactionManager,
         updateUserDto,
-        uuid
+        uuid,
       );
-      })
+    });
   }
-
 
   @Post('send-email-reset-password/:email')
   @ApiResponse({
@@ -80,10 +99,7 @@ export class UserController {
   @ApiOperation({ summary: 'Gửi email quên mật khẩu.' })
   async sendResetPasswordEmail(@Param('email') email: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.userService.sendResetPasswordEmail(
-        transactionManager,
-        email,
-      );
+      return this.userService.sendResetPasswordEmail(transactionManager, email);
     });
   }
 
@@ -107,7 +123,6 @@ export class UserController {
     });
   }
 
-
   @Delete('/:uuid')
   @ApiResponse({
     status: 500,
@@ -122,7 +137,6 @@ export class UserController {
     @Body() deleteUserDto: DeleteUserDto,
     @Param('uuid') uuid: string,
   ) {
-
     return await this.connection.transaction((transactionManager) => {
       return this.userService.deleteUser(
         transactionManager,
@@ -131,5 +145,4 @@ export class UserController {
       );
     });
   }
-  
 }

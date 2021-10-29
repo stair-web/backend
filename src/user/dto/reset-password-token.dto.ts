@@ -18,6 +18,9 @@ export class ResetPasswordTokenDto {
   @IsNotEmpty()
   isActive: boolean;
 
+  @IsNotEmpty()
+  uuid: string;
+
   type: TokenEmailType;
 }
 
