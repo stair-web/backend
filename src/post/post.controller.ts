@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Connection } from 'typeorm';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GetAllPostDto } from './dto/get-all-post.dto';
 
 @Controller('post')
 export class PostController {
@@ -54,9 +56,14 @@ export class PostController {
   }
 
   @Get()
-  async findAll() {
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách người dùng thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách người dùng' })
+  async getAll(@Query() getAllPostDto: GetAllPostDto) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.findAll(transactionManager);
+      return this.postService.getAll(transactionManager,getAllPostDto);
     });
   }
 }

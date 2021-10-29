@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import { Category } from 'src/category/category.entity';
 import { Topic } from 'src/topic/topic.entity';
 
@@ -9,20 +9,24 @@ export class UpdatePostDto {
 
   @IsString()
   @IsNotEmpty()
-  short_description: string;
+  shortDescription: string;
 
   @IsString()
   @IsNotEmpty()
-  date_time: Date;
+  dateTime: Date;
 
   @IsString()
   @IsNotEmpty()
   priority: string;
 
   @IsString()
+  imageSrc: string;
+
+  @IsString()
   @IsNotEmpty()
   status: string;
 
+  @IsBoolean()
   isDeleted: boolean;
 
   category: Category;

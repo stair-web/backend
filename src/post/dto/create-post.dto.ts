@@ -9,15 +9,18 @@ export class CreatePostDto {
 
   @IsString()
   @IsNotEmpty()
-  short_description: string;
+  shortDescription: string;
 
   @IsString()
   @IsNotEmpty()
-  date_time: Date;
+  dateTime: Date;
 
   @IsString()
   @IsNotEmpty()
   priority: string;
+
+  @IsString()
+  imageSrc: string;
 
   @IsString()
   @IsNotEmpty()

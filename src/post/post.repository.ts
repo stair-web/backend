@@ -4,6 +4,7 @@ import { isNullOrUndefined } from 'src/lib/utils/util';
 import { Topic } from 'src/topic/topic.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
+import { GetAllPostDto } from './dto/get-all-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './post.entity';
 
@@ -21,8 +22,8 @@ export class PostRepository extends Repository<Post> {
       const queryPost = transactionEntityManager
         .getRepository(Topic)
         .createQueryBuilder('topic')
-        .where('(topic.id =:idTopic)', {
-          idTopic,
+        .where('(topic.id =:id)', {
+          id,
         });
 
       const queryCat = transactionEntityManager
@@ -39,15 +40,6 @@ export class PostRepository extends Repository<Post> {
           idTopic,
         });
 
-      const {
-        title,
-        short_description,
-        date_time,
-        priority,
-        status,
-        isDeleted,
-      } = updatePostDto;
-
       const category = await queryCat.getOne();
       if (isNullOrUndefined(category)) {
         throw new Error('Category không tồn tại');
@@ -58,45 +50,84 @@ export class PostRepository extends Repository<Post> {
         throw new Error('Topic không tồn tại');
       }
 
-      const post = await queryTopic.getOne();
+      const post = await queryPost.getOne();
       if (isNullOrUndefined(post)) {
-        throw new Error('Topic không tồn tại');
+        throw new Error('Bài viết không tồn tại');
       }
-      transactionEntityManager.create(Post, {
-        category,
-        topic,
+
+      const {
         title,
-        short_description,
-        date_time,
+        shortDescription,
+        dateTime,
         priority,
         status,
         isDeleted,
-      });
+        imageSrc,
+      } = updatePostDto;
+
+      transactionEntityManager.update(
+        Post,
+        { id: id },
+        {
+          category,
+          topic,
+          title,
+          shortDescription,
+          dateTime,
+          priority,
+          status,
+          isDeleted,
+          imageSrc,
+        },
+      );
       await transactionEntityManager.save(post);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá trình tạo bài viết, vui lòng thử lại sau.',
+        'Lỗi hệ thống trong quá trình cập nhật bài viết, vui lòng thử lại sau.',
       );
     }
   }
-  async findAll(transactionEntityManager: EntityManager) {
+  async getAll(
+    transactionEntityManager: EntityManager,
+    getAllPostDto: GetAllPostDto,
+  ) {
     try {
-      const data2 = await transactionEntityManager
+      const { page, filter, sorts, fullTextSearch } = getAllPostDto;
+      let { perPage } = getAllPostDto;
+      if (isNullOrUndefined(perPage)) {
+        perPage = 25;
+      }
+      const query = transactionEntityManager
         .getRepository(Post)
         .createQueryBuilder('post')
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.topic', 'topic')
-        .getMany();
-      //   let data2 = await transactionEntityManager
-      //     .getRepository(Category)
-      //     .createQueryBuilder('category')
-      //     .leftJoinAndSelect('Category.posts', 'category')
-      //     .getMany();
-      // const data2 = await transactionEntityManager.getRepository(Category).find({ relations: ["posts"] })
+        .leftJoin('post.category', 'category')
+        .leftJoin('post.topic', 'topic')
+        .select([
+          'post.id',
+          'post.title',
+          'post.shortDescription',
+          'post.dateTime',
+          'post.priority',
+          'post.status',
+          'post.imageSrc',
+          'category.id',
+          'category.categoryName',
+          'topic.id',
+          'topic.topicName',
+        ])
+        .where('post.isDeleted = FALSE')
+        .take(perPage)
+        .skip((page - 1) * perPage)
+        .orderBy('post.dateTime', 'ASC');
 
-      return data2;
-    } catch (error) {}
+      const data = await query.getMany();
+      const total = await query.getCount();
+
+      return { statusCode: 200, data: { data, total } };
+    } catch (error) {
+      console.log(error);
+    }
   }
   async createPost(
     transactionEntityManager: EntityManager,
@@ -120,7 +151,7 @@ export class PostRepository extends Repository<Post> {
           idTopic,
         });
 
-      const { title, short_description, date_time, priority, status } =
+      const { title, shortDescription, dateTime, priority, status, imageSrc } =
         createPostDto;
 
       const category = await queryCat.getOne();
@@ -137,10 +168,11 @@ export class PostRepository extends Repository<Post> {
         category,
         topic,
         title,
-        short_description,
-        date_time: date_time,
+        shortDescription,
+        dateTime,
         priority,
         status,
+        imageSrc,
       });
       await transactionEntityManager.save(post);
       return post;

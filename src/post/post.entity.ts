@@ -28,11 +28,15 @@ export class Post extends BaseEntity {
 
   @ApiProperty()
   @Column()
-  short_description: string;
+  shortDescription: string;
 
   @ApiProperty()
   @Column()
-  date_time: Date;
+  dateTime: Date;
+
+  @ApiProperty()
+  @Column()
+  imageSrc: string;
 
   @ApiProperty()
   @Column()
