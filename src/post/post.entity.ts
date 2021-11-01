@@ -59,12 +59,18 @@ export class Post extends BaseEntity {
   status: string;
 
   @ApiProperty()
-  @Column()
-  createdAt: string;
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 
   @ApiProperty()
-  @Column()
-  updatedAt: string;
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
 
   @ApiProperty()
   @Column()

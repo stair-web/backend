@@ -1,26 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
+import { CategoryRepository } from './category.repository';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(private categoryRepository: CategoryRepository) {}
+  getAll(transactionManager: EntityManager): Promise<unknown> {
+    return this.categoryRepository.getAllCatalogue(transactionManager);
   }
 
-  findAll() {
-    return `This action returns all category`;
-  }
+  async createCategory(
+    transactionManager: EntityManager,
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<unknown> {
+    await this.categoryRepository.createCategory(
+      transactionManager,
+      createCategoryDto,
+    );
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
-  }
-
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+    return { statusCode: 201, message: 'Tạo Category thành công.' };
   }
 }

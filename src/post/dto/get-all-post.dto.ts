@@ -1,10 +1,17 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 import { SortValue } from '../../common/sort-value.enum';
 
 export class GetAllPostDto {
+  @ApiProperty()
+  @IsNotEmpty()
   perPage?: number;
 
+  @ApiProperty()
+  @IsNotEmpty()
   page: number;
 
+  @ApiProperty()
   filter?: {
     title?: string;
 
@@ -21,6 +28,7 @@ export class GetAllPostDto {
     topic?: string;
   };
 
+  @ApiProperty()
   sorts?: {
     title?: SortValue;
 
@@ -36,6 +44,4 @@ export class GetAllPostDto {
 
     topic?: SortValue;
   };
-
-  fullTextSearch?: string;
 }
