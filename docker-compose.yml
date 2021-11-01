@@ -3,36 +3,7 @@ version: '3'
 networks:
   web_comp_network:
     driver: bridge
-
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:13.1
-    networks:
-        - web_comp_network
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
-      timeout: 45s
-      interval: 10s
-      retries: 10
-    restart: always
-    deploy:
-            resources:
-                    limits:
-                            cpus: 1
-                            memory: 1024M
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=ari123456
-      - APP_DB_USER=docker
-      - APP_DB_PASS=docker
-      - APP_DB_NAME=docker
-    volumes:
-      - /home/nhanvu/Database/postgres/web-comp/db:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-
   back-end:
           container_name: ari-backtend
           build: .
@@ -46,7 +17,4 @@ services:
 
           networks:
                   - web_comp_network
-          depends_on:
-                  - postgres
-          links:
-                  - "postgres:database"
+          

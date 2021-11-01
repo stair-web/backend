@@ -14,6 +14,10 @@ import { EmailModule } from './email/email.module';
 import { TokenEmailModule } from './token-email/token-email.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { RoleModule } from './role/role.module';
+import { AppController } from './app.controller';
+import { PostModule } from './post/post.module';
+import { CategoryModule } from './category/category.module';
+import { TopicModule } from './topic/topic.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -26,7 +30,6 @@ import { RoleModule } from './role/role.module';
       imports: [ConfigModule],
       inject: [ConfigService],
 
-      // eslint-disable-next-line prettier/prettier
       useFactory: async (configService: ConfigService) =>
         ({
           type: configService.get<string>('TYPEORM_DATABASE_TYPE'),
@@ -50,8 +53,11 @@ import { RoleModule } from './role/role.module';
     EmailModule,
     TokenEmailModule,
     RoleModule,
+    PostModule,
+    CategoryModule,
+    TopicModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, AppController],
   providers: [AppGateway],
 })
 export class AppModule {}

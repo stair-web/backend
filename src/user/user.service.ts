@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TokenEmailType } from 'src/common/enum/token-email-type.enum';
@@ -26,6 +27,9 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { SignInDto } from './dto/sign-in.dto';
 import { UserRoleService } from 'src/user-role/user-role.service';
+import e from 'express';
+import { AcitveUserDto } from './dto/active-user.dto';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -156,6 +160,43 @@ export class UserService {
   ) {
     return this.usersRepository.getAllUser(transactionManager, getAllUserDto);
   }
+  async activeUser(
+    transactionManager: EntityManager,
+    acitveUserDto: AcitveUserDto,
+  ) {
+    const data = this.decryptTokenToData(acitveUserDto.token);
+
+    const dateNow = Date();
+    //token het han
+    if (Date.parse(dateNow) > Date.parse(data.timeStamp)) {
+      return { statusCode: 500, message: 'Token đã hết hạn' };
+    }
+
+    const userRes = await this.usersRepository.getUserByUuid(
+      transactionManager,
+      data.uuid,
+    );
+
+    //Khong tim thay nguoi dung
+    if (isNullOrUndefined(userRes.data)) {
+      return { statusCode: 500, message: 'Không tìm thấy người dùng' };
+    }
+
+    //user da duoc kich hoat
+    if (!userRes.data)
+      if (userRes.data.isActive) {
+        return { statusCode: 500, message: 'Người dùng đã được kích hoạt' };
+      }
+
+    await transactionManager.update(
+      User,
+      { id: userRes.data.id },
+      {
+        isActive: true,
+      },
+    );
+    return { statusCode: 201, message: 'Kích hoạt người dùng thành công.' };
+  }
   genPersonalId(id) {
     let pId = '';
     if (id > 99999) {
@@ -249,6 +290,16 @@ export class UserService {
       console.log(error);
     }
   }
+  private decryptTokenToData(token: string) {
+    const cipherText: string = token.replace(/\-/g, '+').replace(/\_/g, '/');
+    const data = JSON.parse(
+      cryptojs.AES.decrypt(
+        cipherText,
+        this.configService.get<string>('EMAIL_TOKEN_KEY'),
+      ).toString(cryptojs.enc.Utf8),
+    );
+    return data;
+  }
 
   async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
     const { username, password } = signInDto;
@@ -294,7 +345,7 @@ export class UserService {
           user.id,
         );
         const roles = [];
-        userRole.forEach(e => roles.push(e.roleCode));
+        userRole.forEach((e) => roles.push(e.roleCode));
         const payload: JwtPayload = {
           email: user.email,
           roles,

@@ -122,11 +122,9 @@ export class UserRepository extends Repository<User> {
 
     const data = await query.getOne();
 
-    if (isNullOrUndefined(data)) {
-      throw new NotFoundException(`Không tìm thấy người dùng.`);
-    }
+   
 
-    return { statusCode: 200, data };
+    return { data };
   }
   async getUserById(transactionManager: EntityManager, id: number) {
     const query = transactionManager

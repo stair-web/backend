@@ -18,6 +18,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { AcitveUserDto } from './dto/active-user.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
@@ -66,6 +67,24 @@ export class UserController {
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.userService.createUser(transactionManager, createUserDto);
+    });
+  }
+
+  /**
+   * 
+   * @param acitveUserDto 
+   * @returns 
+   */
+  @Post('/active')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
+  })
+  @ApiOperation({ summary: 'Kích hoạt người dùng' })
+  @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
+  async activeUser(@Body() acitveUserDto: AcitveUserDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.activeUser(transactionManager, acitveUserDto);
     });
   }
 
