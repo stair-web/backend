@@ -59,10 +59,10 @@ export class PostController {
   @Get()
   @ApiResponse({
     status: 200,
-    description: 'Lấy danh sách người dùng thành công.',
+    description: 'Lấy danh sách bài viết thành công.',
   })
   @ApiOperation({ summary: 'Danh sách bài viết' })
-  async getAll(@Query() getAllPostDto: GetAllPostDto) {
+  async getAll(@Body() getAllPostDto: GetAllPostDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.getAll(transactionManager, getAllPostDto);
     });
