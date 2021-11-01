@@ -1,95 +1,81 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { UserRole } from 'src/user-role/user-role.entity';
 
-@Entity({ name: "user", schema: "public" })
+@Entity({ name: 'user', schema: DBSchema.SCM_ARI_PUBLIC })
 export class User extends BaseEntity {
-    constructor(partial: Partial<User>) {
-        super();
-        Object.assign(this, partial);
-    }
-    @ApiProperty()
-    @PrimaryGeneratedColumn()
-    id: number;
+  constructor(partial: Partial<User>) {
+    super();
+    Object.assign(this, partial);
+  }
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ApiProperty()
-    @Column()
-    first_name: string;
+  @ApiProperty()
+  @Column()
+  username: string;
 
-    @ApiProperty()
-    @Column()
-    last_name: string;
+  @ApiProperty()
+  @Column()
+  uuid: string;
 
-    @ApiProperty()
-    @Column({ length: 50 })
-    phone_number: string;
+  @ApiProperty()
+  @Column()
+  email: string;
 
-    @ApiProperty()
-    @Column()
-    email: string;
+  @ApiProperty()
+  @Column()
+  isDeleted: boolean;
 
-    @ApiProperty()
-    @Column()
-    is_deleted: boolean; 
+  @ApiProperty()
+  @Column()
+  isActive: boolean;
 
-    @ApiProperty()
-    @Column()
-    is_actived: boolean;
+  @ApiProperty()
+  @Column()
+  isFirstLogin: boolean;
 
-    @ApiProperty()
-    @Column()
-    is_first_login: boolean;
+  @ApiHideProperty()
+  @Column()
+  @Exclude()
+  password: string;
 
-    @ApiHideProperty()
-    @Column()
-    @Exclude()
-    password: string; 
+  @Column({ length: 6 })
+  @Exclude()
+  staffId: string;
 
-    @Column({length: 6})
-    @Exclude()
-    personal_id: string; 
+  @ApiHideProperty()
+  @Column()
+  @Exclude()
+  salt: string;
 
-    @Column()
-    @Exclude()
-    personal_email: string; 
+  @ApiProperty()
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 
-    @Column()
-    @Exclude()
-    position: string; 
+  @ApiProperty()
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
 
-    @ApiHideProperty()
-    @Column()
-    @Exclude()
-    salt: string;
+  @OneToMany(type => UserRole, role => role.user)
+  role: UserRole[];
 
-    @ApiProperty()
-    @Column({ type: 'timestamp without time zone', default: () => 'CURRENT_TIMESTAMP' })
-    created_at: Date;
+  async validatePassword(password: string): Promise<boolean> {
+    const hash = await bcrypt.hash(password, this.salt);
+    return hash === this.password;
+  }
 
-    @ApiProperty()
-    @Column({ type: 'timestamp without time zone', default: () => 'CURRENT_TIMESTAMP' })
-    updated_at: Date;
-
-    @ApiProperty()
-    @Column()
-    dob: Date;
-
-    @ApiProperty()
-    @Column()
-    uuid: string;
-
-    @ApiProperty()
-    @Column()
-    profile_photo_key: string;
-
-    async validatePassword(password: string): Promise<boolean> {
-        const hash = await bcrypt.hash(password, this.salt);
-        return hash === this.password;
-        
-    }
-
-    async validateEmail(email: string): Promise<boolean> {
-        return email === this.email;
-    }
+  async validateEmail(email: string): Promise<boolean> {
+    return email === this.email;
+  }
 }

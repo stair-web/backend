@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TokenEmailType } from 'src/common/enum/token-email-type.enum';
 import { isNullOrUndefined } from 'src/lib/utils/util';
@@ -17,8 +21,11 @@ import { EmailInfoDto } from 'src/email/dto/email-info.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { v4 as uuidv4 } from 'uuid';
-import e from 'express';
-
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interface/jwt-payload.interface';
+import { SignInDto } from './dto/sign-in.dto';
+import { UserRoleService } from 'src/user-role/user-role.service';
 @Injectable()
 export class UserService {
   constructor(
@@ -26,70 +33,79 @@ export class UserService {
     private configService: ConfigService,
     private tokenEmailRepository: TokenEmailRepository,
     private emailService: EmailService,
+    private jwtService: JwtService,
+    private userRoleService: UserRoleService,
+  ) {}
+  async createUser(
+    transactionEntityManager: EntityManager,
+    createUserDto: CreateUserDto,
   ) {
-
-  }
-  async createUser(transactionEntityManager: EntityManager,
-
-    createUserDto: CreateUserDto) {
     //Gen password
-    createUserDto.password = uuidv4();
-   
-      let userCreated = await this.usersRepository.createUser(transactionEntityManager, createUserDto);
-      userCreated.personal_id = this.genPersonalId(userCreated.id)
-      await transactionEntityManager.update(
-        User,
-        { id: userCreated.id },
-        {
-          personal_id: userCreated.personal_id
-        },
-      );
-      // set expired date for link
-      const expired = new Date();
-      expired.setDate(expired.getDate() + 7);
+    // createUserDto.password = uuidv4();
+    if (isNullOrUndefined(createUserDto.password)) {
+      createUserDto.password = '123123';
+    }
+    console.log(createUserDto.password);
 
-      const resetPasswordTokenDto: ResetPasswordTokenDto = {
-        email: userCreated.personal_email,
-        timeStamp: expired.toString(),
+    const userCreated = await this.usersRepository.createUser(
+      transactionEntityManager,
+      createUserDto,
+    );
+    userCreated.staffId = this.genPersonalId(userCreated.id);
+    await transactionEntityManager.update(
+      User,
+      { id: userCreated.id },
+      {
+        staffId: userCreated.staffId,
         isActive: true,
-        type: TokenEmailType.ACTIVE_ACCOUNT,
-      };
+      },
+    );
+    // set expired date for link
+    const expired = new Date();
+    expired.setDate(expired.getDate() + 7);
 
-      const token = this.encryptDataToToken(resetPasswordTokenDto);
-      //create token email
-      const createTokenEmailDto: CreateTokenEmailDto = {
-        userId: userCreated.id,
-        token,
-        type: resetPasswordTokenDto.type,
-      };
-      await this.tokenEmailRepository.createTokenEmail(
-        transactionEntityManager,
-        createTokenEmailDto,
-      );
+    // const resetPasswordTokenDto: ResetPasswordTokenDto = {
+    //   email: userCreated.email,
+    //   timeStamp: expired.toString(),
+    //   isActive: true,
+    //   type: TokenEmailType.ACTIVE_ACCOUNT,
+    // };
 
-      // Send email active account
-      const emailInfoDto: EmailInfoDto = {
-        email: createUserDto.personalEmail,
-        name: createUserDto.firstName + ' ' + createUserDto.lastName,
-        username: createUserDto.firstName + ' ' + createUserDto.lastName,
-        password: createUserDto.password,
-        token,
-      };
+    // const token = this.encryptDataToToken(resetPasswordTokenDto);
+    // //create token email
+    // const createTokenEmailDto: CreateTokenEmailDto = {
+    //   userId: userCreated.id,
+    //   token,
+    //   type: resetPasswordTokenDto.type,
+    // };
+    // await this.tokenEmailRepository.createTokenEmail(
+    //   transactionEntityManager,
+    //   createTokenEmailDto,
+    // );
 
-      await this.emailService.sendActiveAccountEmail(emailInfoDto, 'url-active-user');
-      return { statusCode: 201, message: 'Tạo người dùng thành công.' };
+    // Send email active account
+    // const emailInfoDto: EmailInfoDto = {
+    //   email: createUserDto.email,
+    //   name: createUserDto.firstName + ' ' + createUserDto.lastName,
+    //   username: createUserDto.firstName + ' ' + createUserDto.lastName,
+    //   password: createUserDto.password,
+    //   token,
+    // };
 
-    
-
+    // await this.emailService.sendActiveAccountEmail(
+    //   emailInfoDto,
+    //   'url-active-user',
+    // );
+    return { statusCode: 201, message: 'Tạo người dùng thành công.' };
   }
 
-
-
-  async updateUser(transactionManager: EntityManager,
+  async updateUser(
+    transactionManager: EntityManager,
     updateUserDto: UpdateUserDto,
-    uuid: string,) {
-
+    uuid: string,
+  ) {
     const {
+      email,
       firstName,
       lastName,
       phoneNumber,
@@ -102,27 +118,22 @@ export class UserService {
 
     const user = (await this.getUserByUuid(transactionManager, uuid)).data;
 
-
     if (isNullOrUndefined(user)) {
-      throw new InternalServerErrorException(
-        'Tài khoản không tồn tại.',
-      );
+      throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
 
     try {
-
       await transactionManager.update(
         User,
         { id: user.id },
         {
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phoneNumber,
-          dob,
-          position,
-          is_deleted: isDeleted,
-          personal_email: personalEmail,
-          profile_photo_key: profilePhotoKey,
+          email,
+          isDeleted,
+          // firstName,
+          // lastName,
+          // phoneNumber,
+          // position,
+          // profilePhotoKey,
         },
       );
     } catch (error) {
@@ -149,18 +160,12 @@ export class UserService {
     let pId = '';
     if (id > 99999) {
       pId = '' + id;
-    }
-    else if (id > 9999) {
+    } else if (id > 9999) {
       pId = '0' + id;
-
-    }
-    else if (id > 999) {
+    } else if (id > 999) {
       pId = '00' + id;
-
-    }
-    else if (id > 99) {
+    } else if (id > 99) {
       pId = '000' + id;
-
     } else if (id > 9) {
       pId = '0000' + id;
     }
@@ -194,17 +199,14 @@ export class UserService {
     // // set expired date for link
     // const expired = new Date();
     // expired.setDate(expired.getDate() + 7);
-
     // const resetPasswordTokenDto: ResetPasswordTokenDto = {
     //   email: email,
     //   timeStamp: expired.toString(),
     //   isActive: false,
     //   type: TokenEmailType.RESET_PASSWORD,
     // };
-
     // // encrypt token
     // const token = this.encryptDataToToken(resetPasswordTokenDto);
-
     // //create token email
     // const createTokenEmailDto: CreateTokenEmailDto = {
     //   userId: user.id,
@@ -215,7 +217,6 @@ export class UserService {
     //   transactionManager,
     //   createTokenEmailDto,
     // );
-
     // const emailInfoDto: EmailInfoDto = {
     //   email,
     //   name: user.first_name + user.last_name,
@@ -223,13 +224,11 @@ export class UserService {
     //   username: user.email,
     // };
     // user.isForgetPassword = true;
-
     // try {
     //   await transactionManager.save(user);
     // } catch (error) {
     //   Logger.error(error);
     // }
-
     // // send email
     // return this.emailService.sendResetPasswordEmail(emailInfoDto, originName);
   }
@@ -249,7 +248,65 @@ export class UserService {
     } catch (error) {
       console.log(error);
     }
-
   }
 
+  async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
+    const { username, password } = signInDto;
+    const user = await transactionManager.getRepository(User).findOne({
+      where: [
+        {
+          username,
+          isDeleted: false,
+          // isForgetPassword: false,
+        },
+        {
+          email: username,
+          isDeleted: false,
+          // isForgetPassword: false,
+        },
+      ],
+    });
+
+    // check user exists?
+    if (!user) {
+      throw new InternalServerErrorException(
+        'ERR-01: Tên đăng nhập hoặc mật khẩu không đúng.',
+      );
+    } else {
+      // if (user.isMailVerified === false) {
+      //   throw new InternalServerErrorException(
+      //     `Tài khoản của bạn chưa được kích hoạt qua email, vui lòng kích hoạt tài khoản trước khi đăng nhập.`,
+      //   );
+      // }
+      if (user.isActive === false) {
+        throw new InternalServerErrorException(
+          `Tài khoản của bạn đang bị hủy kích hoạt.`,
+        );
+      }
+      // check password
+      if ((await bcrypt.compare(password, user.password)) === false) {
+        throw new InternalServerErrorException(
+          'ERR-02: Tên đăng nhập hoặc mật khẩu không đúng.',
+        );
+      } else {
+        const userRole = await this.userRoleService.getUserRoleByUserId(
+          transactionManager,
+          user.id,
+        );
+        const roles = [];
+        userRole.forEach(e => roles.push(e.roleCode));
+        const payload: JwtPayload = {
+          email: user.email,
+          roles,
+        };
+        console.log(payload);
+        const accessToken = await this.jwtService.sign(payload);
+        return {
+          statusCode: 201,
+          message: 'Đăng nhập thành công.',
+          data: { accessToken: accessToken },
+        };
+      }
+    }
+  }
 }

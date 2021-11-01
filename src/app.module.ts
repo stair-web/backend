@@ -12,6 +12,8 @@ import { CustomerModule } from './customer/customer.module';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { TokenEmailModule } from './token-email/token-email.module';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { RoleModule } from './role/role.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -38,6 +40,7 @@ import { TokenEmailModule } from './token-email/token-email.module';
           logging: false,
           useUTC: false,
           uuidExtension: 'uuid-ossp',
+          namingStrategy: new SnakeNamingStrategy(),
         } as TypeOrmModuleOptions),
     }),
     TerminusModule,
@@ -46,6 +49,7 @@ import { TokenEmailModule } from './token-email/token-email.module';
     UserModule,
     EmailModule,
     TokenEmailModule,
+    RoleModule,
   ],
   controllers: [HealthController],
   providers: [AppGateway],
