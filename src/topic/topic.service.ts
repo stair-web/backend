@@ -1,26 +1,14 @@
+import { TopicRepository } from './topic.repository';
 import { Injectable } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { UpdateTopicDto } from './dto/update-topic.dto';
 
 @Injectable()
 export class TopicService {
-  create(createTopicDto: CreateTopicDto) {
-    return 'This action adds a new topic';
-  }
+  constructor(private topicRepository: TopicRepository) {}
 
-  findAll() {
-    return `This action returns all topic`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} topic`;
-  }
-
-  update(id: number, updateTopicDto: UpdateTopicDto) {
-    return `This action updates a #${id} topic`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} topic`;
+  async getAll(transactionManager: EntityManager): Promise<unknown> {
+    return await this.topicRepository.getAllTopic(transactionManager);
   }
 }
