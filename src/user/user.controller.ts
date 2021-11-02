@@ -8,23 +8,33 @@ import {
   Delete,
   Put,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Connection } from 'typeorm';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
+import { SignInDto } from './dto/sign-in.dto';
 import { AcitveUserDto } from './dto/active-user.dto';
 
-@Controller('user')
+const controllerName = 'user';
+@ApiTags(controllerName)
+@Controller(controllerName)
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private connection: Connection,
   ) {}
 
+  /**
+   * @method GET
+   * @description get all the users
+   * @param getAllUserDto
+   * @returns all the users
+   */
   @Get()
   @ApiResponse({
     status: 200,
@@ -37,6 +47,12 @@ export class UserController {
     });
   }
 
+  /**
+   * @method POST
+   * @description create a user
+   * @param createUserDto
+   * @returns status of creation
+   */
   @Post()
   @ApiResponse({
     status: 500,
@@ -54,6 +70,11 @@ export class UserController {
     });
   }
 
+  /**
+   * 
+   * @param acitveUserDto 
+   * @returns 
+   */
   @Post('/active')
   @ApiResponse({
     status: 500,
@@ -67,6 +88,13 @@ export class UserController {
     });
   }
 
+  /**
+   * @method PUT
+   * @description Update user's information.
+   * @param updateUserDto
+   * @param uuid
+   * @returns
+   */
   @Put('/:uuid')
   @ApiResponse({
     status: 500,
@@ -143,6 +171,25 @@ export class UserController {
         deleteUserDto,
         uuid,
       );
+    });
+  }
+  
+  /**
+   * @method POST
+   * @description sign in with username password
+   * @param signInDto 
+   * @returns state of sign in
+   */
+  @Post('sign-in')
+  @ApiResponse({
+    status: 500,
+    description: 'Tên đăng nhập hoặc mật khẩu không đúng.',
+  })
+  @ApiResponse({ status: 201, description: 'Đăng nhập thành công.' })
+  @ApiOperation({ summary: 'Đăng nhập.' })
+  async signIn(@Body() signInDto: SignInDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.signIn(transactionManager, signInDto);
     });
   }
 }

@@ -14,26 +14,26 @@ export class TokenEmailRepository extends Repository<TokenEmail> {
     const { userId, token, type } = createTokenEmailDto;
     await transactionManager.update(
       TokenEmail,
-      { user_id:userId, type },
-      { is_expired: true },
+      { userId, type },
+      { isExpired: true },
     );
     let tokenEmail = await transactionManager.findOne(TokenEmail, {
-      user_id:userId,
+      userId,
       type,
     });
 
     if (!tokenEmail) {
       tokenEmail = await transactionManager.create(TokenEmail, {
-        user_id:userId,
-        token_email: token,
+        userId,
+        tokenEmail: token,
         type,
-        updated_at: new Date(),
-        created_by_id: userId,
+        updatedAt: new Date(),
+        createdById: userId,
       });
     } else {
-      if (tokenEmail.is_expired === true) {
-        tokenEmail.token_email = token;
-        tokenEmail.is_expired = false;
+      if (tokenEmail.isExpired === true) {
+        tokenEmail.tokenEmail = token;
+        tokenEmail.isExpired = false;
       }
     }
 
@@ -51,14 +51,14 @@ export class TokenEmailRepository extends Repository<TokenEmail> {
   ) {
     const { userId, token, type } = createTokenEmailDto;
     const tokenEmail = await transactionManager.findOne(TokenEmail, {
-      user_id:userId,
+      userId,
       type,
     });
     if (tokenEmail) {
-      if (token !== tokenEmail.token_email || tokenEmail.is_expired === true) {
+      if (token !== tokenEmail.tokenEmail || tokenEmail.isExpired === true) {
         throw new InternalServerErrorException(`Đường link đã hết hạn.`);
       } else {
-        tokenEmail.is_expired = true;
+        tokenEmail.isExpired = true;
         await transactionManager.save(tokenEmail);
       }
     }

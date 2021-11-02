@@ -23,28 +23,27 @@ export class EmailService {
   private STANDARD_MSG;
   private HEADER_LOGO_ATTACHMENT;
   constructor(private configService: ConfigService) {
-    this.SENDGRID_API_KEY = configService.get<string>('SENDGRID_API_KEY');
-    sgMail.setApiKey(this.SENDGRID_API_KEY);
-
-    this.TEMPLATES_PATH = path.join(__dirname, 'templates');
-    this.LAYOUT_FILE_PATH = path.join(
-      this.TEMPLATES_PATH,
-      '_layout',
-      'html.hbs',
-    );
-    this.TMM_LOGO_FILE_PATH = path.join(
-      this.TEMPLATES_PATH,
-      '_layout',
-      'thermomix-logo.png',
-    );
-    this.FROM_EMAIL = 'bhnhock@gmail.com';
-    this.FROM_NAME = 'ari';
-    this.STANDARD_MSG = {
-      from: {
-        name: this.FROM_NAME,
-        email: this.FROM_EMAIL,
-      },
-    };
+    // this.SENDGRID_API_KEY = configService.get<string>('SENDGRID_API_KEY');
+    // sgMail.setApiKey(this.SENDGRID_API_KEY);
+    // this.TEMPLATES_PATH = path.join(__dirname, 'templates');
+    // this.LAYOUT_FILE_PATH = path.join(
+    //   this.TEMPLATES_PATH,
+    //   '_layout',
+    //   'html.hbs',
+    // );
+    // this.TMM_LOGO_FILE_PATH = path.join(
+    //   this.TEMPLATES_PATH,
+    //   '_layout',
+    //   // 'thermomix-logo.png',
+    // );
+    // this.FROM_EMAIL = 'bhnhock@gmail.com';
+    // this.FROM_NAME = 'ari';
+    // this.STANDARD_MSG = {
+    //   from: {
+    //     name: this.FROM_NAME,
+    //     email: this.FROM_EMAIL,
+    //   },
+    // };
     // this.HEADER_LOGO_ATTACHMENT = {
     //   content: this.readFileSync(this.TMM_LOGO_FILE_PATH, 'base64'),
     //   type: ContentType.PNG,

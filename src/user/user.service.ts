@@ -22,6 +22,11 @@ import { EmailInfoDto } from 'src/email/dto/email-info.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interface/jwt-payload.interface';
+import { SignInDto } from './dto/sign-in.dto';
+import { UserRoleService } from 'src/user-role/user-role.service';
 import e from 'express';
 import { AcitveUserDto } from './dto/active-user.dto';
 
@@ -32,64 +37,69 @@ export class UserService {
     private configService: ConfigService,
     private tokenEmailRepository: TokenEmailRepository,
     private emailService: EmailService,
+    private jwtService: JwtService,
+    private userRoleService: UserRoleService,
   ) {}
   async createUser(
     transactionEntityManager: EntityManager,
-
     createUserDto: CreateUserDto,
   ) {
     //Gen password
-    createUserDto.password = uuidv4();
+    // createUserDto.password = uuidv4();
+    if (isNullOrUndefined(createUserDto.password)) {
+      createUserDto.password = '123123';
+    }
+    console.log(createUserDto.password);
 
     const userCreated = await this.usersRepository.createUser(
       transactionEntityManager,
       createUserDto,
     );
-    userCreated.personal_id = this.genPersonalId(userCreated.id);
+    userCreated.staffId = this.genPersonalId(userCreated.id);
     await transactionEntityManager.update(
       User,
       { id: userCreated.id },
       {
-        personal_id: userCreated.personal_id,
+        staffId: userCreated.staffId,
+        isActive: true,
       },
     );
     // set expired date for link
     const expired = new Date();
     expired.setDate(expired.getDate() + 7);
 
-    const resetPasswordTokenDto: ResetPasswordTokenDto = {
-      email: userCreated.personal_email,
-      timeStamp: expired.toString(),
-      isActive: true,
-      uuid: userCreated.uuid,
-      type: TokenEmailType.ACTIVE_ACCOUNT,
-    };
+    // const resetPasswordTokenDto: ResetPasswordTokenDto = {
+    //   email: userCreated.email,
+    //   timeStamp: expired.toString(),
+    //   isActive: true,
+    //   type: TokenEmailType.ACTIVE_ACCOUNT,
+    // };
 
-    const token = this.encryptDataToToken(resetPasswordTokenDto);
-    //create token email
-    const createTokenEmailDto: CreateTokenEmailDto = {
-      userId: userCreated.id,
-      token,
-      type: resetPasswordTokenDto.type,
-    };
-    await this.tokenEmailRepository.createTokenEmail(
-      transactionEntityManager,
-      createTokenEmailDto,
-    );
+    // const token = this.encryptDataToToken(resetPasswordTokenDto);
+    // //create token email
+    // const createTokenEmailDto: CreateTokenEmailDto = {
+    //   userId: userCreated.id,
+    //   token,
+    //   type: resetPasswordTokenDto.type,
+    // };
+    // await this.tokenEmailRepository.createTokenEmail(
+    //   transactionEntityManager,
+    //   createTokenEmailDto,
+    // );
 
     // Send email active account
-    const emailInfoDto: EmailInfoDto = {
-      email: createUserDto.personalEmail,
-      name: createUserDto.firstName + ' ' + createUserDto.lastName,
-      username: createUserDto.firstName + ' ' + createUserDto.lastName,
-      password: createUserDto.password,
-      token,
-    };
+    // const emailInfoDto: EmailInfoDto = {
+    //   email: createUserDto.email,
+    //   name: createUserDto.firstName + ' ' + createUserDto.lastName,
+    //   username: createUserDto.firstName + ' ' + createUserDto.lastName,
+    //   password: createUserDto.password,
+    //   token,
+    // };
 
-    await this.emailService.sendActiveAccountEmail(
-      emailInfoDto,
-      'url-active-user',
-    );
+    // await this.emailService.sendActiveAccountEmail(
+    //   emailInfoDto,
+    //   'url-active-user',
+    // );
     return { statusCode: 201, message: 'Tạo người dùng thành công.' };
   }
 
@@ -99,6 +109,7 @@ export class UserService {
     uuid: string,
   ) {
     const {
+      email,
       firstName,
       lastName,
       phoneNumber,
@@ -120,14 +131,13 @@ export class UserService {
         User,
         { id: user.id },
         {
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phoneNumber,
-          dob,
-          position,
-          is_deleted: isDeleted,
-          personal_email: personalEmail,
-          profile_photo_key: profilePhotoKey,
+          email,
+          isDeleted,
+          // firstName,
+          // lastName,
+          // phoneNumber,
+          // position,
+          // profilePhotoKey,
         },
       );
     } catch (error) {
@@ -174,7 +184,7 @@ export class UserService {
 
     //user da duoc kich hoat
     if (!userRes.data)
-      if (userRes.data.is_actived) {
+      if (userRes.data.isActive) {
         return { statusCode: 500, message: 'Người dùng đã được kích hoạt' };
       }
 
@@ -182,7 +192,7 @@ export class UserService {
       User,
       { id: userRes.data.id },
       {
-        is_actived: true,
+        isActive: true,
       },
     );
     return { statusCode: 201, message: 'Kích hoạt người dùng thành công.' };
@@ -288,7 +298,66 @@ export class UserService {
         this.configService.get<string>('EMAIL_TOKEN_KEY'),
       ).toString(cryptojs.enc.Utf8),
     );
-
     return data;
+  }
+
+  async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
+    const { username, password } = signInDto;
+    const user = await transactionManager.getRepository(User).findOne({
+      where: [
+        {
+          username,
+          isDeleted: false,
+          // isForgetPassword: false,
+        },
+        {
+          email: username,
+          isDeleted: false,
+          // isForgetPassword: false,
+        },
+      ],
+    });
+
+    // check user exists?
+    if (!user) {
+      throw new InternalServerErrorException(
+        'ERR-01: Tên đăng nhập hoặc mật khẩu không đúng.',
+      );
+    } else {
+      // if (user.isMailVerified === false) {
+      //   throw new InternalServerErrorException(
+      //     `Tài khoản của bạn chưa được kích hoạt qua email, vui lòng kích hoạt tài khoản trước khi đăng nhập.`,
+      //   );
+      // }
+      if (user.isActive === false) {
+        throw new InternalServerErrorException(
+          `Tài khoản của bạn đang bị hủy kích hoạt.`,
+        );
+      }
+      // check password
+      if ((await bcrypt.compare(password, user.password)) === false) {
+        throw new InternalServerErrorException(
+          'ERR-02: Tên đăng nhập hoặc mật khẩu không đúng.',
+        );
+      } else {
+        const userRole = await this.userRoleService.getUserRoleByUserId(
+          transactionManager,
+          user.id,
+        );
+        const roles = [];
+        userRole.forEach((e) => roles.push(e.roleCode));
+        const payload: JwtPayload = {
+          email: user.email,
+          roles,
+        };
+        console.log(payload);
+        const accessToken = await this.jwtService.sign(payload);
+        return {
+          statusCode: 201,
+          message: 'Đăng nhập thành công.',
+          data: { accessToken: accessToken },
+        };
+      }
+    }
   }
 }

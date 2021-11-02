@@ -1,9 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { UserRole } from 'src/user-role/user-role.entity';
 
-@Entity({ name: 'user', schema: 'public' })
+@Entity({ name: 'user', schema: DBSchema.SCM_ARI_PUBLIC })
 export class User extends BaseEntity {
   constructor(partial: Partial<User>) {
     super();
@@ -15,15 +17,11 @@ export class User extends BaseEntity {
 
   @ApiProperty()
   @Column()
-  first_name: string;
+  username: string;
 
   @ApiProperty()
   @Column()
-  last_name: string;
-
-  @ApiProperty()
-  @Column({ length: 50 })
-  phone_number: string;
+  uuid: string;
 
   @ApiProperty()
   @Column()
@@ -31,15 +29,15 @@ export class User extends BaseEntity {
 
   @ApiProperty()
   @Column()
-  is_deleted: boolean;
+  isDeleted: boolean;
 
   @ApiProperty()
   @Column()
-  is_actived: boolean;
+  isActive: boolean;
 
   @ApiProperty()
   @Column()
-  is_first_login: boolean;
+  isFirstLogin: boolean;
 
   @ApiHideProperty()
   @Column()
@@ -48,15 +46,7 @@ export class User extends BaseEntity {
 
   @Column({ length: 6 })
   @Exclude()
-  personal_id: string;
-
-  @Column()
-  @Exclude()
-  personal_email: string;
-
-  @Column()
-  @Exclude()
-  position: string;
+  staffId: string;
 
   @ApiHideProperty()
   @Column()
@@ -68,26 +58,17 @@ export class User extends BaseEntity {
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  created_at: Date;
+  createdAt: Date;
 
   @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  updated_at: Date;
+  updatedAt: Date;
 
-  @ApiProperty()
-  @Column()
-  dob: Date;
-
-  @ApiProperty()
-  @Column()
-  uuid: string;
-
-  @ApiProperty()
-  @Column()
-  profile_photo_key: string;
+  @OneToMany(type => UserRole, role => role.user)
+  role: UserRole[];
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

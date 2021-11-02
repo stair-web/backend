@@ -12,8 +12,9 @@ import { CustomerModule } from './customer/customer.module';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { TokenEmailModule } from './token-email/token-email.module';
-import { AppController } from './app.controller';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { RoleModule } from './role/role.module';
+import { AppController } from './app.controller';
 import { PostModule } from './post/post.module';
 import { CategoryModule } from './category/category.module';
 import { TopicModule } from './topic/topic.module';
@@ -51,6 +52,7 @@ import { TopicModule } from './topic/topic.module';
     UserModule,
     EmailModule,
     TokenEmailModule,
+    RoleModule,
     PostModule,
     CategoryModule,
     TopicModule,

@@ -1,48 +1,47 @@
 import {
-    IsEmail,
-    IsNotEmpty,
-    IsString,
-    Length,
-    Matches,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
 } from 'class-validator';
-
-
+import { ApiProperty } from '@nestjs/swagger';
 export class CreateUserDto {
-    @IsString()
-    @IsNotEmpty()
-    email: string;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ default: `email_${Date.now()}@ari.com.vn` })
+  email: string;
 
-    @IsString()
-    @IsNotEmpty()
-    personalEmail: string;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ default: `user ${Date.now()}` })
+  username: string;
 
-    @IsString()
-    profilePhotoKey: string;
+  @IsString()
+  password: string;
 
-    @IsString()
-    @IsNotEmpty()
-    password: string;
+  @IsString()
+  profilePhotoKey: string;
 
-    @IsString()
-    @IsNotEmpty()
-    firstName: string;
+  @IsString()
+  personalEmail: string;
 
-    @IsString()
-    @IsNotEmpty()
-    lastName: string;
+  /* USER INFORMATION */
+  @IsString()
+  firstName: string;
 
-    @IsString()
-    @IsNotEmpty()
-    phoneNumber: string;
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 
-    @IsNotEmpty()
-    dob: Date;
+  @IsString()
+  phoneNumber: string;
 
-    @IsString()
-    @IsNotEmpty()
-    position: string;
+  dob: Date;
 
-    @IsString()
-    personalId: string;
+  @IsString()
+  position: string;
+
+  @IsString()
+  staffId: string;
 }
-

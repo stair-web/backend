@@ -44,6 +44,7 @@ async function bootstrap() {
   const port = 8888;
   const server = await app.listen(port);
   logger.log(`Application listening on port ${port}`);
+  logger.log(`Environment : ${process.env.NODE_ENV}`);
 
   server.setTimeout(180000);
 }

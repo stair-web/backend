@@ -3,7 +3,7 @@ import { SortValue } from '../../common/sort-value.enum';
 export class GetAllUserDto {
   perPage?: number;
 
-  page: number;
+  page = 0;
 
   filter?: {
     name?: string;

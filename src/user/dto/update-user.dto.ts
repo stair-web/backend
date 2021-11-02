@@ -1,40 +1,38 @@
 import { bool } from 'aws-sdk/clients/signer';
 import {
-    IsEmail,
-    IsNotEmpty,
-    IsString,
-    Length,
-    Matches,
-    IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+  IsBoolean,
 } from 'class-validator';
 
-
 export class UpdateUserDto {
-    @IsString()
-    email: string;
+  @IsString()
+  email: string;
 
-    @IsString()
-    firstName: string;
+  @IsString()
+  firstName: string;
 
-    @IsString()
-    lastName: string;
+  @IsString()
+  lastName: string;
 
-    @IsString()
-    phoneNumber: string;
+  @IsString()
+  phoneNumber: string;
 
-    @IsNotEmpty()
-    dob: Date;
+  @IsNotEmpty()
+  dob: Date;
 
-    @IsString()
-    position: string;
+  @IsString()
+  position: string;
 
-    @IsBoolean()
-    isDeleted: bool;
+  @IsBoolean()
+  isDeleted: bool;
 
-    @IsString()
-    personalEmail: string;
+  @IsString()
+  personalEmail: string;
 
-    @IsString()
-    profilePhotoKey: string;
-
+  @IsString()
+  profilePhotoKey: string;
 }

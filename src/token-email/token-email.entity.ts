@@ -14,27 +14,27 @@ export class TokenEmail {
   id: number;
 
   @Column()
-  created_at: Date;
+  createdAt: Date;
 
   @Column()
-  is_expired: boolean;
+  isExpired: boolean;
 
   @Column()
-  updated_at: Date;
+  updatedAt: Date;
 
   @Column()
-  created_by_id: number;
+  createdById: number;
 
   @Column()
-  token_email: string;
-
-  @Column()
-  user_id: number;
+  tokenEmail: string;
 
   @Column()
   type: TokenEmailType;
 
+  @Column()
+  userId: number;
+
   @OneToOne(() => User)
-  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   appUser: User;
 }
