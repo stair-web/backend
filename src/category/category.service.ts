@@ -6,6 +6,19 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
+  async updateCategory(
+    transactionManager: EntityManager,
+    updateCategoryDto: UpdateCategoryDto,
+    id: number,
+  ): Promise<unknown> {
+    await this.categoryRepository.updateCategory(
+      transactionManager,
+      updateCategoryDto,
+      id
+    );
+
+    return { statusCode: 201, message: 'Tạo Category thành công.' };
+  }
   constructor(private categoryRepository: CategoryRepository) {}
   getAll(transactionManager: EntityManager): Promise<unknown> {
     return this.categoryRepository.getAllCatalogue(transactionManager);

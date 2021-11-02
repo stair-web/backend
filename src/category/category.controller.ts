@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
@@ -32,7 +33,7 @@ export class CategoryController {
   })
   @ApiOperation({ summary: 'Tạo Category.' })
   @ApiResponse({ status: 201, description: 'Tạo Category thành công' })
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
+  async createCatalogue(@Body() createCategoryDto: CreateCategoryDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.categoryService.createCategory(
         transactionManager,
@@ -40,6 +41,31 @@ export class CategoryController {
       );
     });
   }
+
+  @Put('/:id')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình cập nhật Category.',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Category đã tồn tại trong hệ thống',
+  })
+  @ApiOperation({ summary: 'Cập nhật Category.' })
+  @ApiResponse({ status: 201, description: 'Cập nhật Category thành công' })
+  async updateCatalogue(
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Param('id') id: number,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.categoryService.updateCategory(
+        transactionManager,
+        updateCategoryDto,
+        id,
+      );
+    });
+  }
+
   @Get()
   @ApiResponse({
     status: 200,

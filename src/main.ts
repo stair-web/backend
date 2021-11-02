@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { urlencoded } from 'express';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   // const hostDomain = AppModule.isDev ? `${AppModule.host}:${AppModule.port}` : `${AppModule.host}`;
@@ -17,6 +17,7 @@ async function bootstrap() {
   });
 
   app.enableShutdownHooks();
+  app.useGlobalPipes(new ValidationPipe());
 
   const swaggerOptions = new DocumentBuilder()
     .setTitle('Core')
