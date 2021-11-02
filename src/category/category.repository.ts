@@ -27,10 +27,7 @@ export class CategoryRepository extends Repository<Category> {
       );
     }
 
-    const findCategoryById = await this.getCategoryById(
-      transactionManager,
-      id,
-    );
+    const findCategoryById = await this.getCategoryById(transactionManager, id);
     if (isNullOrUndefined(findCategoryById)) {
       throw new ConflictException(`Category không tồn tại trong hệ thống.`);
     }
