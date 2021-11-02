@@ -161,21 +161,8 @@ export class CustomerRepository extends Repository<Customer> {
     note,
     phoneNumber,
     sendTime,
-    
   } = createCustomerDto
 
-  // const query = transactionEntityManager
-  //   .getRepository(Customer)
-  //   .createQueryBuilder('Customer')
-  //   .where('(user.email = :email)', {
-  //     email,
-  //   }).andWhere('user.is_deleted = FALSE');
-  //   const existsUser = await query.getOne();
-  //   if (existsUser) {
-  //     throw new ConflictException(
-  //       `Người dùng đã tồn tại trong hệ thống, vui lòng sử dụng email khác để đăng kí.`,
-  //     );
-  //   }
 
 
   const customer = transactionEntityManager.create(Customer, {

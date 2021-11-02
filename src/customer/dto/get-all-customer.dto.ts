@@ -29,7 +29,6 @@ export class GetAllCustomerDto {
     sendTime?: SortValue;
 
     isDeleted?: SortValue;
-    
   };
 
   fullTextSearch?: string;

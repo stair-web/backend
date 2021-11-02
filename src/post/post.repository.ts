@@ -1,6 +1,6 @@
 import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { Category } from 'src/category/category.entity';
-import { isNullOrUndefined } from 'src/lib/utils/util';
+import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { Topic } from 'src/topic/topic.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -93,7 +93,7 @@ export class PostRepository extends Repository<Post> {
     getAllPostDto: GetAllPostDto,
   ) {
     try {
-      const { page, filter, sorts, fullTextSearch } = getAllPostDto;
+      const { page, filter, sorts } = getAllPostDto;
       let { perPage } = getAllPostDto;
       if (isNullOrUndefined(perPage)) {
         perPage = 25;
@@ -120,7 +120,50 @@ export class PostRepository extends Repository<Post> {
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.dateTime', 'ASC');
+      // Filter list
+      console.log(filter);
 
+      if (!isNullOrUndefined(filter)) {
+        const object = paramStringToJson(filter);
+        if (!isNullOrUndefined(object.title)) {
+          query.andWhere('LOWER(post.title) LIKE LOWER(:title)', {
+            title: `%${object.title}%`,
+          });
+        }
+
+        if (!isNullOrUndefined(object.shortDescription)) {
+          query.andWhere(
+            'LOWER(post.shortDescription) LIKE LOWER(:shortDescription)',
+            {
+              shortDescription: `%${object.shortDescription}%`,
+            },
+          );
+        }
+
+        if (!isNullOrUndefined(object.priority)) {
+          query.andWhere('LOWER(post.priority) LIKE LOWER(:priority)', {
+            priority: `%${object.priority}%`,
+          });
+        }
+
+        if (!isNullOrUndefined(object.status)) {
+          query.andWhere('LOWER(post.status) LIKE LOWER(:status)', {
+            status: `%${object.status}%`,
+          });
+        }
+
+        if (!isNullOrUndefined(object.category)) {
+          query.andWhere('LOWER(category.categoryName) LIKE LOWER(:category)', {
+            category: `%${object.category}%`,
+          });
+        }
+
+        if (!isNullOrUndefined(object.topic)) {
+          query.andWhere('LOWER(topic.topicName) LIKE LOWER(:topic)', {
+            topic: `%${object.topic}%`,
+          });
+        }
+      }
       const data = await query.getMany();
       const total = await query.getCount();
 

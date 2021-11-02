@@ -24,6 +24,24 @@ export class Topic extends BaseEntity {
   @Column()
   topicName: string;
 
+  @ApiProperty()
+  @Column()
+  isDeleted: boolean;
+
+  @ApiProperty()
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
+  @ApiProperty()
+  @Column({
+    type: 'timestamp without time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
+
   @OneToMany(() => Post, (post: Post) => post.category)
   public posts: Post[];
 }

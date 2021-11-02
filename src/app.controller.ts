@@ -12,20 +12,15 @@ import {
 } from '@nestjs/common';
 import { Connection, EntityManager } from 'typeorm';
 
-
 @Controller()
 export class AppController {
-  constructor(
-    private connection: Connection,
-  ) {}
+  constructor(private connection: Connection) {}
 
- 
-//   @Get('/dang-nhap-tai-khoan')
-//   async login(@Query() signInDto: SignInDto) {
-//     const login = await this.connection.transaction((transactionManager) => {
-//       return this.user.signIn(transactionManager, signInDto);
-//     });
-//     return { login };
-//   }
-
+  //   @Get('/dang-nhap-tai-khoan')
+  //   async login(@Query() signInDto: SignInDto) {
+  //     const login = await this.connection.transaction((transactionManager) => {
+  //       return this.user.signIn(transactionManager, signInDto);
+  //     });
+  //     return { login };
+  //   }
 }
