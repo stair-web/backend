@@ -43,7 +43,9 @@ async function bootstrap() {
   app.enableShutdownHooks();
   const port = 8888;
   const server = await app.listen(port);
+  const url = `http://localhost:${port}/api/docs/`;
   logger.log(`Application listening on port ${port}`);
+  logger.log(`URL: ${url}`);
   logger.log(`Environment : ${process.env.NODE_ENV}`);
 
   server.setTimeout(180000);
