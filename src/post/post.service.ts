@@ -30,6 +30,7 @@ export class PostService {
     );
     return { statusCode: 201, message: 'Cập nhật bài viết thành công.' };
   }
+  
   async getAll(
     transactionEntityManager: EntityManager,
     getAllPostDto: GetAllPostDto,
@@ -38,6 +39,5 @@ export class PostService {
       transactionEntityManager,
       getAllPostDto,
     );
-    return `This action returns all post`;
   }
 }

@@ -35,9 +35,6 @@ export class PostController {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.create(transactionManager, createPostDto);
     });
-    // return await this.connection.transaction((transactionEntityManager) => {
-    //   return this.postService.create(transactionEntityManager, createPostDto);
-    // });
   }
 
   @Put('/:id')
@@ -51,9 +48,6 @@ export class PostController {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.update(transactionManager, updatePostDto, id);
     });
-    // return await this.connection.transaction((transactionEntityManager) => {
-    //   return this.postService.create(transactionEntityManager, createPostDto);
-    // });
   }
 
   @Get()
@@ -62,7 +56,7 @@ export class PostController {
     description: 'Lấy danh sách bài viết thành công.',
   })
   @ApiOperation({ summary: 'Danh sách bài viết' })
-  async getAll(@Body() getAllPostDto: GetAllPostDto) {
+  async getAll(@Query() getAllPostDto: GetAllPostDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.getAll(transactionManager, getAllPostDto);
     });

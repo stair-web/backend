@@ -18,27 +18,21 @@ export class Post extends BaseEntity {
     super();
     Object.assign(this, partial);
   }
-  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
   @Column()
   title: string;
 
-  @ApiProperty()
   @Column()
   shortDescription: string;
 
-  @ApiProperty()
   @Column()
   dateTime: Date;
 
-  @ApiProperty()
   @Column()
   imageSrc: string;
 
-  @ApiProperty()
   @Column()
   priority: string;
 
@@ -58,21 +52,21 @@ export class Post extends BaseEntity {
   @Column()
   status: string;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 
-  @ApiProperty()
   @Column()
   isDeleted: boolean;
+
+  @Column()
+  content: string;
 }
