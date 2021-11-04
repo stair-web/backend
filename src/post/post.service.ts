@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { uuidv4 } from 'src/common/util/common.util';
 import { EntityManager } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostDto } from './dto/get-all-post.dto';
@@ -8,28 +9,31 @@ import { PostRepository } from './post.repository';
 @Injectable()
 export class PostService {
   constructor(private postRepository: PostRepository) {}
-  async create(
+
+  async createPost(
     transactionEntityManager: EntityManager,
     createPostDto: CreatePostDto,
   ) {
-    await this.postRepository.createPost(
+    createPostDto.uuid = uuidv4();
+    return await this.postRepository.savePost(
       transactionEntityManager,
       createPostDto,
+      true
     );
-    return { statusCode: 201, message: 'Tạo bài viết thành công.' };
   }
-  async update(
+  
+  async updatePost(
     transactionEntityManager: EntityManager,
-    updatePostDto: UpdatePostDto,
-    id: string,
+    createPostDto: CreatePostDto,
+    uuid: string
   ) {
-    await this.postRepository.updatePost(
+    createPostDto.uuid = uuid;
+    return await this.postRepository.savePost(
       transactionEntityManager,
-      updatePostDto,
-      id,
+      createPostDto
     );
-    return { statusCode: 201, message: 'Cập nhật bài viết thành công.' };
   }
+  
   async getAll(
     transactionEntityManager: EntityManager,
     getAllPostDto: GetAllPostDto,
@@ -38,6 +42,5 @@ export class PostService {
       transactionEntityManager,
       getAllPostDto,
     );
-    return `This action returns all post`;
   }
 }

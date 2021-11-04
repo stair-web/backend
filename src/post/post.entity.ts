@@ -18,61 +18,57 @@ export class Post extends BaseEntity {
     super();
     Object.assign(this, partial);
   }
-  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
   @Column()
   title: string;
 
-  @ApiProperty()
   @Column()
   shortDescription: string;
 
-  @ApiProperty()
   @Column()
   dateTime: Date;
 
-  @ApiProperty()
   @Column()
   imageSrc: string;
 
-  @ApiProperty()
   @Column()
   priority: string;
 
   @ManyToOne(() => Category, (category: Category) => category.posts, {
     eager: false,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: Category;
 
   @ManyToOne(() => Topic, (topic: Topic) => topic.posts, {
     eager: false,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
   topic: Topic;
 
-  @ApiProperty()
   @Column()
   status: string;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 
-  @ApiProperty()
   @Column()
   isDeleted: boolean;
+
+  @Column()
+  content: string;
+
+  @Column()
+  uuid: string;
 }

@@ -12,105 +12,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @EntityRepository(Category)
 export class CategoryRepository extends Repository<Category> {
-  async updateCategory(
-    transactionManager: EntityManager,
-    updateCategoryDto: UpdateCategoryDto,
-    id: number,
-  ) {
-    const findCategoryByName = await this.getCategoryByName(
-      transactionManager,
-      updateCategoryDto.categoryName,
-    );
-    if (findCategoryByName) {
-      throw new ConflictException(
-        `Category đã tồn tại trong hệ thống, vui lòng sử dụng tên khác.`,
-      );
-    }
-
-    const findCategoryById = await this.getCategoryById(transactionManager, id);
-    if (isNullOrUndefined(findCategoryById)) {
-      throw new ConflictException(`Category không tồn tại trong hệ thống.`);
-    }
-
-    const { categoryName, isDeleted } = updateCategoryDto;
-    const category = transactionManager.update(
-      Category,
-      { id },
-      {
-        categoryName,
-        isDeleted,
-      },
-    );
-
-    try {
-      await transactionManager.save(category);
-    } catch (error) {
-      Logger.error(error);
-      throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá trình tạo Category, vui lòng thử lại sau.',
-      );
-    }
-
-    return category;
-  }
-  async getAllCatalogue(transactionManager: EntityManager): Promise<unknown> {
-    try {
-      const query = transactionManager
-        .getRepository(Category)
-        .createQueryBuilder('category')
-        .select([
-          'category.id',
-          'category.categoryName',
-          'category.isDeleted',
-          'category.createdAt',
-          'category.updatedAt',
-        ])
-        .orderBy('category.categoryName', 'ASC')
-        .andWhere('category.isDeleted = FALSE');
-      const data = await query.getMany();
-      return data;
-    } catch (error) {
-      Logger.error(error);
-      throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá trình lấy danh sách Category, vui lòng thử lại sau.',
-      );
-    }
-  }
-  async createCategory(
-    transactionManager: EntityManager,
-    createCategoryDto: CreateCategoryDto,
-  ) {
-    try {
-      const findCategory = await this.getCategoryByName(
-        transactionManager,
-        createCategoryDto.categoryName,
-      );
-
-      if (findCategory) {
-        throw new ConflictException(
-          `Category đã tồn tại trong hệ thống, vui lòng sử dụng tên khác.`,
-        );
-      }
-      const { categoryName } = createCategoryDto;
-      const category = transactionManager.create(Category, {
-        categoryName,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isDeleted: false,
-      });
-
-      await transactionManager.save(category);
-      return category;
-    } catch (error) {
-      Logger.error(error);
-      Logger.log(error);
-      console.log(error);
-
-      throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá trình tạo Category, vui lòng thử lại sau.',
-      );
-    }
-  }
   async getCategoryByName(transactionManager: EntityManager, name: string) {
     try {
       const query = transactionManager
@@ -153,5 +54,55 @@ export class CategoryRepository extends Repository<Category> {
     const data = await query.getOne();
 
     return data;
+  }
+
+  async saveCategory(
+    transactionManager: EntityManager,
+    createCategoryDto: CreateCategoryDto,
+    isCreate = false,
+  ) {
+    const { categoryName, uuid } = createCategoryDto;
+
+    const checkCategoryExist = await transactionManager
+      .getRepository(Category)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkCategoryExist) && isCreate === false) {
+      throw new ConflictException(
+        `Category chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const checkCategoryNameExist = await transactionManager
+      .getRepository(Category)
+      .findOne({
+        categoryName,
+      });
+
+    if (!isNullOrUndefined(checkCategoryNameExist)) {
+      throw new ConflictException(
+        `Tên category đã tồn tại trong hệ thống. Vui lòng chọn tên mới!`,
+      );
+    }
+
+    const category = transactionManager.create(Category, {
+      id: checkCategoryExist?.id,
+      uuid,
+      categoryName,
+    });
+    try {
+      await transactionManager.save(category);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá trình update category, vui lòng thử lại sau.',
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `${isCreate ? 'Create' : 'Update'} category successfully.`,
+    };
   }
 }

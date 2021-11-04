@@ -1,38 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { uuidv4 } from 'src/common/util/common.util';
 import { EntityManager } from 'typeorm';
+import { Category } from './category.entity';
 import { CategoryRepository } from './category.repository';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
-  async updateCategory(
-    transactionManager: EntityManager,
-    updateCategoryDto: UpdateCategoryDto,
-    id: number,
-  ): Promise<unknown> {
-    await this.categoryRepository.updateCategory(
-      transactionManager,
-      updateCategoryDto,
-      id
-    );
-
-    return { statusCode: 201, message: 'Tạo Category thành công.' };
-  }
   constructor(private categoryRepository: CategoryRepository) {}
-  getAll(transactionManager: EntityManager): Promise<unknown> {
-    return this.categoryRepository.getAllCatalogue(transactionManager);
+
+  // getAll(transactionManager: EntityManager): Promise<unknown> {
+  //   return this.categoryRepository.getAllCatalogue(transactionManager);
+  // }
+
+  async getAllCategory(transactionManager: EntityManager) {
+    try {
+      return await transactionManager.getRepository(Category).find({
+        where: [{ isDeleted: false }],
+        order: { categoryName: 1 },
+      });
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async createCategory(
     transactionManager: EntityManager,
     createCategoryDto: CreateCategoryDto,
-  ): Promise<unknown> {
-    await this.categoryRepository.createCategory(
+  ) {
+    createCategoryDto.uuid = uuidv4();
+    return await this.categoryRepository.saveCategory(
+      transactionManager,
+      createCategoryDto,
+      true,
+    );
+  }
+
+  async updateCategory(
+    transactionManager: EntityManager,
+    createCategoryDto: CreateCategoryDto,
+    uuid
+  ) {
+    createCategoryDto.uuid = uuid;
+    return await this.categoryRepository.saveCategory(
       transactionManager,
       createCategoryDto,
     );
-
-    return { statusCode: 201, message: 'Tạo Category thành công.' };
   }
 }

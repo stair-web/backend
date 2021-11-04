@@ -33,7 +33,7 @@ export class CategoryController {
   })
   @ApiOperation({ summary: 'Tạo Category.' })
   @ApiResponse({ status: 201, description: 'Tạo Category thành công' })
-  async createCatalogue(@Body() createCategoryDto: CreateCategoryDto) {
+  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.categoryService.createCategory(
         transactionManager,
@@ -42,7 +42,7 @@ export class CategoryController {
     });
   }
 
-  @Put('/:id')
+  @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình cập nhật Category.',
@@ -53,15 +53,15 @@ export class CategoryController {
   })
   @ApiOperation({ summary: 'Cập nhật Category.' })
   @ApiResponse({ status: 201, description: 'Cập nhật Category thành công' })
-  async updateCatalogue(
-    @Body() updateCategoryDto: UpdateCategoryDto,
-    @Param('id') id: number,
+  async updateCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @Param('uuid') uuid: string,
   ) {
     return await this.connection.transaction((transactionManager) => {
       return this.categoryService.updateCategory(
         transactionManager,
-        updateCategoryDto,
-        id,
+        createCategoryDto,
+        uuid
       );
     });
   }
@@ -74,7 +74,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Lấy danh sách Catalogue' })
   async getCatalogue() {
     return await this.connection.transaction((transactionManager) => {
-      return this.categoryService.getAll(transactionManager);
+      return this.categoryService.getAllCategory(transactionManager);
     });
   }
 }

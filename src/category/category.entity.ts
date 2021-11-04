@@ -16,26 +16,24 @@ export class Category extends BaseEntity {
     super();
     Object.assign(this, partial);
   }
-  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @Column()
+  uuid: string;
+
   @Column()
   categoryName: string;
 
-  @ApiProperty()
   @Column()
   isDeleted: boolean;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
