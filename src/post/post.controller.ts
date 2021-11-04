@@ -61,4 +61,16 @@ export class PostController {
       return this.postService.getAll(transactionManager, getAllPostDto);
     });
   }
+
+  @Get('/:uuid')
+  @ApiResponse({
+    status: 201,
+    description: 'Lấy chi tiết bài viết thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách bài viết' })
+  async getPostDetail(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.getPostDetail(transactionManager, uuid);
+    });
+  }
 }
