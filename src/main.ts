@@ -31,8 +31,11 @@ async function bootstrap() {
     res.send(swaggerDocument);
   });
 
+  const port = process.env.SERVER_PORT;
+  const url = `http://localhost:${port}/api/docs/`;
+
   SwaggerModule.setup('/api/docs', app, null, {
-    swaggerUrl: `http://localhost:8888/api/docs/swagger.json`,
+    swaggerUrl: `${url}swagger.json`,
     explorer: true,
     swaggerOptions: {
       docExpansion: 'list',
@@ -42,9 +45,9 @@ async function bootstrap() {
   });
 
   app.enableShutdownHooks();
-  const port = 8888;
+
   const server = await app.listen(port);
-  const url = `http://localhost:${port}/api/docs/`;
+
   logger.log(`Application listening on port ${port}`);
   logger.log(`URL: ${url}`);
   logger.log(`Environment : ${process.env.NODE_ENV}`);

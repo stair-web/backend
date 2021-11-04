@@ -8,7 +8,7 @@ services:
           container_name: ari-backtend
           build: .
           ports:
-                  - "7003:80"
+                  - "7003:${SERVER_PORT}"
           deploy:
                   resources:
                           limits:

@@ -4,6 +4,7 @@ import { EntityManager } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostDto } from './dto/get-all-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Post } from './post.entity';
 import { PostRepository } from './post.repository';
 
 @Injectable()
@@ -42,5 +43,14 @@ export class PostService {
       transactionEntityManager,
       getAllPostDto,
     );
+  }
+
+  async getPostDetail(
+    transactionEntityManager: EntityManager,
+    uuid
+  ) {
+    return await transactionEntityManager.getRepository(Post).findOne({
+      uuid
+    });
   }
 }
