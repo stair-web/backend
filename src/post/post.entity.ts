@@ -39,16 +39,15 @@ export class Post extends BaseEntity {
   @ManyToOne(() => Category, (category: Category) => category.posts, {
     eager: false,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: Category;
 
   @ManyToOne(() => Topic, (topic: Topic) => topic.posts, {
     eager: false,
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
   topic: Topic;
 
-  @ApiProperty()
   @Column()
   status: string;
 
@@ -69,4 +68,7 @@ export class Post extends BaseEntity {
 
   @Column()
   content: string;
+
+  @Column()
+  uuid: string;
 }

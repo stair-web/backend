@@ -33,20 +33,20 @@ export class PostController {
   @ApiResponse({ status: 201, description: 'Tạo bài viết thành công' })
   async create(@Body() createPostDto: CreatePostDto) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.create(transactionManager, createPostDto);
+      return this.postService.createPost(transactionManager, createPostDto);
     });
   }
 
-  @Put('/:id')
+  @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình cập nhật bài viết.',
   })
   @ApiOperation({ summary: 'Cập nhật bài viết.' })
   @ApiResponse({ status: 201, description: 'Cập nhật bài viết thành công' })
-  async update(@Body() updatePostDto: UpdatePostDto, @Param('id') id: string) {
+  async update(@Body() createPostDto: CreatePostDto, @Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.update(transactionManager, updatePostDto, id);
+      return this.postService.updatePost(transactionManager, createPostDto, uuid);
     });
   }
 
