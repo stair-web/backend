@@ -31,13 +31,12 @@ async function bootstrap() {
     res.send(swaggerDocument);
   });
 
-  let port = process.env.APP_PORT;
+  const port = process.env.APP_PORT;
   let url = `http://localhost:${port}/api/docs/`;
 
   const env =  process.env.NODE_ENV;
   if (env === 'prod') {
-    port = process.env.SERVER_PORT;
-    url = `http://${process.env.SERVER_HOST}:${port}/api/docs/`;
+    url = `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/api/docs/`;
   }
 
   SwaggerModule.setup('/api/docs', app, null, {
