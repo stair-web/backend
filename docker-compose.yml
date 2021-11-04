@@ -6,11 +6,13 @@ networks:
 services:
   back-end:
           container_name: ari-backtend
-          build: .
           env_file:
-                  - /env/prod.env
+                - ./env/prod.env
+          environment:
+                - NODE_ENV=prod
           ports:
                   - "${SERVER_PORT}:${APP_PORT}"
+          build: .
           deploy:
                   resources:
                           limits:
