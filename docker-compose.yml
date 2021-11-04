@@ -7,8 +7,10 @@ services:
   back-end:
           container_name: ari-backtend
           build: .
+          env_file:
+                  - /env/prod.env
           ports:
-                  - "7003:${SERVER_PORT}"
+                  - "${SERVER_PORT}:${APP_PORT}"
           deploy:
                   resources:
                           limits:

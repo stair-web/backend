@@ -31,8 +31,14 @@ async function bootstrap() {
     res.send(swaggerDocument);
   });
 
-  const port = process.env.SERVER_PORT;
-  const url = `http://localhost:${port}/api/docs/`;
+  let port = process.env.APP_PORT;
+  let url = `http://localhost:${port}/api/docs/`;
+
+  const env =  process.env.NODE_ENV;
+  if (env === 'prod') {
+    port = process.env.SERVER_PORT;
+    url = `http://${process.env.SERVER_HOST}:${port}/api/docs/`;
+  }
 
   SwaggerModule.setup('/api/docs', app, null, {
     swaggerUrl: `${url}swagger.json`,
@@ -50,7 +56,7 @@ async function bootstrap() {
 
   logger.log(`Application listening on port ${port}`);
   logger.log(`URL: ${url}`);
-  logger.log(`Environment : ${process.env.NODE_ENV}`);
+  logger.log(`Environment : ${env}`);
 
   server.setTimeout(180000);
 }
