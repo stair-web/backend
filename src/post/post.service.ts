@@ -87,6 +87,7 @@ export class PostService {
             'post.content',
             'post.createdAt',
             'post.updatedAt',
+            'post.isDeleted',
             'post.fileType',
             'category.uuid',
           ])
