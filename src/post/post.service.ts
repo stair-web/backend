@@ -91,7 +91,7 @@ export class PostService {
             'category.uuid',
           ])
             .where(`category.uuid = :categoryUuid`, { categoryUuid })
-            .andWhere('category.isDeleted = :isDeleted', { isDeleted: 'false' })
+            .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
             .orderBy('post.createdAt', 'DESC');
         },
       });
