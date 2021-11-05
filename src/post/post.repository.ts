@@ -119,6 +119,7 @@ export class PostRepository extends Repository<Post> {
           'post.createdAt',
           'post.updatedAt',
           'category.uuid',
+          'category.categoryName',
         ])
         .where('post.isDeleted = FALSE')
         .take(perPage)
