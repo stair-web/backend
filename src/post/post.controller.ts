@@ -85,4 +85,17 @@ export class PostController {
       return this.postService.getPostsByCategory(transactionManager, uuid);
     });
   }
+
+  @Patch('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình xoá bài viết.',
+  })
+  @ApiOperation({ summary: 'Xoá bài viết.' })
+  @ApiResponse({ status: 201, description: 'Xoá bài viết thành công' })
+  async deletePost(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.deletePost(transactionManager, uuid);
+    });
+  }
 }

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { uuidv4 } from 'src/common/util/common.util';
 import { EntityManager } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -32,6 +36,16 @@ export class PostService {
     return await this.postRepository.savePost(
       transactionEntityManager,
       createPostDto,
+    );
+  }
+
+  async deletePost(
+    transactionEntityManager: EntityManager,
+    uuid: string,
+  ) {
+    return await this.postRepository.deletePost(
+      transactionEntityManager,
+      uuid
     );
   }
 
@@ -73,11 +87,12 @@ export class PostService {
             'post.content',
             'post.createdAt',
             'post.updatedAt',
+            'post.fileType',
             'category.uuid',
           ])
             .where(`category.uuid = :categoryUuid`, { categoryUuid })
             .andWhere('category.isDeleted = :isDeleted', { isDeleted: 'false' })
-            .orderBy('post.createdAt','DESC');
+            .orderBy('post.createdAt', 'DESC');
         },
       });
 
@@ -88,6 +103,5 @@ export class PostService {
         `Lỗi hệ thống trong quá trình lấy bài viết theo category, vui lòng thử lại sau.`,
       );
     }
-    
   }
 }

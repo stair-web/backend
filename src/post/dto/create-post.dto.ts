@@ -44,4 +44,6 @@ export class CreatePostDto {
 
   // @IsString()
   topicUuid?: string;
+
+  fileType: string;
 }

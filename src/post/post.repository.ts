@@ -118,6 +118,7 @@ export class PostRepository extends Repository<Post> {
           'post.status',
           'post.createdAt',
           'post.updatedAt',
+          'post.fileType',
           'category.uuid',
           'category.categoryName',
         ])
@@ -125,9 +126,8 @@ export class PostRepository extends Repository<Post> {
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.createdAt', 'DESC');
+        
       // Filter list
-      console.log(filter);
-
       if (!isNullOrUndefined(filter)) {
         const object = paramStringToJson(filter);
         if (!isNullOrUndefined(object.title)) {
@@ -238,7 +238,7 @@ export class PostRepository extends Repository<Post> {
     createPostDto: CreatePostDto,
     isCreate = false,
   ) {
-    const { uuid, title, shortDescription, content, imageSrc, categoryUuid } =
+    const { uuid, title, shortDescription, content, imageSrc, categoryUuid, fileType } =
       createPostDto;
 
     const checkPostExist = await transactionManager
@@ -272,7 +272,8 @@ export class PostRepository extends Repository<Post> {
       shortDescription,
       imageSrc,
       content,
-      category:checkCategoryExist
+      category:checkCategoryExist,
+      fileType
     });
 
     try {
@@ -286,6 +287,42 @@ export class PostRepository extends Repository<Post> {
     return {
       statusCode: 201,
       message: `${isCreate ? 'Create' : 'Update'} post successfully.`,
+    };
+  }
+
+  async deletePost(
+    transactionManager: EntityManager,
+    uuid: string
+  ) {
+
+    const checkPostExist = await transactionManager
+      .getRepository(Post)
+      .findOne({
+        uuid
+      });
+      
+    if (isNullOrUndefined(checkPostExist)) {
+      throw new ConflictException(
+        `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const post = transactionManager.create(Post, {
+      id: checkPostExist?.id,
+      isDeleted: true
+    });
+
+    try {
+      await transactionManager.save(post);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình delete post, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Delete post successfully.`,
     };
   }
 }

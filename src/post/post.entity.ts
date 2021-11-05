@@ -71,4 +71,7 @@ export class Post extends BaseEntity {
 
   @Column()
   uuid: string;
+
+  @Column()
+  fileType: string;
 }
