@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { uuidv4 } from 'src/common/util/common.util';
 import { EntityManager } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -19,22 +19,22 @@ export class PostService {
     return await this.postRepository.savePost(
       transactionEntityManager,
       createPostDto,
-      true
+      true,
     );
   }
-  
+
   async updatePost(
     transactionEntityManager: EntityManager,
     createPostDto: CreatePostDto,
-    uuid: string
+    uuid: string,
   ) {
     createPostDto.uuid = uuid;
     return await this.postRepository.savePost(
       transactionEntityManager,
-      createPostDto
+      createPostDto,
     );
   }
-  
+
   async getAll(
     transactionEntityManager: EntityManager,
     getAllPostDto: GetAllPostDto,
@@ -45,12 +45,49 @@ export class PostService {
     );
   }
 
-  async getPostDetail(
-    transactionEntityManager: EntityManager,
-    uuid
-  ) {
+  async getPostDetail(transactionEntityManager: EntityManager, uuid) {
     return await transactionEntityManager.getRepository(Post).findOne({
-      uuid
+      uuid,
     });
+  }
+
+  async getPostsByCategory(
+    transactionEntityManager: EntityManager,
+    categoryUuid,
+  ) {
+    try {
+      const posts = await transactionEntityManager.getRepository(Post).find({
+        join: {
+          alias: 'post',
+          leftJoinAndSelect: {
+            category: 'post.category',
+          },
+        },
+        relations: ['category'],
+        where: (qb) => {
+          qb.select([
+            'post.uuid',
+            'post.title',
+            'post.shortDescription',
+            'post.imageSrc',
+            'post.content',
+            'post.createdAt',
+            'post.updatedAt',
+            'category.uuid',
+          ])
+            .where(`category.uuid = :categoryUuid`, { categoryUuid })
+            .andWhere('category.isDeleted = :isDeleted', { isDeleted: 'false' })
+            .orderBy('post.createdAt','DESC');
+        },
+      });
+
+      return { statusCode: 201, data: { posts, total: posts.length } };
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình lấy bài viết theo category, vui lòng thử lại sau.`,
+      );
+    }
+    
   }
 }

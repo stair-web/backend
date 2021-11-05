@@ -171,7 +171,7 @@ export class PostRepository extends Repository<Post> {
       const data = await query.getMany();
       const total = await query.getCount();
 
-      return { statusCode: 200, data: { data, total } };
+      return { statusCode: 201, data: { data, total } };
     } catch (error) {
       console.log(error);
     }

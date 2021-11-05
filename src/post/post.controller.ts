@@ -73,4 +73,16 @@ export class PostController {
       return this.postService.getPostDetail(transactionManager, uuid);
     });
   }
+
+  @Get('category/:categoryUuid')
+  @ApiResponse({
+    status: 201,
+    description: 'Lấy danh sách bài viết theo category thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách bài viết theo category.' })
+  async getPostsByCategory(@Param('categoryUuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.getPostsByCategory(transactionManager, uuid);
+    });
+  }
 }
