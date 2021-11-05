@@ -86,7 +86,7 @@ export class PostController {
     });
   }
 
-  @Patch('/:uuid')
+  @Delete('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình xoá bài viết.',
