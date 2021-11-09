@@ -59,9 +59,32 @@ export class PostService {
     );
   }
 
-  async getPostDetail(transactionEntityManager: EntityManager, uuid) {
+  async getPostDetail(transactionEntityManager: EntityManager, postUuid) {
     return await transactionEntityManager.getRepository(Post).findOne({
-      uuid,
+      join: {
+        alias: 'post',
+        leftJoinAndSelect: {
+          category: 'post.category',
+        },
+      },
+      relations: ['category'],
+      where: (qb) => {
+        qb.select([
+          'post.id',
+          'post.uuid',
+          'post.title',
+          'post.shortDescription',
+          'post.imageSrc',
+          'post.content',
+          'post.createdAt',
+          'post.updatedAt',
+          'post.isDeleted',
+          'post.fileType',
+          'category.uuid',
+        ])
+          .where(`post.uuid = :postUuid`, { postUuid })
+          .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
+      },
     });
   }
 
