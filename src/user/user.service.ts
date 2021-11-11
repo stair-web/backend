@@ -21,7 +21,6 @@ import { TokenEmailRepository } from 'src/token-email/token-email.repository';
 import { EmailInfoDto } from 'src/email/dto/email-info.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { EmailService } from 'src/email/email.service';
-import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interface/jwt-payload.interface';
@@ -29,6 +28,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { UserRoleService } from 'src/user-role/user-role.service';
 import e from 'express';
 import { AcitveUserDto } from './dto/active-user.dto';
+import { uuidv4 } from 'src/common/util/common.util';
 
 @Injectable()
 export class UserService {
@@ -40,12 +40,20 @@ export class UserService {
     private jwtService: JwtService,
     private userRoleService: UserRoleService,
   ) {}
+
+  /**
+   * 
+   * @param transactionEntityManager 
+   * @param createUserDto 
+   * @returns 
+   */
   async createUser(
     transactionEntityManager: EntityManager,
     createUserDto: CreateUserDto,
   ) {
     //Gen password
     // createUserDto.password = uuidv4();
+    createUserDto.userInformation.uuid = uuidv4();
     if (isNullOrUndefined(createUserDto.password)) {
       createUserDto.password = '123123';
     }
@@ -103,6 +111,13 @@ export class UserService {
     return { statusCode: 201, message: 'Tạo người dùng thành công.' };
   }
 
+  /**
+   * 
+   * @param transactionManager 
+   * @param updateUserDto 
+   * @param uuid 
+   * @returns 
+   */
   async updateUser(
     transactionManager: EntityManager,
     updateUserDto: UpdateUserDto,
@@ -148,18 +163,46 @@ export class UserService {
     }
     return { statusCode: 200, message: 'Chỉnh sửa người dùng thành công.' };
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @returns 
+   */
   async getUserByUuid(transactionManager: EntityManager, uuid: string) {
     return await this.usersRepository.getUserByUuid(transactionManager, uuid);
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param id 
+   * @returns 
+   */
   async getUserById(transactionManager: EntityManager, id: number) {
     return await this.usersRepository.getUserById(transactionManager, id);
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param getAllUserDto 
+   * @returns 
+   */
   async getAllUser(
     transactionManager: EntityManager,
     getAllUserDto: GetAllUserDto,
   ) {
     return this.usersRepository.getAllUser(transactionManager, getAllUserDto);
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param acitveUserDto 
+   * @returns 
+   */
   async activeUser(
     transactionManager: EntityManager,
     acitveUserDto: AcitveUserDto,
@@ -213,6 +256,14 @@ export class UserService {
 
     return pId;
   }
+  
+  /**
+   * 
+   * @param transactionManager 
+   * @param deleteUserDto 
+   * @param uuid 
+   * @returns 
+   */
   async deleteUser(
     transactionManager: EntityManager,
     deleteUserDto: DeleteUserDto,
@@ -224,6 +275,12 @@ export class UserService {
       uuid,
     );
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param email 
+   */
   async sendResetPasswordEmail(
     transactionManager: EntityManager,
     email: string,

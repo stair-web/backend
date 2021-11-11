@@ -21,6 +21,7 @@ import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { JwtPayload } from './interface/jwt-payload.interface';
+import { UserInformation } from 'src/user-information/user-information.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -32,12 +33,7 @@ export class UserRepository extends Repository<User> {
       email,
       username,
       password,
-      firstName,
-      lastName,
-      phoneNumber,
-      dob,
-      position,
-      profilePhotoKey,
+      userInformation
     } = createUserDto;
     // Check user existed?
     const query = transactionEntityManager
@@ -66,10 +62,13 @@ export class UserRepository extends Repository<User> {
       salt,
       uuid: uuidv4()
     });
-
     // save user
     try {
-      await transactionEntityManager.save(user);
+      let userResult = await transactionEntityManager.save(user);
+      userInformation.userId = userResult.id;
+      userInformation.staffId = userInformation.uuid.substr(userInformation.uuid.length - 6).toUpperCase();
+      const informationOfUser = transactionEntityManager.create(UserInformation, userInformation);
+      await transactionEntityManager.save(informationOfUser);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -151,28 +150,26 @@ export class UserRepository extends Repository<User> {
     transactionManager: EntityManager,
     getAllUserDto: GetAllUserDto,
   ) {
-    const { page, filter, sorts, fullTextSearch } = getAllUserDto;
-    let { perPage } = getAllUserDto;
-    if (isNullOrUndefined(perPage)) {
-      perPage = 25;
-    }
+    const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
 
     const query = transactionManager
       .getRepository(User)
       .createQueryBuilder('user')
+      .leftJoin('user.userInformation','userInformation')
       .select([
+        'user.id',
         'user.uuid',
         'user.email',
         'user.username',
-        'user.staffId',
         'user.isDeleted',
         'user.isActive',
         'user.createdAt',
         'user.updatedAt',
+        'userInformation'
       ])
-      // .take(perPage)
-      // .skip((page - 1) * perPage)
-      .orderBy('user.staffId', 'ASC');
+      .take(perPage || 25)
+      .skip((page - 1) * perPage || 0)
+      .orderBy('user.createdAt', 'DESC');
 
     // Full text search
     if (!isNullOrUndefined(fullTextSearch) && fullTextSearch !== '') {
@@ -220,7 +217,7 @@ export class UserRepository extends Repository<User> {
     try {
       const data = await query.getMany();
       const total = await query.getCount();
-      return { statusCode: 200, data: { userList: data, total } };
+      return { statusCode: 201, data: { userList: data, total } };
     } catch (error) {
       console.log(error);
     }
