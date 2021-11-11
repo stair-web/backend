@@ -20,12 +20,6 @@ export class GetAllUserDto {
 
     email?: SortValue;
 
-    mtRole?: SortValue;
-
-    department?: SortValue;
-
-    ward?: SortValue;
-
     isActive?: SortValue;
   };
 
