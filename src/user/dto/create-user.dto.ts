@@ -15,7 +15,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ default: `user ${Date.now()}` })
+  @ApiProperty({ default: `username ${Date.now()}` })
   username: string;
 
   password: string;
@@ -33,7 +33,8 @@ export class CreateUserDto {
       phoneNumber: '+841234567890',
       position: 'tester',
       shortDescription: 'this is a demo user short description',
-      dob: '1995-01-01'
+      dob: '1995-01-01',
+      isActive: true
     },
   })
   userInformation: UserInformationDto;
