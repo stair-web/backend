@@ -42,6 +42,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
         `${table}.dob`,
         `${table}.shortDescription`,
         `${table}.position`,
+        `${table}.staffId`,
         `${table}.createdAt`,
         `${table}.updatedAt`,
       ])
@@ -77,7 +78,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
       .getRepository(UserInformation)
       .findOne({
         where: { uuid },
-        select: ['uuid', 'firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
+        select: ['uuid', 'staffId','firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
       });
 
     if (isNullOrUndefined(checkUserInformationExist)) {

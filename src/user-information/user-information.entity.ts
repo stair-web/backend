@@ -36,6 +36,9 @@ export class UserInformation extends BaseEntity {
     position: string;
 
     @Column()
+    staffId: string;
+
+    @Column()
     createdAt: Date;
 
     @Column()

@@ -53,10 +53,6 @@ export class User extends BaseEntity {
   @Exclude()
   password: string;
 
-  @Column({ length: 6 })
-  @Exclude()
-  staffId: string;
-
   @ApiHideProperty()
   @Column()
   @Exclude()

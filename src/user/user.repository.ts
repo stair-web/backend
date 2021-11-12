@@ -25,21 +25,26 @@ import { UserInformation } from 'src/user-information/user-information.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
+
+  /**
+   * 
+   * @param transactionEntityManager 
+   * @param createUserDto 
+   * @returns 
+   */
   async createUser(
     transactionEntityManager: EntityManager,
     createUserDto: CreateUserDto,
   ) {
-    const {
-      email,
-      username,
-      password,
-      userInformation
-    } = createUserDto;
+    const { email, username, password, userInformation } = createUserDto;
     // Check user existed?
     const query = transactionEntityManager
       .getRepository(User)
       .createQueryBuilder('user')
       .where('(user.email = :email)', {
+        email,
+      })
+      .orWhere('(user.username = :email)', {
         email,
       })
       .andWhere('user.isDeleted = FALSE');
@@ -60,14 +65,19 @@ export class UserRepository extends Repository<User> {
       username,
       password: hashedPassword,
       salt,
-      uuid: uuidv4()
+      uuid: uuidv4(),
     });
     // save user
     try {
       let userResult = await transactionEntityManager.save(user);
       userInformation.userId = userResult.id;
-      userInformation.staffId = userInformation.uuid.substr(userInformation.uuid.length - 6).toUpperCase();
-      const informationOfUser = transactionEntityManager.create(UserInformation, userInformation);
+      userInformation.staffId = userInformation.uuid
+        .substr(userInformation.uuid.length - 6)
+        .toUpperCase();
+      const informationOfUser = transactionEntityManager.create(
+        UserInformation,
+        userInformation,
+      );
       await transactionEntityManager.save(informationOfUser);
     } catch (error) {
       Logger.error(error);
@@ -78,24 +88,22 @@ export class UserRepository extends Repository<User> {
 
     return user;
   }
-  async deleteUser(
-    transactionManager: EntityManager,
-    deleteUserDto: DeleteUserDto,
-    uuid: string,
-  ) {
-    const { cannotDelete } = deleteUserDto;
 
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
+   */
+  async deleteUser(transactionManager: EntityManager, uuid: string) {
     const user = await transactionManager
       .getRepository(User)
       .findOne({ uuid: uuid });
+
     if (!user) {
       throw new InternalServerErrorException(`Không tìm thấy người dùng.`);
     }
-    if (cannotDelete === true) {
-      throw new InternalServerErrorException(
-        `Không thể xóa người dùng này. Người dùng này đã bị ràng buộc với hoạt động trong ứng dụng. Thay vào đó, hãy hủy kích hoạt người dùng?`,
-      );
-    }
+
     try {
       await transactionManager.update(User, { uuid }, { isDeleted: true });
     } catch (error) {
@@ -104,8 +112,9 @@ export class UserRepository extends Repository<User> {
         `Lỗi trong quá trình xóa người dùng, vui lòng thử lại sau.`,
       );
     }
-    return { statusCode: 200, message: `Xóa người dùng thành công.` };
+    return { statusCode: 201, message: `Xóa người dùng thành công.` };
   }
+
   async getUserByUuid(transactionManager: EntityManager, uuid: string) {
     const query = transactionManager
       .getRepository(User)
@@ -114,14 +123,12 @@ export class UserRepository extends Repository<User> {
         'user.id',
         'user.uuid',
         'user.email',
-        'user.userName',
+        'user.username',
         'user.isDeleted',
       ])
       .andWhere('user.uuid = :uuid', { uuid });
 
     const data = await query.getOne();
-
-   
 
     return { data };
   }
@@ -129,12 +136,7 @@ export class UserRepository extends Repository<User> {
     const query = transactionManager
       .getRepository(User)
       .createQueryBuilder('user')
-      .select([
-        'user.id',
-        'user.email',
-        'user.userName',
-        'user.isDeleted',
-      ])
+      .select(['user.id', 'user.email', 'user.username', 'user.isDeleted'])
       .andWhere('user.id = :id', { id })
       .andWhere('user.isDeleted = FALSE');
 
@@ -155,7 +157,7 @@ export class UserRepository extends Repository<User> {
     const query = transactionManager
       .getRepository(User)
       .createQueryBuilder('user')
-      .leftJoin('user.userInformation','userInformation')
+      .leftJoin('user.userInformation', 'userInformation')
       .select([
         'user.id',
         'user.uuid',
@@ -165,8 +167,9 @@ export class UserRepository extends Repository<User> {
         'user.isActive',
         'user.createdAt',
         'user.updatedAt',
-        'userInformation'
+        'userInformation',
       ])
+      .where({isDeleted: false})
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('user.createdAt', 'DESC');

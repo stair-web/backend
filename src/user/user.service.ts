@@ -63,12 +63,10 @@ export class UserService {
       transactionEntityManager,
       createUserDto,
     );
-    userCreated.staffId = this.genPersonalId(userCreated.id);
     await transactionEntityManager.update(
       User,
       { id: userCreated.id },
       {
-        staffId: userCreated.staffId,
         isActive: true,
       },
     );
@@ -266,12 +264,10 @@ export class UserService {
    */
   async deleteUser(
     transactionManager: EntityManager,
-    deleteUserDto: DeleteUserDto,
     uuid: string,
   ) {
     return this.usersRepository.deleteUser(
       transactionManager,
-      deleteUserDto,
       uuid,
     );
   }

@@ -162,13 +162,11 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Xóa người dùng.' })
   async deleteUser(
-    @Body() deleteUserDto: DeleteUserDto,
     @Param('uuid') uuid: string,
   ) {
     return await this.connection.transaction((transactionManager) => {
       return this.userService.deleteUser(
         transactionManager,
-        deleteUserDto,
         uuid,
       );
     });

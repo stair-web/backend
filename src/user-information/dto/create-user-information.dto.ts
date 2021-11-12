@@ -35,4 +35,7 @@ export class CreateUserInformationDto {
   @ApiProperty({ default: `+841234567890` })
   shortDescription: string;
 
+  @ApiProperty({ default: `true` })
+  isActive: string;
+
 }
