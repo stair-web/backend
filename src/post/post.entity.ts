@@ -67,6 +67,9 @@ export class Post extends BaseEntity {
   isDeleted: boolean;
 
   @Column()
+  isApproved: boolean;
+
+  @Column()
   content: string;
 
   @Column()

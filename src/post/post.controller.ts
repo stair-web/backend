@@ -15,6 +15,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Connection } from 'typeorm';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetAllPostDto } from './dto/get-all-post.dto';
+import { ApprovePostDto } from './dto/approve-post.dto';
 
 @ApiTags('Post')
 @Controller('post')
@@ -96,6 +97,19 @@ export class PostController {
   async deletePost(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.deletePost(transactionManager, uuid);
+    });
+  }
+
+  @Post('/approve-post')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình huỷ/phê duyệt bài viết.',
+  })
+  @ApiOperation({ summary: 'Huỷ/Phê duyệt bài viết.' })
+  @ApiResponse({ status: 201, description: 'Huỷ/Phê duyệt viết thành công.' })
+  async approvePost(@Body() approvePost: ApprovePostDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.approvePost(transactionManager, approvePost);
     });
   }
 }
