@@ -11,7 +11,7 @@ export class StaticSectionController {
   @Post()
   async createStaticSite(@Body() createStaticSection: CreateStaticSectionDto) {
     return await this.connection.transaction((transactionManager) => {
-      return this.staticSectionService.createStaticSite(transactionManager, createStaticSection);
+      return this.staticSectionService.createStaticSection(transactionManager, createStaticSection);
     });
   }
 }

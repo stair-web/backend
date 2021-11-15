@@ -32,13 +32,13 @@ export class StaticSiteRepository extends Repository<StaticSite> {
       isDeleted: false,
       updatedAt: new Date(),
       createdAt: new Date(),
-      staticSectionList: createStaticSite.listSection,
+      // staticSectionList: createStaticSite.listSection,
       });;
-      console.log(staticStie.staticSectionList[0]);
+      // console.log(staticStie.staticSectionList[0]);
       
-      await transactionManager.save(staticStie);
+    return  await transactionManager.save(staticStie);
 
-      return { statusCode: 201, description: 'Tạo Static Site thành công' };
+      // return { statusCode: 201, description: 'Tạo Static Site thành công' };
     } catch (error) {
       console.log(error);
     }

@@ -5,10 +5,13 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { StaticRelation } from 'src/static-relation/entities/static-relation.entity';
 
-@Entity({ name: 'static_site', schema: 'public' })
+@Entity({ name: 'static_site', schema: DBSchema.SCM_ARI_PUBLIC })
 export class StaticSite extends BaseEntity {
   constructor(partial: Partial<StaticSite>) {
     super();
@@ -26,13 +29,16 @@ export class StaticSite extends BaseEntity {
   @Column()
   isDeleted: boolean;
 
-  @ManyToMany(() => StaticSection,staticSection=>staticSection.staticSiteList)
+  @OneToMany(
+    () => StaticRelation,
+    (staticRelation) => staticRelation.staticSiteList,
+  )
   @JoinTable({
     name: 'static_tables_relation',
     joinColumn: { name: 'site_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'section_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'id', referencedColumnName: 'id' },
   })
-  public staticSectionList: StaticSection[];
+  public staticRelationList: StaticRelation[];
 
   @Column({
     type: 'timestamp without time zone',

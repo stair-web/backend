@@ -33,17 +33,23 @@ export class StaticSiteService {
     //   }
       
     try {
-      const listSection = await this.sectionRepo.saveListSection(
-        transactionManager,
-        createStaticSite.listSection,
-      );
+      // const listSection = await this.sectionRepo.saveListSection(
+      //   transactionManager,
+      //   createStaticSite.listSection,
+      // );
       
-      createStaticSite.listSection = listSection;
+      // createStaticSite.listSection = listSection;
       
-      return await this.staticRepository.createStaticSite(
+     let staticSite =  await this.staticRepository.createStaticSite(
         transactionManager,
         createStaticSite,
       );
+      // listSection.forEach(ele=>{
+      //   ele.staticSiteList.push(staticSite);
+      // })
+      // staticSite.staticSectionList = listSection;
+      staticSite = await  transactionManager.getRepository(StaticSite).save(staticSite);
+      return { statusCode: 201, description: 'Tạo Static Site thành công', data:staticSite };
     } catch (error) {
       console.log(error);
       Logger.error(error);

@@ -19,14 +19,14 @@ export class StaticSectionRepository extends Repository<StaticSection> {
       listSection.forEach(section=>{
         let sectionTrans:StaticSection;
         if(section.id){
-          sectionTrans = transactionManager.create(StaticSection,{
-            uuid:uuidv4(),
-            title:section.title,
-            isDeleted:false,
-            updatedAt:new Date(),
-            createdAt:new Date(),
-            staticItemList:[]
-          })
+          // sectionTrans = transactionManager.create(StaticSection,{
+          //   uuid:uuidv4(),
+          //   title:section.title,
+          //   isDeleted:false,
+          //   updatedAt:new Date(),
+          //   createdAt:new Date(),
+          //   staticItemList:[]
+          // })
         }else{
           sectionTrans = transactionManager.create(StaticSection,{
             id: section.id,
@@ -35,7 +35,6 @@ export class StaticSectionRepository extends Repository<StaticSection> {
             isDeleted:false,
             updatedAt:new Date(),
             createdAt:new Date(),
-            staticItemList:[]
 
           })
         }
@@ -43,15 +42,17 @@ export class StaticSectionRepository extends Repository<StaticSection> {
         section.staticItemList.forEach(async item=>{
           let itemTrans:StaticItem;
           if(item.id){
-            itemTrans = transactionManager.create(StaticItem,{
-              uuid:uuidv4(),
-              title:item.title,
-              isDeleted:false,
-              updatedAt:new Date(),
-              createdAt:new Date(),
-              description:item.description,
-              url:item.url,
-            })
+            // itemTrans = transactionManager.create(StaticItem,{
+            //   uuid:uuidv4(),
+            //   title:item.title,
+            //   isDeleted:false,
+            //   updatedAt:new Date(),
+            //   createdAt:new Date(),
+            //   description:item.description,
+            //   url:item.url,
+            //   staticSectionList:[sectionTrans]
+
+            // })
           }else{
             itemTrans = transactionManager.create(StaticItem,{
               id: item.id,
@@ -68,6 +69,7 @@ export class StaticSectionRepository extends Repository<StaticSection> {
          const itemSave = await transactionManager.getRepository(StaticItem).save(itemTrans);
          
           sectionTrans.staticItemList.push(itemSave)
+          // sectionTrans.staticSiteList = [];
         })
         listSectionTrans.push(sectionTrans);
       })

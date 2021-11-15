@@ -21,6 +21,7 @@ import { TopicModule } from './topic/topic.module';
 import { StaticSiteModule } from './static-site/static-site.module';
 import { StaticSectionModule } from './static-section/static-section.module';
 import { StaticItemModule } from './static-item/static-item.module';
+import { StaticRelationModule } from './static-relation/static-relation.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -62,6 +63,7 @@ import { StaticItemModule } from './static-item/static-item.module';
     StaticSiteModule,
     StaticSectionModule,
     StaticItemModule,
+    StaticRelationModule,
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway],

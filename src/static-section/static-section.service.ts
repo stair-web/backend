@@ -13,11 +13,9 @@ export class StaticSectionService {
     ){
 
     }
-  async createStaticSite(transactionManager: EntityManager, createStaticSection: CreateStaticSectionDto): Promise<unknown> {
+  async createStaticSection(transactionManager: EntityManager, createStaticSection: CreateStaticSectionDto): Promise<unknown> {
  try {
      return await this.staticSectionRepository.saveListSection(transactionManager,[createStaticSection]);
-    const list =  await transactionManager.getRepository(StaticItem).save(createStaticSection.staticItemList);
-    return await  transactionManager.getRepository(StaticSection).save(createStaticSection);
 
  } catch (error) {
      
