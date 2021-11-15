@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { bool } from 'aws-sdk/clients/signer';
 import {
   IsEmail,
@@ -9,30 +10,9 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
-  @IsString()
+  @ApiProperty({ default: `email_${Date.now()}@ari.com.vn` })
   email: string;
 
-  @IsString()
-  firstName: string;
-
-  @IsString()
-  lastName: string;
-
-  @IsString()
-  phoneNumber: string;
-
-  @IsNotEmpty()
-  dob: Date;
-
-  @IsString()
-  position: string;
-
-  @IsBoolean()
-  isDeleted: bool;
-
-  @IsString()
-  personalEmail: string;
-
-  @IsString()
-  profilePhotoKey: string;
+  @ApiProperty({ default: `123123` })
+  password: string;
 }

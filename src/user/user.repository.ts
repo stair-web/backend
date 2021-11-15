@@ -25,12 +25,11 @@ import { UserInformation } from 'src/user-information/user-information.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-
   /**
-   * 
-   * @param transactionEntityManager 
-   * @param createUserDto 
-   * @returns 
+   *
+   * @param transactionEntityManager
+   * @param createUserDto
+   * @returns
    */
   async createUser(
     transactionEntityManager: EntityManager,
@@ -115,39 +114,75 @@ export class UserRepository extends Repository<User> {
     return { statusCode: 201, message: `Xóa người dùng thành công.` };
   }
 
-  async getUserByUuid(transactionManager: EntityManager, uuid: string) {
-    const query = transactionManager
-      .getRepository(User)
-      .createQueryBuilder('user')
-      .select([
-        'user.id',
-        'user.uuid',
-        'user.email',
-        'user.username',
-        'user.isDeleted',
-      ])
-      .andWhere('user.uuid = :uuid', { uuid });
-
-    const data = await query.getOne();
-
-    return { data };
-  }
-  async getUserById(transactionManager: EntityManager, id: number) {
-    const query = transactionManager
-      .getRepository(User)
-      .createQueryBuilder('user')
-      .select(['user.id', 'user.email', 'user.username', 'user.isDeleted'])
-      .andWhere('user.id = :id', { id })
-      .andWhere('user.isDeleted = FALSE');
-
-    const data = await query.getOne();
-
-    if (isNullOrUndefined(data)) {
-      throw new NotFoundException(`Không tìm thấy người dùng.`);
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @param isGetDetail
+   * @returns
+   */
+  async getUserByUuid(
+    transactionManager: EntityManager,
+    uuid: string,
+    isGetDetail = true,
+  ) {
+    let user;
+    if (isGetDetail) {
+      user = await transactionManager.findOne(User, {
+        join: {
+          alias: 'user',
+          leftJoinAndSelect: {
+            userInformation: 'user.userInformation',
+          },
+        },
+        relations: ['userInformation'],
+        where: (qb) => {
+          qb.select([
+            'user.id',
+            'user.username',
+            'user.email',
+            'user.isDeleted',
+            'user.isActive',
+            'user.isFirstLogin',
+            'user.createdAt',
+            'user.updatedAt',
+            'userInformation.uuid',
+            'userInformation.firstName',
+            'userInformation.lastName',
+            'userInformation.profilePhotoKey',
+            'userInformation.phoneNumber',
+            'userInformation.dob',
+            'userInformation.shortDescription',
+            'userInformation.position',
+            'userInformation.staffId',
+            'userInformation.createdAt',
+            'userInformation.updatedAt',
+          ]);
+        },
+      });
+    } else {
+      user = await transactionManager.findOne(User, { uuid });
     }
-
-    return { statusCode: 200, data };
+    return user;
   }
+
+  // async getUserById(transactionManager: EntityManager, id: number) {
+  //   const query = transactionManager
+  //     .getRepository(User)
+  //     .createQueryBuilder('user')
+  //     .select(['user.id', 'user.email', 'user.username', 'user.isDeleted'])
+  //     .andWhere('user.id = :id', { id })
+  //     .andWhere('user.isDeleted = FALSE');
+
+  //   const data = await query.getOne();
+
+  //   if (isNullOrUndefined(data)) {
+  //     throw new NotFoundException(`Không tìm thấy người dùng.`);
+  //   }
+
+  //   return { statusCode: 200, data };
+  // }
+
   async getAllUser(
     transactionManager: EntityManager,
     getAllUserDto: GetAllUserDto,
@@ -169,7 +204,7 @@ export class UserRepository extends Repository<User> {
         'user.updatedAt',
         'userInformation',
       ])
-      .where({isDeleted: false})
+      .where({ isDeleted: false })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('user.createdAt', 'DESC');
@@ -225,4 +260,38 @@ export class UserRepository extends Repository<User> {
       console.log(error);
     }
   }
+
+  /**
+   * @Description activate or deactivate a user
+   * @param uuid 
+   * @param transactionManager 
+   * @param active 
+   */
+  async activation(
+    uuid,
+    transactionManager: EntityManager,
+    active: boolean = true,
+  ) {
+    const user = await this.getUserByUuid(transactionManager, uuid, false);
+
+    if (isNullOrUndefined(user)) {
+      throw new InternalServerErrorException('Không tìm thấy người dùng');
+    }
+
+    if (user.isActive == active) {
+      throw new ConflictException(
+        `Người dùng đã và đang trong trạng thái ${
+          active ? 'activation' : 'deactivation'
+        } `,
+      );
+    }
+
+    try {
+      user.isActive = active;
+      await transactionManager.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
 }
