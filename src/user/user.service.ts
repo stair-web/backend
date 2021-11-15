@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -29,6 +30,7 @@ import { UserRoleService } from 'src/user-role/user-role.service';
 import e from 'express';
 import { AcitveUserDto } from './dto/active-user.dto';
 import { uuidv4 } from 'src/common/util/common.util';
+import { hashPwd } from 'src/common/util/hash.util';
 
 @Injectable()
 export class UserService {
@@ -42,10 +44,10 @@ export class UserService {
   ) {}
 
   /**
-   * 
-   * @param transactionEntityManager 
-   * @param createUserDto 
-   * @returns 
+   *
+   * @param transactionEntityManager
+   * @param createUserDto
+   * @returns
    */
   async createUser(
     transactionEntityManager: EntityManager,
@@ -110,83 +112,67 @@ export class UserService {
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param updateUserDto 
-   * @param uuid 
-   * @returns 
+   * @Description UPDATE user detail
+   * @param transactionManager
+   * @param updateUserDto
+   * @param uuid
+   * @returns
    */
   async updateUser(
     transactionManager: EntityManager,
     updateUserDto: UpdateUserDto,
     uuid: string,
   ) {
-    const {
-      email,
-      firstName,
-      lastName,
-      phoneNumber,
-      dob,
-      position,
-      isDeleted,
-      personalEmail,
-      profilePhotoKey,
-    } = updateUserDto;
+    const { email, password } = updateUserDto;
 
-    const user = (await this.getUserByUuid(transactionManager, uuid)).data;
+    const user = await this.usersRepository.getUserByUuid(
+      transactionManager,
+      uuid,
+      false,
+    );
 
     if (isNullOrUndefined(user)) {
       throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
 
     try {
-      await transactionManager.update(
-        User,
-        { id: user.id },
-        {
-          email,
-          isDeleted,
-          // firstName,
-          // lastName,
-          // phoneNumber,
-          // position,
-          // profilePhotoKey,
-        },
-      );
+      const { hashedPassword, salt } = await hashPwd(password);
+      if (email) {
+        user.email = email;
+      }
+      if (hashedPassword) {
+        user.password = hashedPassword;
+        user.salt = salt;
+      }
+      await transactionManager.save(user);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi trong quá trình chỉnh sửa người dùng.',
       );
     }
-    return { statusCode: 200, message: 'Chỉnh sửa người dùng thành công.' };
+    return { statusCode: 201, message: 'Chỉnh sửa người dùng thành công.' };
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param id
+   * @returns
    */
   async getUserByUuid(transactionManager: EntityManager, uuid: string) {
-    return await this.usersRepository.getUserByUuid(transactionManager, uuid);
+    const user = await this.usersRepository.getUserByUuid(
+      transactionManager,
+      uuid,
+    );
+    return { statusCode: 201, data: { user } };
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param id 
-   * @returns 
-   */
-  async getUserById(transactionManager: EntityManager, id: number) {
-    return await this.usersRepository.getUserById(transactionManager, id);
-  }
-
-  /**
-   * 
-   * @param transactionManager 
-   * @param getAllUserDto 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param getAllUserDto
+   * @returns
    */
   async getAllUser(
     transactionManager: EntityManager,
@@ -196,86 +182,55 @@ export class UserService {
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param acitveUserDto 
-   * @returns 
+   *
+   * @param transactionManager
+   * @returns
    */
-  async activeUser(
-    transactionManager: EntityManager,
-    acitveUserDto: AcitveUserDto,
-  ) {
-    const data = this.decryptTokenToData(acitveUserDto.token);
-
-    const dateNow = Date();
-    //token het han
-    if (Date.parse(dateNow) > Date.parse(data.timeStamp)) {
-      return { statusCode: 500, message: 'Token đã hết hạn' };
+  async activateUser(transactionManager: EntityManager, uuid) {
+    try {
+      await this.usersRepository.activation(
+        uuid,
+        transactionManager
+      );
+    } catch (error) {
+      throw error;
     }
-
-    const userRes = await this.usersRepository.getUserByUuid(
-      transactionManager,
-      data.uuid,
-    );
-
-    //Khong tim thay nguoi dung
-    if (isNullOrUndefined(userRes.data)) {
-      return { statusCode: 500, message: 'Không tìm thấy người dùng' };
-    }
-
-    //user da duoc kich hoat
-    if (!userRes.data)
-      if (userRes.data.isActive) {
-        return { statusCode: 500, message: 'Người dùng đã được kích hoạt' };
-      }
-
-    await transactionManager.update(
-      User,
-      { id: userRes.data.id },
-      {
-        isActive: true,
-      },
-    );
     return { statusCode: 201, message: 'Kích hoạt người dùng thành công.' };
   }
-  genPersonalId(id) {
-    let pId = '';
-    if (id > 99999) {
-      pId = '' + id;
-    } else if (id > 9999) {
-      pId = '0' + id;
-    } else if (id > 999) {
-      pId = '00' + id;
-    } else if (id > 99) {
-      pId = '000' + id;
-    } else if (id > 9) {
-      pId = '0000' + id;
-    }
 
-    return pId;
-  }
-  
   /**
-   * 
-   * @param transactionManager 
-   * @param deleteUserDto 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionManager
+   * @returns
    */
-  async deleteUser(
-    transactionManager: EntityManager,
-    uuid: string,
-  ) {
-    return this.usersRepository.deleteUser(
-      transactionManager,
-      uuid,
-    );
+  async deactivateUser(transactionManager: EntityManager, uuid) {
+    try {
+      await this.usersRepository.activation(
+        uuid,
+        transactionManager,
+        false
+      );
+    } catch (error) {
+      throw error;
+    }
+    return { statusCode: 201, message: 'Huỷ kích hoạt người dùng thành công.' };
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param email 
+   *
+   * @param transactionManager
+   * @param deleteUserDto
+   * @param uuid
+   * @returns
+   */
+  async deleteUser(transactionManager: EntityManager, uuid: string) {
+    return this.usersRepository.deleteUser(transactionManager, uuid);
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param email
    */
   async sendResetPasswordEmail(
     transactionManager: EntityManager,
@@ -343,6 +298,7 @@ export class UserService {
       console.log(error);
     }
   }
+
   private decryptTokenToData(token: string) {
     const cipherText: string = token.replace(/\-/g, '+').replace(/\_/g, '/');
     const data = JSON.parse(
@@ -355,7 +311,7 @@ export class UserService {
   }
 
   async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
-    const { username, password } = signInDto;
+    const { username, email, password } = signInDto;
     const user = await transactionManager.getRepository(User).findOne({
       where: [
         {
@@ -364,7 +320,7 @@ export class UserService {
           // isForgetPassword: false,
         },
         {
-          email: username,
+          email,
           isDeleted: false,
           // isForgetPassword: false,
         },

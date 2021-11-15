@@ -75,18 +75,36 @@ export class UserController {
    * @param acitveUserDto 
    * @returns 
    */
-  @Post('/active')
+  @Post('/activate/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
   })
   @ApiOperation({ summary: 'Kích hoạt người dùng' })
   @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
-  async activeUser(@Body() acitveUserDto: AcitveUserDto) {
+  async activateUser(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.userService.activeUser(transactionManager, acitveUserDto);
+      return this.userService.activateUser(transactionManager, uuid);
     });
   }
+
+  /**
+   * 
+   * @param acitveUserDto 
+   * @returns 
+   */
+   @Post('/deactivate/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
+   })
+   @ApiOperation({ summary: 'Kích hoạt người dùng' })
+   @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
+   async deactivateUser(@Param('uuid') uuid: string) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userService.deactivateUser(transactionManager, uuid);
+     });
+   }
 
   /**
    * @method PUT
@@ -118,20 +136,20 @@ export class UserController {
     });
   }
 
-  @Post('send-email-reset-password/:email')
-  @ApiResponse({
-    status: 500,
-    description: 'Lỗi trong quá trình gửi email, hoặc email không đúng.',
-  })
-  @ApiResponse({ status: 201, description: 'Gửi mail thành công' })
-  @ApiOperation({ summary: 'Gửi email quên mật khẩu.' })
-  async sendResetPasswordEmail(@Param('email') email: string) {
-    return await this.connection.transaction((transactionManager) => {
-      return this.userService.sendResetPasswordEmail(transactionManager, email);
-    });
-  }
+  // @Post('send-email-reset-password/:email')
+  // @ApiResponse({
+  //   status: 500,
+  //   description: 'Lỗi trong quá trình gửi email, hoặc email không đúng.',
+  // })
+  // @ApiResponse({ status: 201, description: 'Gửi mail thành công' })
+  // @ApiOperation({ summary: 'Gửi email quên mật khẩu.' })
+  // async sendResetPasswordEmail(@Param('email') email: string) {
+  //   return await this.connection.transaction((transactionManager) => {
+  //     return this.userService.sendResetPasswordEmail(transactionManager, email);
+  //   });
+  // }
 
-  @Get('/:id')
+  @Get('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi trong quá trình lấy thông tin người dùng.',
@@ -145,9 +163,9 @@ export class UserController {
     description: 'Lấy dữ liệu người dùng thành công',
   })
   @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
-  async getUserById(@Param('id') id: number) {
+  async getUserByUuid(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.userService.getUserById(transactionManager, id);
+      return this.userService.getUserByUuid(transactionManager, uuid);
     });
   }
 
