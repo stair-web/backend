@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ConflictException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { paramStringToJson } from 'src/lib/utils/util';
+import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import {
   Repository,
   EntityRepository,
@@ -8,18 +8,17 @@ import {
   EntityManager,
   getConnection,
 } from 'typeorm';
-import { isNullOrUndefined } from 'util';
 import { Customer } from './customer.entity';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 
 @EntityRepository(Customer)
 export class CustomerRepository extends Repository<Customer> {
  
- async getAllUser(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
+ async getAll(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
   const { page, filter, sorts, fullTextSearch } = getAllCustomerDto;
   let { perPage } = getAllCustomerDto;
   if (isNullOrUndefined(perPage)) {
-    perPage = 25;
+    perPage = 10;
   }
   
   
