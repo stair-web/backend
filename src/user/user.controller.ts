@@ -9,6 +9,8 @@ import {
   Put,
   Query,
   ValidationPipe,
+  Req,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +21,7 @@ import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { AcitveUserDto } from './dto/active-user.dto';
+import { CheckExistsUserDto } from './dto/check-exists-user.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
@@ -71,9 +74,9 @@ export class UserController {
   }
 
   /**
-   * 
-   * @param acitveUserDto 
-   * @returns 
+   *
+   * @param acitveUserDto
+   * @returns
    */
   @Post('/activate/:uuid')
   @ApiResponse({
@@ -89,22 +92,22 @@ export class UserController {
   }
 
   /**
-   * 
-   * @param acitveUserDto 
-   * @returns 
+   *
+   * @param acitveUserDto
+   * @returns
    */
-   @Post('/deactivate/:uuid')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
-   })
-   @ApiOperation({ summary: 'Kích hoạt người dùng' })
-   @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
-   async deactivateUser(@Param('uuid') uuid: string) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.userService.deactivateUser(transactionManager, uuid);
-     });
-   }
+  @Post('/deactivate/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá kích hoạt người dùng.',
+  })
+  @ApiOperation({ summary: 'Kích hoạt người dùng' })
+  @ApiResponse({ status: 201, description: 'Kích hoạt người dùng thành công' })
+  async deactivateUser(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.deactivateUser(transactionManager, uuid);
+    });
+  }
 
   /**
    * @method PUT
@@ -149,7 +152,7 @@ export class UserController {
   //   });
   // }
 
-  @Get('/:uuid')
+  @Get('/detail/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi trong quá trình lấy thông tin người dùng.',
@@ -179,21 +182,16 @@ export class UserController {
     description: 'Xóa người dùng thành công',
   })
   @ApiOperation({ summary: 'Xóa người dùng.' })
-  async deleteUser(
-    @Param('uuid') uuid: string,
-  ) {
+  async deleteUser(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.userService.deleteUser(
-        transactionManager,
-        uuid,
-      );
+      return this.userService.deleteUser(transactionManager, uuid);
     });
   }
-  
+
   /**
    * @method POST
    * @description sign in with username password
-   * @param signInDto 
+   * @param signInDto
    * @returns state of sign in
    */
   @Post('sign-in')
@@ -206,6 +204,42 @@ export class UserController {
   async signIn(@Body() signInDto: SignInDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.userService.signIn(transactionManager, signInDto);
+    });
+  }
+
+  /**
+   * @description to check value if exists
+   * @param param 
+   * @param value 
+   * @returns 201 202
+   * @example 
+   *  /check-exists/username/example
+   * OR: /check-exists/email/example@email.com
+   */
+  @Get('/check-exists/:param/:value')
+  @ApiResponse({
+    status: 201,
+    description: 'Username này chưa tồn tại trong hệ thống.',
+  })
+  @ApiResponse({
+    status: 202,
+    description: 'Username này đã tồn tại trong hệ thống!',
+  })
+  async checkUsernameExists(
+    @Param('param') param: string,
+    @Param('value') value: string,
+  ) {
+    if (!(param in new CheckExistsUserDto()))
+      throw new InternalServerErrorException(
+        'Không hỗ trợ kiểm tra tồn tại cho trường này!',
+      );
+    let object = {};
+    object[param] = value;
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.checkUserExists(
+        transactionManager,
+        new CheckExistsUserDto(object),
+      );
     });
   }
 }
