@@ -25,11 +25,11 @@ export class CustomerService {
 
     return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
   }
-  getAllUser(
+  getAll(
     transactionManager: EntityManager,
     getAllCustomerDto: GetAllCustomerDto,
   ): Promise<unknown> {
-    return this.customerRepository.getAllUser(
+    return this.customerRepository.getAll(
       transactionManager,
       getAllCustomerDto,
     );
