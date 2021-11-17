@@ -118,7 +118,7 @@ export class PostService {
           ])
             .where(`category.uuid = :categoryUuid`, { categoryUuid })
             .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
-            .andWhere('post.isApproved = :isApproved', { isDeleted: 'true' })
+            .andWhere('post.isApproved = :isApproved', { isApproved: 'true' })
             .orderBy('post.createdAt', 'DESC');
         },
       });
