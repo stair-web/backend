@@ -135,12 +135,11 @@ export class UserService {
     updateUserDto: UpdateUserDto,
     uuid: string,
   ) {
-    const { email, password } = updateUserDto;
+    const { email, password, userInformation } = updateUserDto;
 
     const user = await this.usersRepository.getUserByUuid(
       transactionManager,
-      uuid,
-      false,
+      uuid
     );
 
     if (isNullOrUndefined(user)) {
@@ -156,6 +155,10 @@ export class UserService {
         user.password = hashedPassword;
         user.salt = salt;
       }
+      if (userInformation) {
+        Object.keys(userInformation).map(key => user.userInformation[key] = userInformation[key]);
+      }
+      await transactionManager.save(user.userInformation);
       await transactionManager.save(user);
     } catch (error) {
       Logger.error(error);

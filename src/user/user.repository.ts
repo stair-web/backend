@@ -146,6 +146,7 @@ export class UserRepository extends Repository<User> {
             'user.isFirstLogin',
             'user.createdAt',
             'user.updatedAt',
+            'userInformation.id',
             'userInformation.uuid',
             'userInformation.firstName',
             'userInformation.lastName',
