@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UploadedFiles,
   Res,
+  Query,
 } from '@nestjs/common';
 import {
   FileFieldsInterceptor,
@@ -33,6 +34,7 @@ import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
 import { diskStorage } from 'multer';
 import { Express } from 'express';
+import { GetAllCandidateDto } from './dto/get-all-candidate.dto';
 
 @ApiTags('Candidate')
 @Controller('candidate')
@@ -124,4 +126,17 @@ export class CandidateController {
   seeUploadedFile(@Param('filename') filename, @Res() res) {
     return res.sendFile(filename, { root: '../' + process.env.UPLOAD_FILE_FOLDER });
   }
+
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách Candidate thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách Candidate' })
+  async getAll(@Query() getAllCandidateDto: GetAllCandidateDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.candidateService.getAll(transactionManager, getAllCandidateDto);
+    });
+  }
+
 }

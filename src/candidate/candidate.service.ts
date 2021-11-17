@@ -7,6 +7,7 @@ import { UploadedFileCandidateDto } from './dto/upload-file-candidate.dto';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { throws } from 'assert';
 import { Candidate } from './candidate.entity';
+import { GetAllCandidateDto } from './dto/get-all-candidate.dto';
 
 @Injectable()
 export class CandidateService {
@@ -44,6 +45,12 @@ export class CandidateService {
     return await this.candidateRepository.saveCandidate(
       transactionManager,
       createCandidateDto,
+    );
+  }
+  async getAll(transactionManager: EntityManager, getAllCandidateDto: GetAllCandidateDto): Promise<unknown> {
+    return await this.candidateRepository.getAll(
+      transactionManager,
+      getAllCandidateDto,
     );
   }
 }
