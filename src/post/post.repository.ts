@@ -28,7 +28,7 @@ export class PostRepository extends Repository<Post> {
           `Bài viết không tồn tại trong hệ thống!`,
         );
       }
-      post.isApproved = true;
+      post.isApproved = approvePostDto.isApproved;
       await transactionManager.save(post);
       return {
         statusCode: 201,

@@ -81,6 +81,7 @@ export class PostService {
           'post.updatedAt',
           'post.isDeleted',
           'post.fileType',
+          'post.isApproved',
           'category.uuid',
         ])
           .where(`post.uuid = :postUuid`, { postUuid })
