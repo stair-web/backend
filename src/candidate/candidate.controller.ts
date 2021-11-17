@@ -77,7 +77,7 @@ export class CandidateController {
       ],
       {
         storage: diskStorage({
-          destination:'../'+ process.env.UPLOAD_FILE_FOLDER,
+          destination: process.env.UPLOAD_FILE_FOLDER,
           filename: editCandidateFileName,
         }),
         fileFilter: filterCandidateFile,
