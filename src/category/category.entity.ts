@@ -9,8 +9,9 @@ import * as bcrypt from 'bcrypt';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Post } from 'src/post/post.entity';
+import { DBSchema } from 'src/common/enum/db-schemas.enum';
 
-@Entity({ name: 'category', schema: 'public' })
+@Entity({ name: 'category',  schema: DBSchema.SCM_ARI_PUBLIC })
 export class Category extends BaseEntity {
   constructor(partial: Partial<Category>) {
     super();

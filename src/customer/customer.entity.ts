@@ -11,8 +11,9 @@ import {
 import * as bcrypt from 'bcrypt';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { DBSchema } from 'src/common/enum/db-schemas.enum';
 
-@Entity({ name: 'customer', schema: 'public' })
+@Entity({ name: 'customer',  schema: DBSchema.SCM_ARI_PUBLIC })
 export class Customer  {
  
   @ApiProperty()

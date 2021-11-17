@@ -19,6 +19,7 @@ import { PostModule } from './post/post.module';
 import { CategoryModule } from './category/category.module';
 import { TopicModule } from './topic/topic.module';
 import { UserInformationModule } from './user-information/user-information.module';
+import { CandidateModule } from './candidate/candidate.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -58,6 +59,7 @@ import { UserInformationModule } from './user-information/user-information.modul
     CategoryModule,
     TopicModule,
     UserInformationModule,
+    CandidateModule,
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway],
