@@ -15,14 +15,3 @@ export const filterCandidateFile = (req, file, callback) => {
   callback(null, true);
 };
 
-export const getFileUrl = (fileName: string) => {
-  return (
-    process.env.PROTOCOL +
-    '://' +
-    process.env.SERVER_HOST +
-    ':' +
-    process.env.SERVER_PORT +
-    '/candidate/download/' +
-    fileName
-  );
-};

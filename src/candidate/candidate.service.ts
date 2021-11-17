@@ -7,7 +7,6 @@ import { UploadedFileCandidateDto } from './dto/upload-file-candidate.dto';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { throws } from 'assert';
 import { Candidate } from './candidate.entity';
-import { getFileUrl } from 'src/common/util/file-upload.util';
 
 @Injectable()
 export class CandidateService {
@@ -23,15 +22,11 @@ export class CandidateService {
     throw new ConflictException('Candidate không tồn tại!');
    }
 
-   let coverletterLink;
    if(files.coverletter){     
     candidate.coverLetterFile = files.coverletter[0].filename;
-    // coverletterLink =  getFileUrl(files.coverletter[0]?.filename)
    }
-   let resumeLink;
    if(files.resume){
     candidate.resumeFile = files.resume[0].filename;
-    // resumeLink = getFileUrl(files.resume[0]?.filename)
    }
 
    candidate.updatedAt = new Date();
@@ -40,10 +35,6 @@ export class CandidateService {
    return {
     statusCode: 201,
     message: `Lưu file thành công.`,
-    // url: {
-    //   coverletterLink,
-    //   resumeLink
-    // }
   };
   }
   async createCandidate(
