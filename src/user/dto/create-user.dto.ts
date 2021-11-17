@@ -20,10 +20,6 @@ export class CreateUserDto {
 
   password: string;
 
-  profilePhotoKey: string;
-
-  personalEmail: string;
-
   /* USER INFORMATION */
   @ApiProperty({
     default: {
