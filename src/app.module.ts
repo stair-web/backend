@@ -18,10 +18,10 @@ import { AppController } from './app.controller';
 import { PostModule } from './post/post.module';
 import { CategoryModule } from './category/category.module';
 import { TopicModule } from './topic/topic.module';
-import { StaticSiteModule } from './static-site/static-site.module';
-import { StaticSectionModule } from './static-section/static-section.module';
-import { StaticItemModule } from './static-item/static-item.module';
+import { StaticItemModule } from './static-page/static-item/static-item.module';
 import { UserInformationModule } from './user-information/user-information.module';
+import { StaticSiteModule } from './static-page/static-site/static-site.module';
+import { StaticSectionModule } from './static-page/static-section/static-section.module';
 @Module({
   imports: [
     PrometheusModule.register(),

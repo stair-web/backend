@@ -1,6 +1,6 @@
-import { StaticItem } from "src/static-item/static-item.entity";
-import { StaticSite } from "src/static-site/static-site.entity";
+import { StaticItem } from "src/static-page/static-item/static-item.entity";
 import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { StaticSite } from "../static-site/static-site.entity";
 
 
 @Entity({ name: 'static_section', schema: 'public' })

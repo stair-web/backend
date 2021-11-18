@@ -1,5 +1,5 @@
-import { StaticSection } from "src/static-section/static-section.entity";
 import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { StaticSection } from "../static-section/static-section.entity";
 
 @Entity({ name: 'static_item', schema: 'public' })
 export class StaticItem  extends BaseEntity {

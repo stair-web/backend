@@ -4,7 +4,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { uuidv4 } from 'src/common/util/common.util';
-import { StaticItem } from 'src/static-item/static-item.entity';
+import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
 import { StaticSection } from './static-section.entity';

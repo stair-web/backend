@@ -1,10 +1,10 @@
-import { StaticSectionRepository } from 'src/static-section/static-section.repository';
 import { Injectable } from '@nestjs/common';
-import { StaticItem } from 'src/static-item/static-item.entity';
+import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
 import { UpdateStaticSectionDto } from './dto/update-static-section.dto';
 import { StaticSection } from './static-section.entity';
+import { StaticSectionRepository } from './static-section.repository';
 
 @Injectable()
 export class StaticSectionService {
