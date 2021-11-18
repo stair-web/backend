@@ -147,13 +147,15 @@ export class UserService {
     }
 
     try {
-      const { hashedPassword, salt } = await hashPwd(password);
       if (email) {
         user.email = email;
       }
-      if (hashedPassword) {
-        user.password = hashedPassword;
-        user.salt = salt;
+      if (password) {
+        const { hashedPassword, salt } = await hashPwd(password);
+        if (hashedPassword) {
+          user.password = hashedPassword;
+          user.salt = salt;
+        }
       }
       if (userInformation) {
         Object.keys(userInformation).map(key => user.userInformation[key] = userInformation[key]);
