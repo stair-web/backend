@@ -13,15 +13,18 @@ import { GetAllCandidateDto } from './dto/get-all-candidate.dto';
 
 @EntityRepository(Candidate)
 export class CandidateRepository extends Repository<Candidate> {
-  getAll(
+  async getAll(
     transactionManager: EntityManager,
     getAllCandidateDto: GetAllCandidateDto,
   ) {
     try {
-      const { page, filter, sorts } = getAllCandidateDto;
       let { perPage } = getAllCandidateDto;
       if (isNullOrUndefined(perPage)) {
-        perPage = 25;
+        perPage = 10;
+      }
+      let { page } = getAllCandidateDto;
+      if (isNullOrUndefined(perPage)) {
+        page = 1;
       }
       const query = transactionManager
         .getRepository(Candidate)
@@ -50,87 +53,137 @@ export class CandidateRepository extends Repository<Candidate> {
         .orderBy('candidate.createdAt', 'DESC');
 
       // Filter list
-      if (!isNullOrUndefined(filter)) {
-        const object = paramStringToJson(filter);
-        if (!isNullOrUndefined(object.fullName)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterFullName)) {
           query.andWhere('LOWER(candidate.fullName) LIKE LOWER(:fullName)', {
-            fullName: `%${object.fullName}%`,
+            fullName: `%${getAllCandidateDto.filterFullName}%`,
           });
         }
 
-        if (!isNullOrUndefined(object.privateEmail)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterPrivateEmail)) {
           query.andWhere(
             'LOWER(candidate.privateEmail) LIKE LOWER(:privateEmail)',
             {
-              privateEmail: `%${object.privateEmail}%`,
+              privateEmail: `%${getAllCandidateDto.filterPrivateEmail}%`,
             },
           );
         }
 
-        if (!isNullOrUndefined(object.phoneNumber)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterPhoneNumber)) {
           query.andWhere(
             'LOWER(candidate.phoneNumber) LIKE LOWER(:phoneNumber)',
             {
-              phoneNumber: `%${object.phoneNumber}%`,
+              phoneNumber: `%${getAllCandidateDto.filterPhoneNumber}%`,
             },
           );
         }
 
-        if (!isNullOrUndefined(object.university)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterExperience)) {
+          query.andWhere(
+            'LOWER(candidate.experience) LIKE LOWER(:experience)',
+            {
+              experience: `%${getAllCandidateDto.filterExperience}%`,
+            },
+          );
+        }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterUniversity)) {
           query.andWhere(
             'LOWER(candidate.university) LIKE LOWER(:university)',
             {
-              university: `%${object.university}%`,
+              university: `%${getAllCandidateDto.filterUniversity}%`,
             },
           );
         }
 
-        if (!isNullOrUndefined(object.courseOfStudy)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterHighestEducation)) {
+          query.andWhere(
+            'LOWER(candidate.university) LIKE LOWER(:highestEducation)',
+            {
+              highestEducation: `%${getAllCandidateDto.filterHighestEducation}%`,
+            },
+          );
+        }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterInformationChannel)) {
+          query.andWhere(
+            'LOWER(candidate.university) LIKE LOWER(:informationChannel)',
+            {
+              informationChannel: `%${getAllCandidateDto.filterInformationChannel}%`,
+            },
+          );
+        }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterCourseOfStudy)) {
           query.andWhere(
             'LOWER(candidate.courseOfStudy) LIKE LOWER(:courseOfStudy)',
             {
-              courseOfStudy: `%${object.courseOfStudy}%`,
+              courseOfStudy: `%${getAllCandidateDto.filterCourseOfStudy}%`,
             },
           );
         }
 
-        if (!isNullOrUndefined(object.note)) {
-          query.andWhere('LOWER(candidate.note) LIKE LOWER(:note)', {
-            note: `%${object.note}%`,
+        if (!isNullOrUndefined(getAllCandidateDto.filterWebsiteUrl)) {
+          query.andWhere('LOWER(candidate.note) LIKE LOWER(:websiteUrl)', {
+            websiteUrl: `%${getAllCandidateDto.filterWebsiteUrl}%`,
           });
         }
-      }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterNote)) {
+          query.andWhere('LOWER(candidate.note) LIKE LOWER(:note)', {
+            note: `%${getAllCandidateDto.filterNote}%`,
+          });
+        }
+      
 
       // Sort list
-    if (!isNullOrUndefined(sorts)) {
-      const object = paramStringToJson(sorts);
-
-      if (!isNullOrUndefined(object.fullName)) {
-        query.orderBy('user.fullName', object.fullName);
+      if (!isNullOrUndefined(getAllCandidateDto.sortFullName)) {
+        query.orderBy('user.fullName', getAllCandidateDto.sortFullName);
       }
       
-      if (!isNullOrUndefined(object.privateEmail)) {
-        query.orderBy('user.privateEmail', object.privateEmail);
+      if (!isNullOrUndefined(getAllCandidateDto.sortPrivateEmail)) {
+        query.orderBy('user.privateEmail', getAllCandidateDto.sortPrivateEmail);
       }
       
-      if (!isNullOrUndefined(object.phoneNumber)) {
-        query.orderBy('user.phoneNumber', object.phoneNumber);
+      if (!isNullOrUndefined(getAllCandidateDto.sortPhoneNumber)) {
+        query.orderBy('user.phoneNumber', getAllCandidateDto.sortPhoneNumber);
       }
 
-      if (!isNullOrUndefined(object.university)) {
-        query.orderBy('user.university', object.university);
+      if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
+        query.orderBy('user.experience', getAllCandidateDto.sortExperience);
       }
 
-      if (!isNullOrUndefined(object.courseOfStudy)) {
-        query.orderBy('user.courseOfStudy', object.courseOfStudy);
+      if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
+        query.orderBy('user.experience', getAllCandidateDto.sortExperience);
       }
 
-      if (!isNullOrUndefined(object.note)) {
-        query.orderBy('user.note', object.note);
+      if (!isNullOrUndefined(getAllCandidateDto.sortHighestEducation)) {
+        query.orderBy('user.highestEducation', getAllCandidateDto.sortHighestEducation);
       }
-    }
+
+      if (!isNullOrUndefined(getAllCandidateDto.sortCourseOfStudy)) {
+        query.orderBy('user.courseOfStudy', getAllCandidateDto.sortCourseOfStudy);
+      }
+
+      if (!isNullOrUndefined(getAllCandidateDto.sortWebsiteUrl)) {
+        query.orderBy('user.websiteUrl', getAllCandidateDto.sortWebsiteUrl);
+      }
+
+      if (!isNullOrUndefined(getAllCandidateDto.sortInformationChannel)) {
+        query.orderBy('user.informationChannel', getAllCandidateDto.sortInformationChannel);
+      }
+
+      if (!isNullOrUndefined(getAllCandidateDto.sortNote)) {
+        query.orderBy('user.note', getAllCandidateDto.sortNote);
+      }
+      const data = await query.getMany();
+      const total = await query.getCount();
+      return { statusCode: 201, data: { data, total } };
+
     } catch (error) {
       console.log(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá trình lấy danh sách, vui lòng thử lại sau.',
+      );
     }
   }
   async saveCandidate(

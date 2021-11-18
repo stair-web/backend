@@ -1,34 +1,82 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
 import { SortValue } from '../../common/sort-value.enum';
 
-export class filterCandidateDto {
-  fullName?: string;
-  privateEmail?: string;
-  phoneNumber?: string;
-  university?: string;
-  courseOfStudy?: string;
-  note?: string;
-}
-export class sortCandidateDto {
-    fullName?: SortValue;
-    privateEmail?: SortValue;
-    phoneNumber?: SortValue;
-    university?: SortValue;
-    courseOfStudy?: SortValue;
-    note?: SortValue;
-}
 export class GetAllCandidateDto {
-  @ApiProperty({default:9})
+  @ApiProperty({
+    default:10,
+    required: false
+  })
   perPage?: number;
 
-  @ApiProperty({default:1})
-  @IsNotEmpty()
-  page: number;
+  @ApiProperty({
+    default:1,
+    required: false
+  }) 
+  page?:number;
 
-  @ApiProperty()
-  filter?: filterCandidateDto;
+  
+  //Filter
+  @ApiProperty({required: false})
+  filterNote:string;
 
-  @ApiProperty()
-  sorts?: sortCandidateDto;
+  @ApiProperty({required: false})
+  filterFullName:string;
+
+  @ApiProperty({required: false})
+  filterPrivateEmail:string;
+
+  @ApiProperty({required: false})
+  filterPhoneNumber:string;
+
+  @ApiProperty({required: false})
+  filterExperience:string;
+
+  @ApiProperty({required: false})
+  filterHighestEducation:string;
+
+  @ApiProperty({required: false})
+  filterUniversity:string;
+
+  @ApiProperty({required: false})
+  filterCourseOfStudy:string;
+
+  @ApiProperty({required: false})
+  filterWebsiteUrl:string;
+
+  @ApiProperty({required: false})
+  filterInformationChannel:string;
+ 
+
+  //Sort
+  @ApiProperty({required: false, enum: SortValue,})
+  sortNote: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortFullName: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortPrivateEmail: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortPhoneNumber: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortExperience: SortValue;
+
+  @ApiProperty({required: false})
+  sortHighestEducation:SortValue;
+
+  @ApiProperty({required: false})
+  sortUniversity:SortValue;
+
+  @ApiProperty({required: false})
+  sortCourseOfStudy:SortValue;
+  
+  @ApiProperty({required: false})
+  sortWebsiteUrl:SortValue;
+  
+  @ApiProperty({required: false})
+  sortInformationChannel:SortValue;
+
+  fullTextSearch?: string;
 }

@@ -131,7 +131,7 @@ export class CandidateController {
   @Get()
   @ApiResponse({
     status: 200,
-    description: 'Lấy danh sách Candidate thành công.',
+    description: 'Lấy danh sách ứng viên thành công.',
   })
   @ApiOperation({ summary: 'Danh sách Candidate' })
   async getAll(@Query() getAllCandidateDto: GetAllCandidateDto) {

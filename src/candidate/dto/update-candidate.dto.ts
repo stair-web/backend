@@ -31,7 +31,7 @@ export class UpdateCandidateDto extends PartialType(CreateCandidateDto) {
 
     @ApiProperty()
     informationChannel:string;
-    
+
     @ApiProperty()
     note:string;
 
