@@ -22,7 +22,7 @@ export class CustomerRepository extends Repository<Customer> {
   ): Promise<unknown> {
     const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
 
-    const customer = await transactionManager.getRepository(Customer).findOne({uuid});
+    const customer = await transactionManager.getRepository(Customer).findOne({uuid,isDeleted:false});
 
     if (isNullOrUndefined(customer)) {
       throw new InternalServerErrorException('Khách hàng không tồn tại.');
@@ -51,7 +51,7 @@ export class CustomerRepository extends Repository<Customer> {
   }
  async deleteCustomerByUuid(transactionManager: EntityManager, uuid: string) {
 
-  const customer = await transactionManager.getRepository(Customer).findOne({uuid});
+  const customer = await transactionManager.getRepository(Customer).findOne({uuid,isDeleted:false});
 
   if (isNullOrUndefined(customer)) {
     throw new InternalServerErrorException('Khách hàng không tồn tại.');
