@@ -49,7 +49,7 @@ export class CustomerController {
     });
   }
 
-  @Put('/:id')
+  @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi trong quá trình chỉnh sửa thông tin khách hàng.',
@@ -61,14 +61,32 @@ export class CustomerController {
   @ApiOperation({ summary: 'Chỉnh sửa khách hàng.' })
   async update(
     @Body() updateCustomerDto: UpdateCustomerDto,
-    @Param('id') id: string,
+    @Param('uuid') uuid: string,
   ) {
-    console.log(id);
-
-    return await this.connection.transaction((transactionManager) => {
+    return await this.connection.transaction((transactionManager) => {      
       return this.customerService.updateCustomer(
         transactionManager,
         updateCustomerDto,
+        uuid,
+      );
+    });
+  }
+  @Get('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình lấy thông tin khách hàng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy thông tin khách hàng',
+  })
+  @ApiOperation({ summary: 'Lấy thông tin khách hàng' })
+  async getDetail(
+    @Param('uuid') id: string,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.customerService.getCustomerByUuid(
+        transactionManager,
         id,
       );
     });

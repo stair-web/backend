@@ -17,13 +17,12 @@ export class CustomerService {
   async createCustomer(
     transactionManager: EntityManager,
     createCustomerDto: CreateCustomerDto,
-  ): Promise<unknown> {
+  ){
     await this.customerRepository.createCustomer(
       transactionManager,
       createCustomerDto,
     );
 
-    return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
   }
   getAll(
     transactionManager: EntityManager,
@@ -37,11 +36,11 @@ export class CustomerService {
   async updateCustomer(
     transactionManager: EntityManager,
     updateCustomerDto: UpdateCustomerDto,
-    id: string,
+    uuid: string,
   ): Promise<unknown> {
     const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
 
-    const customer = (await this.getCustomerById(transactionManager, id)).data;
+    const customer = await transactionManager.getRepository(Customer).findOne({uuid});
 
     if (isNullOrUndefined(customer)) {
       throw new InternalServerErrorException('Khách hàng không tồn tại.');
@@ -50,7 +49,7 @@ export class CustomerService {
     try {
       await transactionManager.update(
         Customer,
-        { id: customer.id },
+        { uuid: customer.uuid },
         {
           email: email,
           fullName: fullName,
@@ -68,7 +67,7 @@ export class CustomerService {
     }
     return { statusCode: 200, message: 'Chỉnh sửa người dùng thành công.' };
   }
-  async getCustomerById(transactionManager: EntityManager, id: string) {
-    return await this.customerRepository.getUserById(transactionManager, id);
+  async getCustomerByUuid(transactionManager: EntityManager, id: string) {
+    return await this.customerRepository.getCustomerByUuid(transactionManager, id);
   }
 }

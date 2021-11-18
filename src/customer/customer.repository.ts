@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ConflictException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { uuidv4 } from 'src/common/util/common.util';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import {
   Repository,
@@ -15,12 +16,16 @@ import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 export class CustomerRepository extends Repository<Customer> {
  
  async getAll(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
-  const { page, filter, sorts, fullTextSearch } = getAllCustomerDto;
+  const {fullTextSearch } = getAllCustomerDto;
   let { perPage } = getAllCustomerDto;
   if (isNullOrUndefined(perPage)) {
     perPage = 10;
   }
-  
+
+  let { page } = getAllCustomerDto;
+  if (isNullOrUndefined(page)) {
+    page = 1;
+  }
   
   const query = transactionManager
     .getRepository(Customer)
@@ -72,48 +77,53 @@ export class CustomerRepository extends Repository<Customer> {
   }
 
   // Filter list
-  if (!isNullOrUndefined(filter)) {
-    const object = paramStringToJson(filter);
-    if (!isNullOrUndefined(object.email)) {
+ 
+    if (!isNullOrUndefined(getAllCustomerDto.filterEmail)) {
       query.andWhere('LOWER(customer.email) LIKE LOWER(:email)', {
-        email: `%${object.email}%`,
+        email: `%${getAllCustomerDto.filterEmail}%`,
       });
     }
 
-    if (!isNullOrUndefined(object.full_name)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterFullName)) {
       query.andWhere('LOWER(customer.fullName) LIKE LOWER(:fullName)', {
-        full_name: `%${object.full_name}%`,
+        full_name: `%${getAllCustomerDto.filterFullName}%`,
       });
     }
 
-    if (!isNullOrUndefined(object.note)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterNote)) {
       query.andWhere('LOWER(customer.note) LIKE LOWER(:note)', {
-        note: `%${object.note}%`,
+        note: `%${getAllCustomerDto.filterNote}%`,
       });
     }
-    if (!isNullOrUndefined(object.phone_number)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterPhoneNumber)) {
       query.andWhere('LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber)', {
-        note: `%${object.phone_number}%`,
+        note: `%${getAllCustomerDto.filterPhoneNumber}%`,
       });
     }
-    if (!isNullOrUndefined(object.send_time)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterSendTime)) {
       query.andWhere('LOWER(customer.sendTime) LIKE LOWER(:sendTime)', {
-        note: `%${object.send_time}%`,
+        note: `%${getAllCustomerDto.filterSendTime}%`,
       });
     }
-  }
+  
 
   // Sort list
-  if (!isNullOrUndefined(sorts)) {
-    const object = paramStringToJson(sorts);
-
-
-    if (!isNullOrUndefined(object.email)) {
-      query.orderBy('customer.email', object.email);
+    if (!isNullOrUndefined(getAllCustomerDto.sortEmail)) {
+      query.orderBy('customer.email', getAllCustomerDto.sortEmail);
     }
-
- 
-  }
+    if (!isNullOrUndefined(getAllCustomerDto.sortFullName)) {
+      query.orderBy('customer.fullName', getAllCustomerDto.sortFullName);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortNote)) {
+      query.orderBy('customer.note', getAllCustomerDto.sortNote);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortPhoneNumber)) {
+      query.orderBy('customer.phoneNumber', getAllCustomerDto.sortPhoneNumber);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortSendTime)) {
+      query.orderBy('customer.sendTime', getAllCustomerDto.sortSendTime);
+    }
+  
 
 
   try {
@@ -128,13 +138,14 @@ export class CustomerRepository extends Repository<Customer> {
   }
   
  }
- async getUserById(transactionManager: EntityManager, id: string) {
+ async getCustomerByUuid(transactionManager: EntityManager, uuid: string) {
 
   const query = transactionManager
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
       'customer.id',
+      'customer.uuid',
       'customer.email',
       'customer.fullName',
       'customer.note',
@@ -142,13 +153,13 @@ export class CustomerRepository extends Repository<Customer> {
       'customer.sendTime',
     
     ])
-    .andWhere('customer.id = :id', { id })
+    .andWhere('customer.uuid = :uuid', { uuid })
     .andWhere('customer.isDeleted = FALSE');
 
   const data = await query.getOne();
 
   if (isNullOrUndefined(data)) {
-    throw new NotFoundException(`Không tìm thấy người dùng.`);
+    throw new NotFoundException(`Không tìm thấy khách hàng.`);
   }
 
   return { statusCode: 200, data };
@@ -165,6 +176,7 @@ export class CustomerRepository extends Repository<Customer> {
 
 
   const customer = transactionEntityManager.create(Customer, {
+    uuid:uuidv4(),
     fullName: fullName,
     email: email,
     note: note,
@@ -179,6 +191,8 @@ export class CustomerRepository extends Repository<Customer> {
 
   try {
     await transactionEntityManager.save(customer);
+    return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
+
   } catch (error) {
     Logger.error(error);
     throw new InternalServerErrorException(

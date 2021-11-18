@@ -1,9 +1,6 @@
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 export class UpdateCustomerDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
 
   @IsEmail()
   @IsNotEmpty()
