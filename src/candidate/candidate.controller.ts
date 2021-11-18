@@ -52,7 +52,7 @@ export class CandidateController {
   })
   @ApiOperation({ summary: 'Tạo Candidate.' })
   @ApiResponse({ status: 201, description: 'Tạo Candidate thành công' })
-  async createCategory(@Body() createCandidateDto: CreateCandidateDto) {
+  async createCandidate(@Body() createCandidateDto: CreateCandidateDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.candidateService.createCandidate(
         transactionManager,

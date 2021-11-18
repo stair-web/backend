@@ -23,7 +23,7 @@ export class CandidateRepository extends Repository<Candidate> {
         perPage = 10;
       }
       let { page } = getAllCandidateDto;
-      if (isNullOrUndefined(perPage)) {
+      if (isNullOrUndefined(page)) {
         page = 1;
       }
       const query = transactionManager
@@ -222,6 +222,8 @@ export class CandidateRepository extends Repository<Candidate> {
       await transactionManager.save(candidate);
     } catch (error) {
       Logger.error(error);
+      console.log(error);
+      
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá trình tạo, vui lòng thử lại sau.',
       );

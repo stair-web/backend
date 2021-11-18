@@ -6,13 +6,13 @@ export class GetAllCandidateDto {
     default:10,
     required: false
   })
-  perPage?: number;
+  perPage?: number = 10;
 
   @ApiProperty({
     default:1,
     required: false
   }) 
-  page?:number;
+  page?:number = 1;
 
   
   //Filter

@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsPhoneNumber, IsString } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateCandidateDto } from './create-candidate.dto';
 
@@ -12,6 +12,7 @@ export class UpdateCandidateDto extends PartialType(CreateCandidateDto) {
     privateEmail: string;
 
     @ApiProperty()
+    @IsPhoneNumber('VN')
     phoneNumber: string;
 
     @ApiProperty()

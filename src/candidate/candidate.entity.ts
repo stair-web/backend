@@ -9,7 +9,7 @@ import {
 
 
 @Entity({ name: 'candidate', schema: DBSchema.SCM_ARI_PUBLIC })
-export class Candidate extends BaseEntity {
+export class Candidate {
   
   @PrimaryGeneratedColumn()
   id: number;
