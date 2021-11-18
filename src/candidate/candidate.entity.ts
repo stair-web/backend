@@ -51,6 +51,9 @@ export class Candidate extends BaseEntity {
   resumeFile:string;
 
   @Column()
+  isDeleted:boolean;
+
+  @Column()
   coverLetterFile:string;
 
   @Column({

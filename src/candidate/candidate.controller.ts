@@ -12,6 +12,7 @@ import {
   UploadedFiles,
   Res,
   Query,
+  Put,
 } from '@nestjs/common';
 import {
   FileFieldsInterceptor,
@@ -138,5 +139,30 @@ export class CandidateController {
       return this.candidateService.getAll(transactionManager, getAllCandidateDto);
     });
   }
+  
+  @Put('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình cập nhật ứng viên.',
+  })
+  @ApiOperation({ summary: 'Cập nhật bài viết.' })
+  @ApiResponse({ status: 201, description: 'Cập nhật ứng viên thành công' })
+  async update(@Body() updateCandidateDto: UpdateCandidateDto, @Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.candidateService.updateCandidate(transactionManager, updateCandidateDto, uuid);
+    });
+  }
 
+  @Delete('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình xoá ứng viên.',
+  })
+  @ApiOperation({ summary: 'Xoá ứng viên.' })
+  @ApiResponse({ status: 201, description: 'Xoá ứng viên thành công' })
+  async delete( @Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.candidateService.deleteCandidate(transactionManager, uuid);
+    });
+  }
 }
