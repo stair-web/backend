@@ -63,6 +63,7 @@ export class CustomerRepository extends Repository<Customer> {
       { uuid: customer.uuid },
       {
       isDeleted:true,
+      updatedAt: new Date(),
       },
     );
   } catch (error) {
