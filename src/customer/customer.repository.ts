@@ -11,9 +11,68 @@ import {
 } from 'typeorm';
 import { Customer } from './customer.entity';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @EntityRepository(Customer)
 export class CustomerRepository extends Repository<Customer> {
+  async updateCustomer(
+    transactionManager: EntityManager,
+    updateCustomerDto: UpdateCustomerDto,
+    uuid: string,
+  ): Promise<unknown> {
+    const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
+
+    const customer = await transactionManager.getRepository(Customer).findOne({uuid});
+
+    if (isNullOrUndefined(customer)) {
+      throw new InternalServerErrorException('Khách hàng không tồn tại.');
+    }
+
+    try {
+      await transactionManager.update(
+        Customer,
+        { uuid: customer.uuid },
+        {
+          email: email,
+          fullName: fullName,
+          phoneNumber: phoneNumber,
+          note: note,
+          sendTime: sendTime,
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi trong quá trình chỉnh sửa khách hàng.',
+      );
+    }
+    return { statusCode: 200, message: 'Chỉnh sửa khách hàng thành công.' };
+  }
+ async deleteCustomerByUuid(transactionManager: EntityManager, uuid: string) {
+
+  const customer = await transactionManager.getRepository(Customer).findOne({uuid});
+
+  if (isNullOrUndefined(customer)) {
+    throw new InternalServerErrorException('Khách hàng không tồn tại.');
+  }
+
+  try {
+    await transactionManager.update(
+      Customer,
+      { uuid: customer.uuid },
+      {
+      isDeleted:true,
+      },
+    );
+  } catch (error) {
+    Logger.error(error);
+    throw new InternalServerErrorException(
+      'Lỗi trong quá trình xoá khách hàng.',
+    );
+  }
+  return { statusCode: 200, message: 'Xoá khách hàng thành công.' };
+ }
  
  async getAll(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
   const {fullTextSearch } = getAllCustomerDto;

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { CustomerService } from './customer.service';
@@ -56,7 +56,7 @@ export class CustomerController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Chỉnh sửa thông tin khách hàng',
+    description: 'Chỉnh sửa thông tin khách hàng thành công',
   })
   @ApiOperation({ summary: 'Chỉnh sửa khách hàng.' })
   async update(
@@ -71,6 +71,8 @@ export class CustomerController {
       );
     });
   }
+
+
   @Get('/:uuid')
   @ApiResponse({
     status: 500,
@@ -78,7 +80,7 @@ export class CustomerController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Lấy thông tin khách hàng',
+    description: 'Lấy thông tin khách hàng thành công',
   })
   @ApiOperation({ summary: 'Lấy thông tin khách hàng' })
   async getDetail(
@@ -88,6 +90,28 @@ export class CustomerController {
       return this.customerService.getCustomerByUuid(
         transactionManager,
         id,
+      );
+    });
+  }
+
+  
+  @Delete('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình  xoá khách hàng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Xoá thông tin khách hàng thành công',
+  })
+  @ApiOperation({ summary: 'Xoá khách hàng thành công.' })
+  async delete(
+    @Param('uuid') uuid: string,
+  ) {
+    return await this.connection.transaction((transactionManager) => {      
+      return this.customerService.deleteCustomer(
+        transactionManager,
+        uuid,
       );
     });
   }
