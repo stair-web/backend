@@ -33,6 +33,7 @@ export class CustomerRepository extends Repository<Customer> {
     .select([
       'customer.id',
       'customer.email',
+      'customer.uuid',
       'customer.fullName',
       'customer.note',
       'customer.phoneNumber',
@@ -86,7 +87,7 @@ export class CustomerRepository extends Repository<Customer> {
 
     if (!isNullOrUndefined(getAllCustomerDto.filterFullName)) {
       query.andWhere('LOWER(customer.fullName) LIKE LOWER(:fullName)', {
-        full_name: `%${getAllCustomerDto.filterFullName}%`,
+        fullName: `%${getAllCustomerDto.filterFullName}%`,
       });
     }
 
@@ -97,12 +98,12 @@ export class CustomerRepository extends Repository<Customer> {
     }
     if (!isNullOrUndefined(getAllCustomerDto.filterPhoneNumber)) {
       query.andWhere('LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber)', {
-        note: `%${getAllCustomerDto.filterPhoneNumber}%`,
+        phoneNumber: `%${getAllCustomerDto.filterPhoneNumber}%`,
       });
     }
     if (!isNullOrUndefined(getAllCustomerDto.filterSendTime)) {
       query.andWhere('LOWER(customer.sendTime) LIKE LOWER(:sendTime)', {
-        note: `%${getAllCustomerDto.filterSendTime}%`,
+        sendTime: `%${getAllCustomerDto.filterSendTime}%`,
       });
     }
   
@@ -134,7 +135,8 @@ export class CustomerRepository extends Repository<Customer> {
 
   } catch (error) {
     console.log(error);
-    
+    throw new InternalServerErrorException(`Lỗi trong quá trình lấy danh sách khách hàng.`);
+
   }
   
  }
