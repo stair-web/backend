@@ -28,7 +28,7 @@ export class PostRepository extends Repository<Post> {
           `Bài viết không tồn tại trong hệ thống!`,
         );
       }
-      post.isApproved = true;
+      post.isApproved = approvePostDto.isApproved;
       await transactionManager.save(post);
       return {
         statusCode: 201,
@@ -143,7 +143,7 @@ export class PostRepository extends Repository<Post> {
           'post.imageSrc',
           'post.content',
           'post.priority',
-          'post.status',
+          'post.isApproved',
           'post.createdAt',
           'post.updatedAt',
           'post.fileType',
@@ -205,61 +205,6 @@ export class PostRepository extends Repository<Post> {
       console.log(error);
     }
   }
-
-  // async createPost(
-  //   transactionEntityManager: EntityManager,
-  //   createPostDto: CreatePostDto,
-  // ) {
-  //   try {
-  //     const idCategory = createPostDto.category.id;
-  //     const idTopic = createPostDto.category.id;
-
-  //     const queryCat = transactionEntityManager
-  //       .getRepository(Category)
-  //       .createQueryBuilder('category')
-  //       .where('(category.id =:idCategory)', {
-  //         idCategory,
-  //       });
-
-  //     const queryTopic = transactionEntityManager
-  //       .getRepository(Topic)
-  //       .createQueryBuilder('topic')
-  //       .where('(topic.id =:idTopic)', {
-  //         idTopic,
-  //       });
-
-  //     const { title, shortDescription, dateTime, priority, status, imageSrc } =
-  //       createPostDto;
-
-  //     const category = await queryCat.getOne();
-  //     if (isNullOrUndefined(category)) {
-  //       throw new Error('Category không tồn tại');
-  //     }
-
-  //     // const topic = await queryTopic.getOne();
-  //     // if (isNullOrUndefined(topic)) {
-  //     //   throw new Error('Topic không tồn tại');
-  //     // }
-
-  //     const post = transactionEntityManager.create(Post, {
-  //       category,
-  //       // topic,
-  //       title,
-  //       shortDescription,
-  //       dateTime,
-  //       priority,
-  //       status,
-  //       imageSrc,
-  //     });
-  //     await transactionEntityManager.save(post);
-  //     return post;
-  //   } catch (error) {
-  //     Logger.error(error);
-  //     throw new InternalServerErrorException(
-  //       'Lỗi hệ thống trong quá trình tạo bài viết, vui lòng thử lại sau.',
-  //     );
-  //   }
-  // }
 
   async savePost(
     transactionManager: EntityManager,
@@ -323,7 +268,7 @@ export class PostRepository extends Repository<Post> {
     }
     return {
       statusCode: 201,
-      message: `${isCreate ? 'Create' : 'Update'} post successfully.`,
+      message: `${isCreate ? 'Lưu' : 'Cập nhật'} bài viết thành công.`,
     };
   }
 
@@ -336,7 +281,7 @@ export class PostRepository extends Repository<Post> {
 
     if (isNullOrUndefined(checkPostExist)) {
       throw new ConflictException(
-        `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+        `Bài viết chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     }
 
@@ -350,12 +295,12 @@ export class PostRepository extends Repository<Post> {
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình delete post, vui lòng thử lại sau.`,
+        `Lỗi hệ thống trong quá trình xoà bài viết, vui lòng thử lại sau.`,
       );
     }
     return {
       statusCode: 201,
-      message: `Delete post successfully.`,
+      message: `Xoá bài viết thành công.`,
     };
   }
 }

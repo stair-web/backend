@@ -68,7 +68,7 @@ export class PostController {
     status: 201,
     description: 'Lấy chi tiết bài viết thành công.',
   })
-  @ApiOperation({ summary: 'Danh sách bài viết' })
+  @ApiOperation({ summary: 'Chi tiết bài viết' })
   async getPostDetail(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.getPostDetail(transactionManager, uuid);
