@@ -15,43 +15,36 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'customer', schema: 'public' })
 export class Customer  {
  
-  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
-  @Column(
-  )
+  @Column()
   fullName: string;
 
-  @ApiProperty()
+  @Column()
+    uuid: string;
+
   @Column()
   note: string;
 
-  @ApiProperty()
   @Column()
   phoneNumber: string;
 
-  @ApiProperty()
   @Column()
   email: string;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   sendTime: Date;
 
-
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @ApiProperty()
   @Column({
     type: 'timestamp without time zone',
     default: () => 'CURRENT_TIMESTAMP',
@@ -59,7 +52,6 @@ export class Customer  {
   updatedAt: Date;
 
   
-  @ApiProperty()
 @Column(
   )
   isDeleted: boolean;
