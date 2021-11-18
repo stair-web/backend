@@ -11,7 +11,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "open:dev": "sleep 12 && google-chrome --incognito http://localhost:8888/api/docs/ & nest start -c env/json/dev.* --watch",
+    "open:dev": "sleep 12 && google-chrome --incognito http://localhost:1704/api/docs/ & nest start -c env/json/dev.* --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

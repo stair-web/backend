@@ -1,38 +1,25 @@
-import { bool } from 'aws-sdk/clients/signer';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Matches,
-  IsBoolean,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { UserInformationDto } from 'src/user-information/dto/user-information.dto';
 
 export class UpdateUserDto {
-  @IsString()
+  @ApiProperty({ default: `email_${Date.now()}@ari.com.vn` })
   email: string;
 
-  @IsString()
-  firstName: string;
+  @ApiProperty({ default: `123123` })
+  password: string;
 
-  @IsString()
-  lastName: string;
-
-  @IsString()
-  phoneNumber: string;
-
-  @IsNotEmpty()
-  dob: Date;
-
-  @IsString()
-  position: string;
-
-  @IsBoolean()
-  isDeleted: bool;
-
-  @IsString()
-  personalEmail: string;
-
-  @IsString()
-  profilePhotoKey: string;
+  /* USER INFORMATION */
+  @ApiProperty({
+    default: {
+      firstName: `firstName_${Date.now()}`,
+      lastName: `lastName_${Date.now()}`,
+      profilePhotoKey: 'https://picsum.photos/200',
+      phoneNumber: '+841234567890',
+      position: 'tester',
+      shortDescription: 'this is a demo user short description',
+      dob: '1995-01-01',
+      isActive: true
+    },
+  })
+  userInformation: UserInformationDto;
 }

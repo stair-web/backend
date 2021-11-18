@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { uuidv4 } from 'src/common/util/common.util';
 import { EntityManager } from 'typeorm';
+import { ApprovePostDto } from './dto/approve-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostDto } from './dto/get-all-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -127,5 +128,11 @@ export class PostService {
         `Lỗi hệ thống trong quá trình lấy bài viết theo category, vui lòng thử lại sau.`,
       );
     }
+  }
+  async approvePost(transactionManager: EntityManager, approvePost: ApprovePostDto): Promise<unknown> {
+    return await this.postRepository.approvePost(
+      transactionManager,
+      approvePost,
+    );
   }
 }

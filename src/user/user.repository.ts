@@ -21,29 +21,29 @@ import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { JwtPayload } from './interface/jwt-payload.interface';
+import { UserInformation } from 'src/user-information/user-information.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
+  /**
+   *
+   * @param transactionEntityManager
+   * @param createUserDto
+   * @returns
+   */
   async createUser(
     transactionEntityManager: EntityManager,
     createUserDto: CreateUserDto,
   ) {
-    const {
-      email,
-      username,
-      password,
-      firstName,
-      lastName,
-      phoneNumber,
-      dob,
-      position,
-      profilePhotoKey,
-    } = createUserDto;
+    const { email, username, password, userInformation } = createUserDto;
     // Check user existed?
     const query = transactionEntityManager
       .getRepository(User)
       .createQueryBuilder('user')
       .where('(user.email = :email)', {
+        email,
+      })
+      .orWhere('(user.username = :email)', {
         email,
       })
       .andWhere('user.isDeleted = FALSE');
@@ -64,12 +64,20 @@ export class UserRepository extends Repository<User> {
       username,
       password: hashedPassword,
       salt,
-      uuid: uuidv4()
+      uuid: uuidv4(),
     });
-
     // save user
     try {
-      await transactionEntityManager.save(user);
+      let userResult = await transactionEntityManager.save(user);
+      userInformation.userId = userResult.id;
+      userInformation.staffId = userInformation.uuid
+        .substr(userInformation.uuid.length - 6)
+        .toUpperCase();
+      const informationOfUser = transactionEntityManager.create(
+        UserInformation,
+        userInformation,
+      );
+      await transactionEntityManager.save(informationOfUser);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -79,24 +87,22 @@ export class UserRepository extends Repository<User> {
 
     return user;
   }
-  async deleteUser(
-    transactionManager: EntityManager,
-    deleteUserDto: DeleteUserDto,
-    uuid: string,
-  ) {
-    const { cannotDelete } = deleteUserDto;
 
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
+   */
+  async deleteUser(transactionManager: EntityManager, uuid: string) {
     const user = await transactionManager
       .getRepository(User)
       .findOne({ uuid: uuid });
+
     if (!user) {
       throw new InternalServerErrorException(`Không tìm thấy người dùng.`);
     }
-    if (cannotDelete === true) {
-      throw new InternalServerErrorException(
-        `Không thể xóa người dùng này. Người dùng này đã bị ràng buộc với hoạt động trong ứng dụng. Thay vào đó, hãy hủy kích hoạt người dùng?`,
-      );
-    }
+
     try {
       await transactionManager.update(User, { uuid }, { isDeleted: true });
     } catch (error) {
@@ -105,74 +111,106 @@ export class UserRepository extends Repository<User> {
         `Lỗi trong quá trình xóa người dùng, vui lòng thử lại sau.`,
       );
     }
-    return { statusCode: 200, message: `Xóa người dùng thành công.` };
+    return { statusCode: 201, message: `Xóa người dùng thành công.` };
   }
-  async getUserByUuid(transactionManager: EntityManager, uuid: string) {
-    const query = transactionManager
-      .getRepository(User)
-      .createQueryBuilder('user')
-      .select([
-        'user.id',
-        'user.uuid',
-        'user.email',
-        'user.userName',
-        'user.isDeleted',
-      ])
-      .andWhere('user.uuid = :uuid', { uuid });
 
-    const data = await query.getOne();
-
-   
-
-    return { data };
-  }
-  async getUserById(transactionManager: EntityManager, id: number) {
-    const query = transactionManager
-      .getRepository(User)
-      .createQueryBuilder('user')
-      .select([
-        'user.id',
-        'user.email',
-        'user.userName',
-        'user.isDeleted',
-      ])
-      .andWhere('user.id = :id', { id })
-      .andWhere('user.isDeleted = FALSE');
-
-    const data = await query.getOne();
-
-    if (isNullOrUndefined(data)) {
-      throw new NotFoundException(`Không tìm thấy người dùng.`);
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @param isGetDetail
+   * @returns
+   */
+  async getUserByUuid(
+    transactionManager: EntityManager,
+    uuid: string,
+    isGetDetail = true,
+  ) {
+    let user;
+    if (isGetDetail) {
+      user = await transactionManager.findOne(User, {
+        join: {
+          alias: 'user',
+          leftJoinAndSelect: {
+            userInformation: 'user.userInformation',
+          },
+        },
+        relations: ['userInformation'],
+        where: (qb) => {
+          qb.select([
+            'user.id',
+            'user.username',
+            'user.email',
+            'user.isDeleted',
+            'user.isActive',
+            'user.isFirstLogin',
+            'user.createdAt',
+            'user.updatedAt',
+            'userInformation.id',
+            'userInformation.uuid',
+            'userInformation.firstName',
+            'userInformation.lastName',
+            'userInformation.profilePhotoKey',
+            'userInformation.phoneNumber',
+            'userInformation.dob',
+            'userInformation.shortDescription',
+            'userInformation.position',
+            'userInformation.staffId',
+            'userInformation.createdAt',
+            'userInformation.updatedAt',
+          ])
+          .where('user.isDeleted = :isDeleted', { isDeleted: false })
+          .andWhere('user.uuid = :uuid', { uuid })
+        },
+      });
+    } else {
+      user = await transactionManager.findOne(User, { uuid });
     }
-
-    return { statusCode: 200, data };
+    return user;
   }
+
+  // async getUserById(transactionManager: EntityManager, id: number) {
+  //   const query = transactionManager
+  //     .getRepository(User)
+  //     .createQueryBuilder('user')
+  //     .select(['user.id', 'user.email', 'user.username', 'user.isDeleted'])
+  //     .andWhere('user.id = :id', { id })
+  //     .andWhere('user.isDeleted = FALSE');
+
+  //   const data = await query.getOne();
+
+  //   if (isNullOrUndefined(data)) {
+  //     throw new NotFoundException(`Không tìm thấy người dùng.`);
+  //   }
+
+  //   return { statusCode: 200, data };
+  // }
+
   async getAllUser(
     transactionManager: EntityManager,
     getAllUserDto: GetAllUserDto,
   ) {
-    const { page, filter, sorts, fullTextSearch } = getAllUserDto;
-    let { perPage } = getAllUserDto;
-    if (isNullOrUndefined(perPage)) {
-      perPage = 25;
-    }
+    const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
 
     const query = transactionManager
       .getRepository(User)
       .createQueryBuilder('user')
+      .leftJoin('user.userInformation', 'userInformation')
       .select([
+        'user.id',
         'user.uuid',
         'user.email',
         'user.username',
-        'user.staffId',
         'user.isDeleted',
         'user.isActive',
         'user.createdAt',
         'user.updatedAt',
+        'userInformation',
       ])
-      // .take(perPage)
-      // .skip((page - 1) * perPage)
-      .orderBy('user.staffId', 'ASC');
+      .where({ isDeleted: false })
+      .take(perPage || 25)
+      .skip((page - 1) * perPage || 0)
+      .orderBy('user.createdAt', 'DESC');
 
     // Full text search
     if (!isNullOrUndefined(fullTextSearch) && fullTextSearch !== '') {
@@ -220,9 +258,43 @@ export class UserRepository extends Repository<User> {
     try {
       const data = await query.getMany();
       const total = await query.getCount();
-      return { statusCode: 200, data: { userList: data, total } };
+      return { statusCode: 201, data: { userList: data, total } };
     } catch (error) {
       console.log(error);
     }
   }
+
+  /**
+   * @Description activate or deactivate a user
+   * @param uuid 
+   * @param transactionManager 
+   * @param active 
+   */
+  async activation(
+    uuid,
+    transactionManager: EntityManager,
+    active: boolean = true,
+  ) {
+    const user = await this.getUserByUuid(transactionManager, uuid, false);
+
+    if (isNullOrUndefined(user)) {
+      throw new InternalServerErrorException('Không tìm thấy người dùng');
+    }
+
+    if (user.isActive == active) {
+      throw new ConflictException(
+        `Người dùng đã và đang trong trạng thái ${
+          active ? 'activation' : 'deactivation'
+        } `,
+      );
+    }
+
+    try {
+      user.isActive = active;
+      await transactionManager.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
 }

@@ -7,6 +7,7 @@ import { Category } from 'src/category/category.entity';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { Topic } from 'src/topic/topic.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
+import { ApprovePostDto } from './dto/approve-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostDto } from './dto/get-all-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -14,6 +15,33 @@ import { Post } from './post.entity';
 
 @EntityRepository(Post)
 export class PostRepository extends Repository<Post> {
+  async approvePost(
+    transactionManager: EntityManager,
+    approvePostDto: ApprovePostDto,
+  ) {
+    try {
+      const post = await transactionManager
+        .getRepository(Post)
+        .findOne({ uuid: approvePostDto.uuid });
+      if (isNullOrUndefined(post)) {
+        throw new ConflictException(
+          `Bài viết không tồn tại trong hệ thống!`,
+        );
+      }
+      post.isApproved = true;
+      await transactionManager.save(post);
+      return {
+        statusCode: 201,
+        message: `${approvePostDto.isApproved?'Phê duyệt':'Huỷ phê duyệt'} bài viết thành công.`,
+      };
+    
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình ${approvePostDto.isApproved?'phê duyệt':'huỷ phê duyệt'} bài viết, vui lòng thử lại sau.`,
+      );
+    }
+  }
   async updatePost(
     transactionEntityManager: EntityManager,
     updatePostDto: UpdatePostDto,
@@ -126,7 +154,7 @@ export class PostRepository extends Repository<Post> {
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.createdAt', 'DESC');
-        
+
       // Filter list
       if (!isNullOrUndefined(filter)) {
         const object = paramStringToJson(filter);
@@ -238,15 +266,22 @@ export class PostRepository extends Repository<Post> {
     createPostDto: CreatePostDto,
     isCreate = false,
   ) {
-    const { uuid, title, shortDescription, content, imageSrc, categoryUuid, fileType } =
-      createPostDto;
+    const {
+      uuid,
+      title,
+      shortDescription,
+      content,
+      imageSrc,
+      categoryUuid,
+      fileType,
+    } = createPostDto;
 
     const checkPostExist = await transactionManager
       .getRepository(Post)
       .findOne({
-        uuid
+        uuid,
       });
-      
+
     if (isNullOrUndefined(checkPostExist) && isCreate === false) {
       throw new ConflictException(
         `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
@@ -272,8 +307,8 @@ export class PostRepository extends Repository<Post> {
       shortDescription,
       imageSrc,
       content,
-      category:checkCategoryExist,
-      fileType
+      category: checkCategoryExist,
+      fileType,
     });
 
     try {
@@ -281,7 +316,9 @@ export class PostRepository extends Repository<Post> {
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình ${isCreate ? 'tạo' : 'update'} post, vui lòng thử lại sau.`,
+        `Lỗi hệ thống trong quá trình ${
+          isCreate ? 'tạo' : 'update'
+        } post, vui lòng thử lại sau.`,
       );
     }
     return {
@@ -290,17 +327,13 @@ export class PostRepository extends Repository<Post> {
     };
   }
 
-  async deletePost(
-    transactionManager: EntityManager,
-    uuid: string
-  ) {
-
+  async deletePost(transactionManager: EntityManager, uuid: string) {
     const checkPostExist = await transactionManager
       .getRepository(Post)
       .findOne({
-        uuid
+        uuid,
       });
-      
+
     if (isNullOrUndefined(checkPostExist)) {
       throw new ConflictException(
         `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
@@ -309,7 +342,7 @@ export class PostRepository extends Repository<Post> {
 
     const post = transactionManager.create(Post, {
       id: checkPostExist?.id,
-      isDeleted: true
+      isDeleted: true,
     });
 
     try {

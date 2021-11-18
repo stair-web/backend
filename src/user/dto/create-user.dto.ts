@@ -6,6 +6,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserInformationDto } from 'src/user-information/dto/user-information.dto';
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
@@ -14,34 +15,23 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ default: `user ${Date.now()}` })
+  @ApiProperty({ default: `username ${Date.now()}` })
   username: string;
 
-  @IsString()
   password: string;
 
-  @IsString()
-  profilePhotoKey: string;
-
-  @IsString()
-  personalEmail: string;
-
   /* USER INFORMATION */
-  @IsString()
-  firstName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
-
-  @IsString()
-  phoneNumber: string;
-
-  dob: Date;
-
-  @IsString()
-  position: string;
-
-  @IsString()
-  staffId: string;
+  @ApiProperty({
+    default: {
+      firstName: `firstName_${Date.now()}`,
+      lastName: `lastName_${Date.now()}`,
+      profilePhotoKey: 'https://picsum.photos/200',
+      phoneNumber: '+841234567890',
+      position: 'tester',
+      shortDescription: 'this is a demo user short description',
+      dob: '1995-01-01',
+      isActive: true
+    },
+  })
+  userInformation: UserInformationDto;
 }

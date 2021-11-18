@@ -17,16 +17,32 @@ export class UserRoleService {
     transactionManager: EntityManager,
     addUserRoleDto: AddUserRoleDto,
   ) {
-    const { username, roleCode } = addUserRoleDto;
+    const { username, roleCode, uuid, staffId } = addUserRoleDto;
     const userRole = new UserRole();
     const user = await transactionManager.getRepository(User).findOne({
-      where: [
-        // { email: username, isDeleted: false, isActive: true },
-        // { username, isDeleted: false, isActive: true },
-        { email: username, isDeleted: false },
-        { username, isDeleted: false },
-      ],
-      select: ['id', 'username', 'email'],
+      join: {
+        alias: 'user',
+        leftJoinAndSelect: {
+          userInformation: 'user.userInformation',
+        },
+      },
+      relations: ['userInformation'],
+      where: (qb) => {
+        qb.select([
+          'user.id',
+          'user.uuid',
+          'user.username',
+          'user.email',
+          'userInformation.staffId',
+        ]).where([
+          // { email: username, isDeleted: false, isActive: true },
+          // { username, isDeleted: false, isActive: true },
+          { email: username, isDeleted: false },
+          { username, isDeleted: false },
+          { uuid, isDeleted: false },
+          { userInformation: { staffId }, isDeleted: false },
+        ]);
+      },
     });
     console.log(user);
     if (user) {
@@ -39,7 +55,7 @@ export class UserRoleService {
 
     try {
       await userRole.save();
-      return { statusCode: 200, message: 'Add user role successfully.' };
+      return { statusCode: 201, message: 'Add user role successfully.' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
       // return { statusCode: 201, message: 'System error when add user role', error };

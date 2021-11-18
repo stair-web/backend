@@ -1,9 +1,18 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { UserRole } from 'src/user-role/user-role.entity';
+import { UserInformation } from 'src/user-information/user-information.entity';
 
 @Entity({ name: 'user', schema: DBSchema.SCM_ARI_PUBLIC })
 export class User extends BaseEntity {
@@ -44,10 +53,6 @@ export class User extends BaseEntity {
   @Exclude()
   password: string;
 
-  @Column({ length: 6 })
-  @Exclude()
-  staffId: string;
-
   @ApiHideProperty()
   @Column()
   @Exclude()
@@ -67,8 +72,11 @@ export class User extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToMany(type => UserRole, role => role.user)
+  @OneToMany((type) => UserRole, (role) => role.user)
   role: UserRole[];
+
+  @OneToOne((type) => UserInformation, (userInformation) => userInformation.user)
+  userInformation: UserInformation;
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

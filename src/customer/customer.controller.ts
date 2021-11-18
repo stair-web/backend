@@ -20,11 +20,9 @@ export class CustomerController {
     description: 'Lấy danh sách khách hàng thành công.',
   })
   @ApiOperation({ summary: 'Danh sách khách hàng' })
-  async getAllUser(@Query() getAllCustomerDto: GetAllCustomerDto) {
-    console.log(getAllCustomerDto);
-
+  async getAll(@Query() getAllCustomerDto: GetAllCustomerDto) {
     return await this.connection.transaction((transactionManager) => {
-      return this.customerService.getAllUser(
+      return this.customerService.getAll(
         transactionManager,
         getAllCustomerDto,
       );
