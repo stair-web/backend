@@ -104,7 +104,7 @@ export class CustomerController {
     status: 200,
     description: 'Xoá thông tin khách hàng thành công',
   })
-  @ApiOperation({ summary: 'Xoá khách hàng thành công.' })
+  @ApiOperation({ summary: 'Xoá khách hàng.' })
   async delete(
     @Param('uuid') uuid: string,
   ) {
