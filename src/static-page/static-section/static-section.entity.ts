@@ -22,21 +22,21 @@ export class StaticSection extends BaseEntity {
       @Column()
       isDeleted: boolean;
 
-      @ManyToMany(() => StaticSite,staticSite=>staticSite.staticSectionList)
-      @JoinTable({
-        name: 'static_tables_relation',
-        joinColumn: { name: 'section_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'site_id', referencedColumnName: 'id' },
-      })
-      staticSiteList: StaticSite[];
+      // @ManyToMany(() => StaticSite,staticSite=>staticSite.staticSectionList)
+      // @JoinTable({
+      //   name: 'static_tables_relation',
+      //   joinColumn: { name: 'section_id', referencedColumnName: 'id' },
+      //   inverseJoinColumn: { name: 'site_id', referencedColumnName: 'id' },
+      // })
+      // staticSiteList: StaticSite[];
 
-      @ManyToMany(() => StaticItem,staticItem=>staticItem.staticSectionList)
-      @JoinTable({
-        name: 'static_tables_relation', 
-        joinColumn: { name: 'section_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'item_id', referencedColumnName: 'id' },
-      })
-      staticItemList: StaticItem[];
+      // @ManyToMany(() => StaticItem,staticItem=>staticItem.staticSectionList)
+      // @JoinTable({
+      //   name: 'static_tables_relation', 
+      //   joinColumn: { name: 'section_id', referencedColumnName: 'id' },
+      //   inverseJoinColumn: { name: 'item_id', referencedColumnName: 'id' },
+      // })
+      // staticItemList: StaticItem[];
 
       @Column({
         type: 'timestamp without time zone',

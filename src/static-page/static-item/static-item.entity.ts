@@ -16,22 +16,22 @@ export class StaticItem  extends BaseEntity {
       @Column()
       title: string;
       
-      @Column()
-      url: string;
+      // @Column()
+      // url: string;
 
-      @Column()
-      description: string;
+      // @Column()
+      // description: string;
 
       @Column()
       isDeleted: boolean;
 
-      @ManyToMany(() => StaticSection,staticSection=>staticSection.staticItemList)
-      @JoinTable({
-        name: 'static_tables_relation',
-        joinColumn: { name: 'item_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'section_id', referencedColumnName: 'id' },
-      })
-      staticSectionList: StaticSection[];
+      // @ManyToMany(() => StaticSection,staticSection=>staticSection.staticItemList)
+      // @JoinTable({
+      //   name: 'static_tables_relation',
+      //   joinColumn: { name: 'item_id', referencedColumnName: 'id' },
+      //   inverseJoinColumn: { name: 'section_id', referencedColumnName: 'id' },
+      // })
+      // staticSectionList: StaticSection[];
 
       @Column({
         type: 'timestamp without time zone',

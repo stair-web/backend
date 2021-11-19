@@ -8,10 +8,10 @@ import { Connection } from 'typeorm';
 export class StaticSectionController {
   constructor(private readonly staticSectionService: StaticSectionService,
     private connection:Connection) {}
-  @Post()
-  async createStaticSite(@Body() createStaticSection: CreateStaticSectionDto) {
-    return await this.connection.transaction((transactionManager) => {
-      return this.staticSectionService.createStaticSite(transactionManager, createStaticSection);
-    });
-  }
+  // @Post()
+  // async createStaticSite(@Body() createStaticSection: CreateStaticSectionDto) {
+  //   return await this.connection.transaction((transactionManager) => {
+  //     return this.staticSectionService.createStaticSite(transactionManager, createStaticSection);
+  //   });
+  // }
 }
