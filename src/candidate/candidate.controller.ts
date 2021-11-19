@@ -125,7 +125,12 @@ export class CandidateController {
   }
 
   @Get('download/:uuid')
-  async seeUploadedFile(@Param('uuid') uuid,@Query()downloadFileCandidateDto: DownloadFileCandidateDto, @Res() res) {
+  @ApiOperation({ summary: 'Tải file của ứng viên.' })
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình lấy thông tin ứng viên.',
+  })
+  async seeUploadedFile(@Param('uuid') uuid:string, @Query()downloadFileCandidateDto: DownloadFileCandidateDto, @Res() res) {
     return await this.connection.transaction((transactionManager) => {
       return this.candidateService.downloadCandidateFile(
         transactionManager,
@@ -148,12 +153,30 @@ export class CandidateController {
     });
   }
   
+
+
+
+  
+  @Get('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình lấy thông tin ứng viên.',
+  })
+  @ApiOperation({ summary: 'Lấy thông tin ứng viên.' })
+  @ApiResponse({ status: 201, description: 'Lấy thông tin viên thành công' })
+  async getDetail(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.candidateService.getDetailCandidate(transactionManager, uuid);
+    });
+  }
+
+
   @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình cập nhật ứng viên.',
   })
-  @ApiOperation({ summary: 'Cập nhật bài viết.' })
+  @ApiOperation({ summary: 'Cập nhật ứng viên.' })
   @ApiResponse({ status: 201, description: 'Cập nhật ứng viên thành công' })
   async update(@Body() updateCandidateDto: UpdateCandidateDto, @Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {

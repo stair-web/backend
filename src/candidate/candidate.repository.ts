@@ -46,7 +46,7 @@ export class CandidateRepository extends Repository<Candidate> {
           'candidate.createdAt',
           'candidate.updatedAt',
         ])
-        .where('candidate.isDeleted = FALSE')
+        .where('candidate.isDeleted is FALSE')
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('candidate.createdAt', 'DESC');
@@ -136,43 +136,43 @@ export class CandidateRepository extends Repository<Candidate> {
 
       // Sort list
       if (!isNullOrUndefined(getAllCandidateDto.sortFullName)) {
-        query.orderBy('user.fullName', getAllCandidateDto.sortFullName);
+        query.orderBy('candidate.fullName', getAllCandidateDto.sortFullName);
       }
       
       if (!isNullOrUndefined(getAllCandidateDto.sortPrivateEmail)) {
-        query.orderBy('user.privateEmail', getAllCandidateDto.sortPrivateEmail);
+        query.orderBy('candidate.privateEmail', getAllCandidateDto.sortPrivateEmail);
       }
       
       if (!isNullOrUndefined(getAllCandidateDto.sortPhoneNumber)) {
-        query.orderBy('user.phoneNumber', getAllCandidateDto.sortPhoneNumber);
+        query.orderBy('candidate.phoneNumber', getAllCandidateDto.sortPhoneNumber);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
-        query.orderBy('user.experience', getAllCandidateDto.sortExperience);
+        query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
-        query.orderBy('user.experience', getAllCandidateDto.sortExperience);
+        query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortHighestEducation)) {
-        query.orderBy('user.highestEducation', getAllCandidateDto.sortHighestEducation);
+        query.orderBy('candidate.highestEducation', getAllCandidateDto.sortHighestEducation);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortCourseOfStudy)) {
-        query.orderBy('user.courseOfStudy', getAllCandidateDto.sortCourseOfStudy);
+        query.orderBy('candidate.courseOfStudy', getAllCandidateDto.sortCourseOfStudy);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortWebsiteUrl)) {
-        query.orderBy('user.websiteUrl', getAllCandidateDto.sortWebsiteUrl);
+        query.orderBy('candidate.websiteUrl', getAllCandidateDto.sortWebsiteUrl);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortInformationChannel)) {
-        query.orderBy('user.informationChannel', getAllCandidateDto.sortInformationChannel);
+        query.orderBy('candidate.informationChannel', getAllCandidateDto.sortInformationChannel);
       }
 
       if (!isNullOrUndefined(getAllCandidateDto.sortNote)) {
-        query.orderBy('user.note', getAllCandidateDto.sortNote);
+        query.orderBy('candidate.note', getAllCandidateDto.sortNote);
       }
       const data = await query.getMany();
       const total = await query.getCount();
@@ -230,7 +230,6 @@ export class CandidateRepository extends Repository<Candidate> {
     return {
       statusCode: 201,
       message: `Tạo Candidate thành công.`,
-      data: candidate,
     };
   }
 }

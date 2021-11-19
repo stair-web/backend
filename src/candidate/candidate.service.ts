@@ -1,5 +1,5 @@
 import { CandidateRepository } from './candidate.repository';
-import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
@@ -13,6 +13,40 @@ import { DownloadFileTypeCandidateEnum } from './enum/DownloadFile.enum';
 
 @Injectable()
 export class CandidateService {
+  async getDetailCandidate(transactionManager: EntityManager, uuid: string): Promise<unknown> {
+
+      const query = transactionManager
+        .getRepository(Candidate)
+        .createQueryBuilder('candidate')
+        .select([
+          'candidate.uuid',
+          'candidate.privateEmail',
+          'candidate.fullName',
+          'candidate.note',
+          'candidate.phoneNumber',
+          'candidate.experience',
+          'candidate.highestEducation',
+          'candidate.university',
+          'candidate.courseOfStudy',
+          'candidate.websiteUrl',
+          'candidate.informationChannel',
+          'candidate.resumeFile',
+          'candidate.coverLetterFile',
+          'candidate.createdAt',
+          'candidate.updatedAt',
+        ])
+        .andWhere('candidate.uuid = :uuid', { uuid })
+        .andWhere('candidate.isDeleted = FALSE');
+    
+      const data = await query.getOne();
+    
+      if (isNullOrUndefined(data)) {
+        throw new NotFoundException(`Không tìm thấy ứng viên.`);
+      }
+    
+      return { statusCode: 200, data };
+    
+  }
   async downloadCandidateFile(transactionManager: EntityManager, downloadFileCandidateDto: DownloadFileCandidateDto, uuid: any, res: any) {
     let candidate = await transactionManager
     .getRepository(Candidate)
@@ -46,7 +80,7 @@ export class CandidateService {
       await transactionManager.save(candidate);
       return {
         statusCode: 201,
-        message: `Cập nhật ứng viên thành công.`,
+        message: `Xoá ứng viên thành công.`,
       };
     } catch (error) {
       throw new InternalServerErrorException("Đã xảy ra lỗi trong quá trình cập nhật ứng viên, vui lòng thử lại sau!");

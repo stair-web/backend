@@ -5,4 +5,5 @@ import { DownloadFileTypeCandidateEnum } from '../enum/DownloadFile.enum';
 export class DownloadFileCandidateDto {
   @ApiProperty({ enum: DownloadFileTypeCandidateEnum })
   type: DownloadFileTypeCandidateEnum;
+
 }
