@@ -6,7 +6,7 @@ export class CreateStaticSiteDto {
   
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ default: `title site ${Date.now()}` })
   title: string;
 
 }

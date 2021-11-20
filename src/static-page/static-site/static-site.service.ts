@@ -18,7 +18,6 @@ import { StaticSiteRepository } from './static-site.repository';
 export class StaticSiteService {
   constructor(
     private staticSiteRepository: StaticSiteRepository,
-    private sectionRepo: StaticSectionRepository,
   ) {}
 
   /**
@@ -33,15 +32,41 @@ export class StaticSiteService {
   ) {
     createStaticSite.uuid = uuidv4();
     try {
-      await this.staticSiteRepository.createStaticSite(
+      await this.staticSiteRepository.saveStaticSite(
         transactionManager,
         createStaticSite,
+        true
       );
       return { statusCode: 201, description: 'Tạo Static Site thành công' };
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
         `Lỗi hệ thống trong quá trình tạo Static Site.`,
+      );
+    }
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param createStaticSite
+   * @returns
+   */
+   async updateStaticSite(
+    transactionManager: EntityManager,
+    createStaticSite: CreateStaticSiteDto,
+  ) {
+    createStaticSite.uuid = uuidv4();
+    try {
+      await this.staticSiteRepository.saveStaticSite(
+        transactionManager,
+        createStaticSite,
+      );
+      return { statusCode: 201, description: 'Update Static Site thành công' };
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình update Static Site.`,
       );
     }
   }

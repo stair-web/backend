@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { uuidv4 } from 'src/common/util/common.util';
 import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
@@ -8,23 +13,50 @@ import { StaticSectionRepository } from './static-section.repository';
 
 @Injectable()
 export class StaticSectionService {
-    constructor(
-        private staticSectionRepository:StaticSectionRepository,
-    ){
+  constructor(private staticSectionRepository: StaticSectionRepository) {}
 
+  /**
+   *
+   * @param transactionManager
+   * @param createStaticSection
+   * @returns
+   */
+  async createStaticSection(
+    transactionManager: EntityManager,
+    createStaticSection: CreateStaticSectionDto,
+  ) {
+    createStaticSection.uuid = uuidv4();
+    try {
+      await this.staticSectionRepository.saveSection(
+        transactionManager,
+        createStaticSection,
+      );
+      return { statusCode: 201, description: 'Tạo Static Section thành công' };
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình tạo Static Section.`,
+      );
     }
-//   async createStaticSite(transactionManager: EntityManager, createStaticSection: CreateStaticSectionDto): Promise<unknown> {
-//  try {
-//      return await this.staticSectionRepository.saveListSection(transactionManager,[createStaticSection]);
-//     const list =  await transactionManager.getRepository(StaticItem).save(createStaticSection.staticItemList);
-//     return await  transactionManager.getRepository(StaticSection).save(createStaticSection);
+  }
 
-//  } catch (error) {
-     
-//      console.log(error);
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
+   */
+   async getStaticSection(transactionManager: EntityManager, uuid) {
+    return await transactionManager.getRepository(StaticSection).findOne({ uuid });
+  }
 
-//  }
-    
-//   }
- 
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
+   */
+  async getAll(transactionManager: EntityManager) {
+    return await transactionManager.getRepository(StaticSection).find();
+  }
 }

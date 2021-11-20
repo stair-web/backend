@@ -16,11 +16,11 @@ export class StaticItem  extends BaseEntity {
       @Column()
       title: string;
       
-      // @Column()
-      // url: string;
+      @Column()
+      url: string;
 
-      // @Column()
-      // description: string;
+      @Column()
+      description: string;
 
       @Column()
       isDeleted: boolean;
