@@ -6,12 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { StaticSectionService } from './static-section.service';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
 import { UpdateStaticSectionDto } from './dto/update-static-section.dto';
 import { Connection } from 'typeorm';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 const controllerName = 'static-section';
 @ApiTags(controllerName)
@@ -44,14 +45,36 @@ export class StaticSectionController {
 
   /**
    *
+   * @param createStaticSection
+   * @returns
+   */
+   @Put('/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình tạo Static Section.',
+   })
+   @ApiOperation({ summary: 'Update Static Section.' })
+   @ApiResponse({ status: 201, description: 'Tạo Static Section thành công' })
+   async updateStaticSection(@Param('uuid') uuid: string, @Body() createStaticSection: CreateStaticSectionDto) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.staticSectionService.updateStaticSection(
+         transactionManager,
+         createStaticSection,
+         uuid
+       );
+     });
+   }
+
+  /**
+   *
    * @returns all static page
    */
   @Get()
   @ApiResponse({
     status: 500,
-    description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
+    description: 'Lỗi hệ thống trong quá trình tạo Static Section.',
   })
-  async GetStaticSite() {
+  async GetStaticSection() {
     return await this.connection.transaction((transactionManager) => {
       return this.staticSectionService.getAll(transactionManager);
     });
@@ -67,7 +90,7 @@ export class StaticSectionController {
     status: 500,
     description: 'Lỗi hệ thống trong quá trình tạo Static Section.',
   })
-  async GetAllStaticSite(@Param('uuid') uuid: string) {
+  async GetAllStaticSection(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
       return this.staticSectionService.getStaticSection(
         transactionManager,

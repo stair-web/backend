@@ -1,9 +1,10 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
@@ -27,7 +28,7 @@ export class StaticSectionService {
   ) {
     createStaticSection.uuid = uuidv4();
     try {
-      await this.staticSectionRepository.saveSection(
+      await this.staticSectionRepository.saveStaticSection(
         transactionManager,
         createStaticSection,
       );
@@ -37,6 +38,36 @@ export class StaticSectionService {
       throw new InternalServerErrorException(
         `Lỗi hệ thống trong quá trình tạo Static Section.`,
       );
+    }
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param createStaticSection
+   * @returns
+   */
+   async updateStaticSection(
+    transactionManager: EntityManager,
+    createStaticSection: CreateStaticSectionDto,
+    uuid
+  ) {
+    createStaticSection.uuid = uuid;
+    try {
+      await this.staticSectionRepository.saveStaticSection(
+        transactionManager,
+        createStaticSection,
+      );
+      return { statusCode: 201, description: 'Update Static Section thành công' };
+    } catch (error) {
+      Logger.error(error);
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình update Static Section.`,
+        );
+      }
     }
   }
 

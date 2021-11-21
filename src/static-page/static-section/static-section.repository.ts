@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { isNullOrUndefined, uuidv4 } from 'src/common/utils/common.util';
 import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
@@ -14,19 +14,33 @@ export class StaticSectionRepository extends Repository<StaticSection> {
   /**
    *
    * @param transactionManager
+   * @param createStaticSection
    * @returns
    */
-  async saveSection(
+   async saveStaticSection(
     transactionManager: EntityManager,
     createStaticSection: CreateStaticSectionDto,
+    isCreate = false,
   ) {
-    const staticSection = transactionManager.create(
-      StaticSection,
-      createStaticSection,
-    );
+    const checkSectionExist = await transactionManager
+      .getRepository(StaticSection)
+      .findOne({
+        uuid: createStaticSection.uuid,
+      });
+
+    if (isNullOrUndefined(checkSectionExist) && isCreate === false) {
+      throw new ConflictException(
+        `Section chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const staticSection = transactionManager.create(StaticSection, {
+      id: checkSectionExist?.id,
+      title: createStaticSection.title
+    });
 
     try {
-      await transactionManager.getRepository(StaticSection).save(staticSection);
+      await transactionManager.save(staticSection);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

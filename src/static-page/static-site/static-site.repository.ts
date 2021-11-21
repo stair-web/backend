@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4, isNullOrUndefined } from 'src/common/util/common.util';
+import { uuidv4, isNullOrUndefined } from 'src/common/utils/common.util';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreateStaticSiteDto } from './dto/create-static-site.dto';
 import { StaticSite } from './static-site.entity';
@@ -35,7 +35,7 @@ export class StaticSiteRepository extends Repository<StaticSite> {
 
     const staticSite = transactionManager.create(StaticSite, {
       id: checkSiteExist?.id,
-      ...createStaticSite,
+      title: createStaticSite.title
     });
 
     try {

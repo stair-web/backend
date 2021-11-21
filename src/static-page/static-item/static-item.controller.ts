@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { StaticItemService } from './static-item.service';
 import { CreateStaticItemDto } from './dto/create-static-item.dto';
 import { UpdateStaticItemDto } from './dto/update-static-item.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 
 const controllerName = 'static-item';
@@ -37,6 +38,28 @@ export class StaticItemController {
       );
     });
   }
+
+  /**
+   *
+   * @param createStaticItem
+   * @returns
+   */
+   @Put('/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình tạo Static Item.',
+   })
+   @ApiOperation({ summary: 'Update Static Item.' })
+   @ApiResponse({ status: 201, description: 'Tạo Static Item thành công' })
+   async updateStaticItem(@Param('uuid') uuid: string, @Body() createStaticItem: CreateStaticItemDto) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.staticItemService.updateStaticItem(
+         transactionManager,
+         createStaticItem,
+         uuid
+       );
+     });
+   }
 
   /**
    *

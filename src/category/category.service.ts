@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { Category } from './category.entity';
 import { CategoryRepository } from './category.repository';

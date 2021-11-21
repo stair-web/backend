@@ -1,9 +1,10 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { CreateStaticItemDto } from './dto/create-static-item.dto';
 import { UpdateStaticItemDto } from './dto/update-static-item.dto';
@@ -25,7 +26,7 @@ export class StaticItemService {
   ) {
     createStaticItem.uuid = uuidv4();
     try {
-      await this.staticItemRepository.saveItem(
+      await this.staticItemRepository.saveStaticItem(
         transactionManager,
         createStaticItem,
       );
@@ -35,6 +36,36 @@ export class StaticItemService {
       throw new InternalServerErrorException(
         `Lỗi hệ thống trong quá trình tạo Static Item.`,
       );
+    }
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param createStaticItem
+   * @returns
+   */
+   async updateStaticItem(
+    transactionManager: EntityManager,
+    createStaticItem: CreateStaticItemDto,
+    uuid
+  ) {
+    createStaticItem.uuid = uuid;
+    try {
+      await this.staticItemRepository.saveStaticItem(
+        transactionManager,
+        createStaticItem,
+      );
+      return { statusCode: 201, description: 'Update Static Item thành công' };
+    } catch (error) {
+      Logger.error(error);
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình update Static Item.`,
+        );
+      }
     }
   }
 

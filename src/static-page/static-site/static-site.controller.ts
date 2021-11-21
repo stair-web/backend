@@ -50,18 +50,19 @@ export class StaticSiteController {
    * @param createStaticSite
    * @returns
    */
-   @Put()
+   @Put('/:uuid')
    @ApiResponse({
      status: 500,
      description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
    })
-   @ApiOperation({ summary: 'Tạo Static Site.' })
+   @ApiOperation({ summary: 'Update Static Site.' })
    @ApiResponse({ status: 201, description: 'Tạo Static Site thành công' })
-   async updateStaticSite(@Body() createStaticSite: CreateStaticSiteDto) {
+   async updateStaticSite(@Param('uuid') uuid: string, @Body() createStaticSite: CreateStaticSiteDto) {
      return await this.connection.transaction((transactionManager) => {
        return this.staticSiteService.updateStaticSite(
          transactionManager,
          createStaticSite,
+         uuid
        );
      });
    }

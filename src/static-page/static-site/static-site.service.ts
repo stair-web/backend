@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { throws } from 'assert';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { EntityManager } from 'typeorm';
 import { StaticSectionRepository } from '../static-section/static-section.repository';
@@ -55,8 +55,9 @@ export class StaticSiteService {
    async updateStaticSite(
     transactionManager: EntityManager,
     createStaticSite: CreateStaticSiteDto,
+    uuid
   ) {
-    createStaticSite.uuid = uuidv4();
+    createStaticSite.uuid = uuid;
     try {
       await this.staticSiteRepository.saveStaticSite(
         transactionManager,
@@ -65,9 +66,13 @@ export class StaticSiteService {
       return { statusCode: 201, description: 'Update Static Site thành công' };
     } catch (error) {
       Logger.error(error);
-      throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình update Static Site.`,
-      );
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình update Static Site.`,
+        );
+      }
     }
   }
 

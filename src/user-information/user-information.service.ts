@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { GetAllUserInformationDto } from './dto/get-all-user-information.dto';

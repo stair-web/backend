@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { ApprovePostDto } from './dto/approve-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
