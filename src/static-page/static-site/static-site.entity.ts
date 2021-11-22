@@ -5,9 +5,11 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { StaticRelation } from '../static-relation/static-relation.entity';
 
 @Entity({ name: 'static_site', schema: DBSchema.SCM_ARI_PUBLIC })
 export class StaticSite extends BaseEntity {
@@ -34,6 +36,9 @@ export class StaticSite extends BaseEntity {
   //   inverseJoinColumn: { name: 'section_id', referencedColumnName: 'id' },
   // })
   // public staticSectionList: StaticSection[];
+
+  @OneToMany((type) => StaticRelation, (relation) => relation.site)
+  relation: StaticRelation[];
 
   @Column({
     type: 'timestamp without time zone',

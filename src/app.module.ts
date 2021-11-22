@@ -22,6 +22,7 @@ import { StaticItemModule } from './static-page/static-item/static-item.module';
 import { UserInformationModule } from './user-information/user-information.module';
 import { StaticSiteModule } from './static-page/static-site/static-site.module';
 import { StaticSectionModule } from './static-page/static-section/static-section.module';
+import { StaticRelationModule } from './static-page/static-relation/static-relation.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -63,6 +64,7 @@ import { StaticSectionModule } from './static-page/static-section/static-section
     StaticSiteModule,
     StaticSectionModule,
     StaticItemModule,
+    StaticRelationModule,
     UserInformationModule,
   ],
   controllers: [HealthController, AppController],

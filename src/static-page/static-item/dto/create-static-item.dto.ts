@@ -4,8 +4,6 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class CreateStaticItemDto {
   uuid?: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({ default: `title item ${Date.now()}` })
   title;
 

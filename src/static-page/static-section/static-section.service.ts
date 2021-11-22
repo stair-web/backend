@@ -31,6 +31,7 @@ export class StaticSectionService {
       await this.staticSectionRepository.saveStaticSection(
         transactionManager,
         createStaticSection,
+        true
       );
       return { statusCode: 201, description: 'Tạo Static Section thành công' };
     } catch (error) {

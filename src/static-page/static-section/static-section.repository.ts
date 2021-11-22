@@ -36,6 +36,7 @@ export class StaticSectionRepository extends Repository<StaticSection> {
 
     const staticSection = transactionManager.create(StaticSection, {
       id: checkSectionExist?.id,
+      uuid: createStaticSection.uuid,
       title: createStaticSection.title
     });
 
