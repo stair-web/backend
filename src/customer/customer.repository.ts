@@ -91,7 +91,6 @@ export class CustomerRepository extends Repository<Customer> {
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
-      'customer.id',
       'customer.email',
       'customer.uuid',
       'customer.fullName',
@@ -206,7 +205,6 @@ export class CustomerRepository extends Repository<Customer> {
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
-      'customer.id',
       'customer.uuid',
       'customer.email',
       'customer.fullName',
