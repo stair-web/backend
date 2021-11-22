@@ -23,6 +23,7 @@ import { UserInformationModule } from './user-information/user-information.modul
 import { StaticSiteModule } from './static-page/static-site/static-site.module';
 import { StaticSectionModule } from './static-page/static-section/static-section.module';
 import { StaticRelationModule } from './static-page/static-relation/static-relation.module';
+import { CandidateModule } from './candidate/candidate.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -66,6 +67,7 @@ import { StaticRelationModule } from './static-page/static-relation/static-relat
     StaticItemModule,
     StaticRelationModule,
     UserInformationModule,
+    CandidateModule,
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway],

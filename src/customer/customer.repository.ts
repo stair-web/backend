@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ConflictException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { uuidv4 } from 'src/common/util/common.util';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import {
   Repository,
@@ -10,24 +11,88 @@ import {
 } from 'typeorm';
 import { Customer } from './customer.entity';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @EntityRepository(Customer)
 export class CustomerRepository extends Repository<Customer> {
+  async updateCustomer(
+    transactionManager: EntityManager,
+    updateCustomerDto: UpdateCustomerDto,
+    uuid: string,
+  ): Promise<unknown> {
+    const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
+
+    const customer = await transactionManager.getRepository(Customer).findOne({uuid,isDeleted:false});
+
+    if (isNullOrUndefined(customer)) {
+      throw new InternalServerErrorException('Khách hàng không tồn tại.');
+    }
+
+    try {
+      await transactionManager.update(
+        Customer,
+        { uuid: customer.uuid },
+        {
+          email: email,
+          fullName: fullName,
+          phoneNumber: phoneNumber,
+          note: note,
+          sendTime: sendTime,
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi trong quá trình chỉnh sửa khách hàng.',
+      );
+    }
+    return { statusCode: 200, message: 'Chỉnh sửa khách hàng thành công.' };
+  }
+ async deleteCustomerByUuid(transactionManager: EntityManager, uuid: string) {
+
+  const customer = await transactionManager.getRepository(Customer).findOne({uuid,isDeleted:false});
+
+  if (isNullOrUndefined(customer)) {
+    throw new InternalServerErrorException('Khách hàng không tồn tại.');
+  }
+
+  try {
+    await transactionManager.update(
+      Customer,
+      { uuid: customer.uuid },
+      {
+      isDeleted:true,
+      updatedAt: new Date(),
+      },
+    );
+  } catch (error) {
+    Logger.error(error);
+    throw new InternalServerErrorException(
+      'Lỗi trong quá trình xoá khách hàng.',
+    );
+  }
+  return { statusCode: 200, message: 'Xoá khách hàng thành công.' };
+ }
  
  async getAll(transactionManager: EntityManager, getAllCustomerDto: GetAllCustomerDto): Promise<unknown> {
-  const { page, filter, sorts, fullTextSearch } = getAllCustomerDto;
+  const {fullTextSearch } = getAllCustomerDto;
   let { perPage } = getAllCustomerDto;
   if (isNullOrUndefined(perPage)) {
     perPage = 10;
   }
-  
+
+  let { page } = getAllCustomerDto;
+  if (isNullOrUndefined(page)) {
+    page = 1;
+  }
   
   const query = transactionManager
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
-      'customer.id',
       'customer.email',
+      'customer.uuid',
       'customer.fullName',
       'customer.note',
       'customer.phoneNumber',
@@ -72,48 +137,53 @@ export class CustomerRepository extends Repository<Customer> {
   }
 
   // Filter list
-  if (!isNullOrUndefined(filter)) {
-    const object = paramStringToJson(filter);
-    if (!isNullOrUndefined(object.email)) {
+ 
+    if (!isNullOrUndefined(getAllCustomerDto.filterEmail)) {
       query.andWhere('LOWER(customer.email) LIKE LOWER(:email)', {
-        email: `%${object.email}%`,
+        email: `%${getAllCustomerDto.filterEmail}%`,
       });
     }
 
-    if (!isNullOrUndefined(object.full_name)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterFullName)) {
       query.andWhere('LOWER(customer.fullName) LIKE LOWER(:fullName)', {
-        full_name: `%${object.full_name}%`,
+        fullName: `%${getAllCustomerDto.filterFullName}%`,
       });
     }
 
-    if (!isNullOrUndefined(object.note)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterNote)) {
       query.andWhere('LOWER(customer.note) LIKE LOWER(:note)', {
-        note: `%${object.note}%`,
+        note: `%${getAllCustomerDto.filterNote}%`,
       });
     }
-    if (!isNullOrUndefined(object.phone_number)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterPhoneNumber)) {
       query.andWhere('LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber)', {
-        note: `%${object.phone_number}%`,
+        phoneNumber: `%${getAllCustomerDto.filterPhoneNumber}%`,
       });
     }
-    if (!isNullOrUndefined(object.send_time)) {
+    if (!isNullOrUndefined(getAllCustomerDto.filterSendTime)) {
       query.andWhere('LOWER(customer.sendTime) LIKE LOWER(:sendTime)', {
-        note: `%${object.send_time}%`,
+        sendTime: `%${getAllCustomerDto.filterSendTime}%`,
       });
     }
-  }
+  
 
   // Sort list
-  if (!isNullOrUndefined(sorts)) {
-    const object = paramStringToJson(sorts);
-
-
-    if (!isNullOrUndefined(object.email)) {
-      query.orderBy('customer.email', object.email);
+    if (!isNullOrUndefined(getAllCustomerDto.sortEmail)) {
+      query.orderBy('customer.email', getAllCustomerDto.sortEmail);
     }
-
- 
-  }
+    if (!isNullOrUndefined(getAllCustomerDto.sortFullName)) {
+      query.orderBy('customer.fullName', getAllCustomerDto.sortFullName);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortNote)) {
+      query.orderBy('customer.note', getAllCustomerDto.sortNote);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortPhoneNumber)) {
+      query.orderBy('customer.phoneNumber', getAllCustomerDto.sortPhoneNumber);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortSendTime)) {
+      query.orderBy('customer.sendTime', getAllCustomerDto.sortSendTime);
+    }
+  
 
 
   try {
@@ -124,17 +194,18 @@ export class CustomerRepository extends Repository<Customer> {
 
   } catch (error) {
     console.log(error);
-    
+    throw new InternalServerErrorException(`Lỗi trong quá trình lấy danh sách khách hàng.`);
+
   }
   
  }
- async getUserById(transactionManager: EntityManager, id: string) {
+ async getCustomerByUuid(transactionManager: EntityManager, uuid: string) {
 
   const query = transactionManager
     .getRepository(Customer)
     .createQueryBuilder('customer')
     .select([
-      'customer.id',
+      'customer.uuid',
       'customer.email',
       'customer.fullName',
       'customer.note',
@@ -142,13 +213,13 @@ export class CustomerRepository extends Repository<Customer> {
       'customer.sendTime',
     
     ])
-    .andWhere('customer.id = :id', { id })
+    .andWhere('customer.uuid = :uuid', { uuid })
     .andWhere('customer.isDeleted = FALSE');
 
   const data = await query.getOne();
 
   if (isNullOrUndefined(data)) {
-    throw new NotFoundException(`Không tìm thấy người dùng.`);
+    throw new NotFoundException(`Không tìm thấy khách hàng.`);
   }
 
   return { statusCode: 200, data };
@@ -165,6 +236,7 @@ export class CustomerRepository extends Repository<Customer> {
 
 
   const customer = transactionEntityManager.create(Customer, {
+    uuid:uuidv4(),
     fullName: fullName,
     email: email,
     note: note,
@@ -179,6 +251,8 @@ export class CustomerRepository extends Repository<Customer> {
 
   try {
     await transactionEntityManager.save(customer);
+    return { statusCode: 201, message: 'Tạo khách hàng thành công.' };
+
   } catch (error) {
     Logger.error(error);
     throw new InternalServerErrorException(
