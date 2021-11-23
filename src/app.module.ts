@@ -20,6 +20,8 @@ import { CategoryModule } from './category/category.module';
 import { TopicModule } from './topic/topic.module';
 import { UserInformationModule } from './user-information/user-information.module';
 import { CandidateModule } from './candidate/candidate.module';
+import { PartnerModule } from './partner/partner.module';
+import { PartnerSectionItemModule } from './partner-section-item/partner-section-item.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -60,6 +62,8 @@ import { CandidateModule } from './candidate/candidate.module';
     TopicModule,
     UserInformationModule,
     CandidateModule,
+    PartnerModule,
+    PartnerSectionItemModule,
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway],

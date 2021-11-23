@@ -219,6 +219,10 @@ export class CandidateRepository extends Repository<Candidate> {
     });
     try {
       await transactionManager.save(candidate);
+      return {
+        statusCode: 201,
+        message: `Tạo Candidate thành công.`,
+      };
     } catch (error) {
       Logger.error(error);
       console.log(error);
@@ -227,9 +231,6 @@ export class CandidateRepository extends Repository<Candidate> {
         'Lỗi hệ thống trong quá trình tạo, vui lòng thử lại sau.',
       );
     }
-    return {
-      statusCode: 201,
-      message: `Tạo Candidate thành công.`,
-    };
+    
   }
 }
