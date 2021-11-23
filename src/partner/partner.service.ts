@@ -1,6 +1,6 @@
 import { PartnerRepository } from './partner.repository';
 import { ConflictException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { PartnerSectionItem } from 'src/partner-section-item/partner-section-item.entity';
 import { EntityManager } from 'typeorm';
 import { CreatePartnerDto } from './dto/create-partner.dto';

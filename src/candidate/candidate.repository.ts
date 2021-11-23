@@ -8,7 +8,7 @@ import {
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { Candidate } from './candidate.entity';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { GetAllCandidateDto } from './dto/get-all-candidate.dto';
 
 @EntityRepository(Candidate)

@@ -29,8 +29,8 @@ import { SignInDto } from './dto/sign-in.dto';
 import { UserRoleService } from 'src/user-role/user-role.service';
 import e from 'express';
 import { AcitveUserDto } from './dto/active-user.dto';
-import { uuidv4 } from 'src/common/util/common.util';
-import { hashPwd } from 'src/common/util/hash.util';
+import { uuidv4 } from 'src/common/utils/common.util';
+import { hashPwd } from 'src/common/utils/hash.util';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
 
 @Injectable()

@@ -18,7 +18,11 @@ import { AppController } from './app.controller';
 import { PostModule } from './post/post.module';
 import { CategoryModule } from './category/category.module';
 import { TopicModule } from './topic/topic.module';
+import { StaticItemModule } from './static-page/static-item/static-item.module';
 import { UserInformationModule } from './user-information/user-information.module';
+import { StaticSiteModule } from './static-page/static-site/static-site.module';
+import { StaticSectionModule } from './static-page/static-section/static-section.module';
+import { StaticRelationModule } from './static-page/static-relation/static-relation.module';
 import { CandidateModule } from './candidate/candidate.module';
 import { PartnerModule } from './partner/partner.module';
 import { PartnerSectionItemModule } from './partner-section-item/partner-section-item.module';
@@ -60,6 +64,10 @@ import { PartnerSectionItemModule } from './partner-section-item/partner-section
     PostModule,
     CategoryModule,
     TopicModule,
+    StaticSiteModule,
+    StaticSectionModule,
+    StaticItemModule,
+    StaticRelationModule,
     UserInformationModule,
     CandidateModule,
     PartnerModule,

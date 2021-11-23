@@ -28,7 +28,7 @@ import {
 import {
   editCandidateFileName,
   filterCandidateFile,
-} from 'src/common/util/file-upload.util';
+} from 'src/common/utils/file-upload.util';
 import { Connection } from 'typeorm';
 import { CandidateService } from './candidate.service';
 import { CreateCandidateDto } from './dto/create-candidate.dto';

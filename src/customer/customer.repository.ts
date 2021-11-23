@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ConflictException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { uuidv4 } from 'src/common/util/common.util';
+import { uuidv4 } from 'src/common/utils/common.util';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import {
   Repository,

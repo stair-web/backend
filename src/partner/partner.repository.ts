@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
-import { uuidv4 } from 'src/common/util/common.util';
 import { Partner } from './partner.entity';
 
 @EntityRepository(Partner)
