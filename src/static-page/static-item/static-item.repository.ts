@@ -42,7 +42,7 @@ export class StaticItemRepository extends Repository<StaticItem> {
     });
 
     try {
-      await transactionManager.save(staticItem);
+      return await transactionManager.save(staticItem);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

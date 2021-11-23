@@ -41,7 +41,7 @@ export class StaticSectionRepository extends Repository<StaticSection> {
     });
 
     try {
-      await transactionManager.save(staticSection);
+      return await transactionManager.save(staticSection);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
