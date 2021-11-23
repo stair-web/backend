@@ -8,7 +8,7 @@ export class CreateStaticItemDto {
   title;
 
   @ApiProperty({
-    default: `https://images.unsplash.com/photo-1542294670-01c195975f69?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=580&q=80`,
+    default: `https://picsum.photos/200/300`,
   })
   url: string;
 

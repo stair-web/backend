@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { isUuid, uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
+import { StaticItem } from '../static-item/static-item.entity';
 import { StaticSection } from '../static-section/static-section.entity';
 import { StaticSite } from '../static-site/static-site.entity';
 import { StaticRelation } from './static-relation.entity';
@@ -93,7 +94,7 @@ export class StaticRelationService {
     siteUuid: string,
     itemUuid: string,
   ) {
-    let site, section;
+    let site, item;
     if (isUuid(siteUuid)) {
       site = await transactionManager
         .getRepository(StaticSite)
@@ -105,8 +106,8 @@ export class StaticRelationService {
     }
 
     if (isUuid(itemUuid)) {
-      section = await transactionManager
-        .getRepository(StaticSection)
+      item = await transactionManager
+        .getRepository(StaticItem)
         .findOne({ uuid: itemUuid });
     } else {
       throw new InternalServerErrorException(
@@ -114,7 +115,7 @@ export class StaticRelationService {
       );
     }
 
-    if (!site || !section) {
+    if (!site || !item) {
       throw new InternalServerErrorException(
         `${
           !site ? 'Site' : 'Item'
@@ -126,7 +127,7 @@ export class StaticRelationService {
       await this.staticRelationRepository.addSiteItem(
         transactionManager,
         site,
-        section,
+        item,
       );
       return { statusCode: 201, description: 'Tạo Static Relation thành công' };
     } catch (error) {
@@ -146,10 +147,10 @@ export class StaticRelationService {
     sectionUuid: string,
     itemUuid: string,
   ) {
-    let site, section;
+    let section, item;
     if (isUuid(sectionUuid)) {
-      site = await transactionManager
-        .getRepository(StaticSite)
+      section = await transactionManager
+        .getRepository(StaticSection)
         .findOne({ uuid: sectionUuid });
     } else {
       throw new InternalServerErrorException(
@@ -158,8 +159,8 @@ export class StaticRelationService {
     }
 
     if (isUuid(itemUuid)) {
-      section = await transactionManager
-        .getRepository(StaticSection)
+      item = await transactionManager
+        .getRepository(StaticItem)
         .findOne({ uuid: itemUuid });
     } else {
       throw new InternalServerErrorException(
@@ -167,10 +168,10 @@ export class StaticRelationService {
       );
     }
 
-    if (!site || !section) {
+    if (!item || !section) {
       throw new InternalServerErrorException(
         `${
-          !site ? 'Section' : 'Item'
+          !item ? 'Item' : 'Section'
         } này không tồn tại nên không thể thiết lập mối quan hệ. Vui lòng kiểm tra và thử lại sau!`,
       );
     }
@@ -178,8 +179,8 @@ export class StaticRelationService {
     try {
       await this.staticRelationRepository.addSectionItem(
         transactionManager,
-        site,
         section,
+        item,
       );
       return { statusCode: 201, description: 'Tạo Static Relation thành công' };
     } catch (error) {

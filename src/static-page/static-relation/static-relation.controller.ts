@@ -22,7 +22,7 @@ export class StaticRelationController {
     status: 500,
     description: 'Lỗi hệ thống trong quá trình tạo Static Section.',
   })
-  async GetStaticSection() {
+  async getAllRelation() {
     return await this.connection.transaction((transactionManager) => {
       return this.staticRelationService.getAll(transactionManager);
     });

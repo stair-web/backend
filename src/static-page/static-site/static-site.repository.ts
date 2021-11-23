@@ -35,6 +35,7 @@ export class StaticSiteRepository extends Repository<StaticSite> {
 
     const staticSite = transactionManager.create(StaticSite, {
       id: checkSiteExist?.id,
+      uuid: createStaticSite.uuid,
       title: createStaticSite.title
     });
 

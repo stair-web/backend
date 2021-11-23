@@ -3,6 +3,7 @@ import { StaticSectionDto } from "src/static-page/static-section/dto/static-sect
 import { isNullOrUndefined } from "src/common/utils/common.util";
 
 export class StaticPageDto {
+    id?: number;
     uuid: string = undefined;
     title: string = undefined;
     isDeleted?: boolean = undefined;
@@ -10,12 +11,4 @@ export class StaticPageDto {
     updatedAt?: Date = undefined;
     item: StaticItemDto = undefined;
     sections: StaticSectionDto[] = undefined;
-
-    constructor(params?) {
-        for (let key in this) {
-            if (!isNullOrUndefined(params[key])) {
-                this[key] = params[key];
-            }
-        }
-    }
 }

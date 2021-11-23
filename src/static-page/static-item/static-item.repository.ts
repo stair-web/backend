@@ -35,6 +35,7 @@ export class StaticItemRepository extends Repository<StaticItem> {
 
     const staticItem = transactionManager.create(StaticItem, {
       id: checkItemExist?.id,
+      uuid: createStaticItem.uuid,
       title: createStaticItem.title,
       url: createStaticItem.url,
       description: createStaticItem.description,

@@ -1,3 +1,4 @@
+import { text } from 'aws-sdk/clients/customerprofiles';
 import {
   BaseEntity,
   Column,
@@ -56,4 +57,7 @@ export class StaticItem extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @Column()
+  other: string;
 }

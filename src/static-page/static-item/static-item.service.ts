@@ -29,6 +29,7 @@ export class StaticItemService {
       await this.staticItemRepository.saveStaticItem(
         transactionManager,
         createStaticItem,
+        true
       );
       return { statusCode: 201, description: 'Tạo Static Item thành công' };
     } catch (error) {
