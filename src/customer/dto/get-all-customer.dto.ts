@@ -1,35 +1,46 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmpty, IsNotEmpty, } from 'class-validator';
 import { SortValue } from '../../common/sort-value.enum';
 
 export class GetAllCustomerDto {
+  @ApiProperty({
+    default:10,
+    required: false
+  })
   perPage?: number;
 
-  page: number;
+  @ApiProperty({
+    default:1,
+    required: false
+  }) 
+  page?:number;
 
-  filter?: {
-    note?: string;
+  
 
-    fullName?: string;
+  @ApiProperty({required: false})
+  filterNote:string;
+  @ApiProperty({required: false})
+  filterFullName:string;
+  @ApiProperty({required: false})
+  filterEmail:string;
+  @ApiProperty({required: false})
+  filterPhoneNumber:string;
+  @ApiProperty({required: false})
+  filterSendTime:string;
 
-    email?: string;
+  @ApiProperty({required: false, enum: SortValue,})
+  sortNote: SortValue;
+  @ApiProperty({required: false,enum: SortValue, })
+  sortFullName: SortValue;
+  @ApiProperty({required: false,enum: SortValue, })
+  sortEmail: SortValue;
+  @ApiProperty({required: false,enum: SortValue, })
+  sortPhoneNumber: SortValue;
+  @ApiProperty({required: false,enum: SortValue, })
+  sortSendTime: SortValue;
 
-    phoneNumber?: string;
 
-    sendTime?: string;
-  };
-
-  sorts?: {
-    note?: SortValue;
-
-    fullName?: SortValue;
-
-    email?: SortValue;
-
-    phoneNumber?: SortValue;
-
-    sendTime?: SortValue;
-
-    isDeleted?: SortValue;
-  };
 
   fullTextSearch?: string;
+ 
 }
