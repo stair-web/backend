@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateStaticItemDto {
   uuid?: string;
@@ -15,4 +15,11 @@ export class CreateStaticItemDto {
   @ApiProperty({ default: `description ${Date.now()}` })
   description: string;
 
+  @ApiProperty({
+    default: `{
+    "email": "",
+    "linkedin": ""
+  }`,
+  })
+  other: string;
 }
