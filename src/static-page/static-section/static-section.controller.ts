@@ -98,4 +98,22 @@ export class StaticSectionController {
       );
     });
   }
+
+  /**
+   *
+   * @param uuid
+   * @returns
+   */
+   @Delete('/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình xoá Static Section.',
+   })
+   @ApiOperation({ summary: 'Xoá Static Section.' })
+   @ApiResponse({ status: 201, description: 'Xoá Static Section thành công' })
+   async deletePost(@Param('uuid') uuid: string) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.staticSectionService.deleteStaticSection(transactionManager, uuid);
+     });
+   }
 }

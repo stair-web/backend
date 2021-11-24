@@ -194,4 +194,20 @@ export class StaticRelationService {
       }
     }
   }
+
+  /**
+   * 
+   * @param transactionEntityManager 
+   * @param uuid 
+   * @returns 
+   */
+   async deleteStaticRelation(
+    transactionEntityManager: EntityManager,
+    uuid: string,
+  ) {
+    return await this.staticRelationRepository.deleteStaticRelation(
+      transactionEntityManager,
+      uuid
+    );
+  }
 }

@@ -65,6 +65,7 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
       site,
       section,
       item: null,
+      uuid: uuidv4(),
     });
     try {
       await transactionManager.save(staticRelation);
@@ -90,6 +91,7 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
       site,
       section: null,
       item,
+      uuid: uuidv4(),
     });
     try {
       await transactionManager.save(staticRelation);
@@ -115,6 +117,7 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
       site: null,
       section,
       item,
+      uuid: uuidv4(),
     });
     try {
       await transactionManager.save(staticRelation);
@@ -152,5 +155,43 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
     } else {
       return checkRelationExist;
     }
+  }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @returns 
+   */
+   async deleteStaticRelation(transactionManager: EntityManager, uuid: string) {
+    const checkStaticRelationExist = await transactionManager
+      .getRepository(StaticRelation)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkStaticRelationExist)) {
+      throw new ConflictException(
+        `StaticRelation chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const relation = transactionManager.create(StaticRelation, {
+      id: checkStaticRelationExist?.id,
+      isDeleted: true,
+    });
+
+    try {
+      await transactionManager.save(relation);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình xoà StaticRelation, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Xoá StaticRelation thành công.`,
+    };
   }
 }

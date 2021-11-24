@@ -98,4 +98,21 @@ export class StaticSiteController {
     });
   }
 
+  /**
+   *
+   * @param uuid
+   * @returns
+   */
+   @Delete('/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình xoá Static Site.',
+   })
+   @ApiOperation({ summary: 'Xoá Static Site.' })
+   @ApiResponse({ status: 201, description: 'Xoá Static Site thành công' })
+   async deletePost(@Param('uuid') uuid: string) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.staticSiteService.deleteStaticSite(transactionManager, uuid);
+     });
+   }
 }

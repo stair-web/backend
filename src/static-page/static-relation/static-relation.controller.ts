@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { StaticRelationService } from './static-relation.service';
 
@@ -87,4 +87,22 @@ export class StaticRelationController {
       return this.staticRelationService.addSectionItem(transactionManager, sectionUuid, itemUuid);
     });
   }
+
+  /**
+   *
+   * @param uuid
+   * @returns
+   */
+   @Delete('break-up/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình xoá Static Relation.',
+   })
+   @ApiOperation({ summary: 'Xoá Static Relation.' })
+   @ApiResponse({ status: 201, description: 'Xoá Static Relation thành công' })
+   async deletePost(@Param('uuid') uuid: string) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.staticRelationService.deleteStaticRelation(transactionManager, uuid);
+     });
+   }
 }

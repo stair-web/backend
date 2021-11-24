@@ -27,6 +27,9 @@ export class StaticRelation extends BaseEntity {
   // @Column()
   // itemId: number;
 
+  @Column()
+  uuid: string;
+
   @ManyToOne((type) => StaticSite, (site) => site.id)
   @JoinColumn({ name: 'site_id', referencedColumnName: 'id' })
   site: StaticSite;
