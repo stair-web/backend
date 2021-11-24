@@ -47,4 +47,42 @@ export class StaticItemRepository extends Repository<StaticItem> {
       throw new InternalServerErrorException(error);
     }
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @returns 
+   */
+  async deleteStaticItem(transactionManager: EntityManager, uuid: string) {
+    const checkStaticItemExist = await transactionManager
+      .getRepository(StaticItem)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkStaticItemExist)) {
+      throw new ConflictException(
+        `StaticItem chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const item = transactionManager.create(StaticItem, {
+      id: checkStaticItemExist?.id,
+      isDeleted: true,
+    });
+
+    try {
+      await transactionManager.save(item);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình xoà StaticItem, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Xoá StaticItem thành công.`,
+    };
+  }
 }

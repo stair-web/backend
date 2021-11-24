@@ -46,4 +46,42 @@ export class StaticSectionRepository extends Repository<StaticSection> {
       throw new InternalServerErrorException(error);
     }
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @returns 
+   */
+   async deleteStaticSection(transactionManager: EntityManager, uuid: string) {
+    const checkStaticSectionExist = await transactionManager
+      .getRepository(StaticSection)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkStaticSectionExist)) {
+      throw new ConflictException(
+        `StaticSection chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const section = transactionManager.create(StaticSection, {
+      id: checkStaticSectionExist?.id,
+      isDeleted: true,
+    });
+
+    try {
+      await transactionManager.save(section);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình xoà StaticSection, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Xoá StaticSection thành công.`,
+    };
+  }
 }

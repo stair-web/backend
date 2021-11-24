@@ -91,4 +91,20 @@ export class StaticItemService {
   async getAll(transactionManager: EntityManager) {
     return await transactionManager.getRepository(StaticItem).find();
   }
+
+  /**
+   * 
+   * @param transactionEntityManager 
+   * @param uuid 
+   * @returns 
+   */
+  async deleteStaticItem(
+    transactionEntityManager: EntityManager,
+    uuid: string,
+  ) {
+    return await this.staticItemRepository.deleteStaticItem(
+      transactionEntityManager,
+      uuid
+    );
+  }
 }

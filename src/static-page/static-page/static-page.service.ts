@@ -166,7 +166,7 @@ export class StaticPageService {
             section.uuid = uuidv4();
           }
           const updateSectionInfo = await this.sectionRepository.saveStaticSection(transactionManager, section, true);
-          if (isNullOrUndefined(item.id)) {
+          if (isNullOrUndefined(section.id)) {
             this.relationRepository.addSiteSection(transactionManager, site, updateSectionInfo);
           }
           const { items } = section;

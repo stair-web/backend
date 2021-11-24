@@ -45,4 +45,42 @@ export class StaticSiteRepository extends Repository<StaticSite> {
       throw new InternalServerErrorException(error);
     }
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @returns 
+   */
+   async deleteStaticSite(transactionManager: EntityManager, uuid: string) {
+    const checkStaticSiteExist = await transactionManager
+      .getRepository(StaticSite)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkStaticSiteExist)) {
+      throw new ConflictException(
+        `StaticSite chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    const site = transactionManager.create(StaticSite, {
+      id: checkStaticSiteExist?.id,
+      isDeleted: true,
+    });
+
+    try {
+      await transactionManager.save(site);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình xoà StaticSite, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Xoá StaticSite thành công.`,
+    };
+  }
 }

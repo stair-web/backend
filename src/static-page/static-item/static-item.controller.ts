@@ -25,9 +25,9 @@ export class StaticItemController {
   ) {}
 
   /**
-   * 
-   * @param createStaticItem 
-   * @returns 
+   *
+   * @param createStaticItem
+   * @returns
    */
   @Post()
   async createStaticItem(@Body() createStaticItem: CreateStaticItemDto) {
@@ -44,54 +44,72 @@ export class StaticItemController {
    * @param createStaticItem
    * @returns
    */
-   @Put('/:uuid')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình tạo Static Item.',
-   })
-   @ApiOperation({ summary: 'Update Static Item.' })
-   @ApiResponse({ status: 201, description: 'Tạo Static Item thành công' })
-   async updateStaticItem(@Param('uuid') uuid: string, @Body() createStaticItem: CreateStaticItemDto) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticItemService.updateStaticItem(
-         transactionManager,
-         createStaticItem,
-         uuid
-       );
-     });
-   }
+  @Put('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình tạo Static Item.',
+  })
+  @ApiOperation({ summary: 'Update Static Item.' })
+  @ApiResponse({ status: 201, description: 'Tạo Static Item thành công' })
+  async updateStaticItem(
+    @Param('uuid') uuid: string,
+    @Body() createStaticItem: CreateStaticItemDto,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticItemService.updateStaticItem(
+        transactionManager,
+        createStaticItem,
+        uuid,
+      );
+    });
+  }
 
   /**
    *
    * @returns all static page
    */
-   @Get()
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
-   })
-   async GetStaticSite() {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticItemService.getAll(transactionManager);
-     });
-   }
- 
-   /**
-    *
-    * @param uuid
-    * @returns
-    */
-   @Get('/:uuid')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình tạo Static Item.',
-   })
-   async GetAllStaticSite(@Param('uuid') uuid: string) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticItemService.getStaticItem(
-         transactionManager,
-         uuid,
-       );
-     });
-   }
+  @Get()
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
+  })
+  async GetStaticSite() {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticItemService.getAll(transactionManager);
+    });
+  }
+
+  /**
+   *
+   * @param uuid
+   * @returns
+   */
+  @Get('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình tạo Static Item.',
+  })
+  async GetAllStaticSite(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticItemService.getStaticItem(transactionManager, uuid);
+    });
+  }
+
+  /**
+   *
+   * @param uuid
+   * @returns
+   */
+  @Delete('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình xoá Static Item.',
+  })
+  @ApiOperation({ summary: 'Xoá Static Item.' })
+  @ApiResponse({ status: 201, description: 'Xoá Static Item thành công' })
+  async deletePost(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticItemService.deleteStaticItem(transactionManager, uuid);
+    });
+  }
 }

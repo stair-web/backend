@@ -5,10 +5,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { uuidv4 } from 'src/common/utils/common.util';
-import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import { EntityManager } from 'typeorm';
 import { CreateStaticSectionDto } from './dto/create-static-section.dto';
-import { UpdateStaticSectionDto } from './dto/update-static-section.dto';
 import { StaticSection } from './static-section.entity';
 import { StaticSectionRepository } from './static-section.repository';
 
@@ -90,5 +88,21 @@ export class StaticSectionService {
    */
   async getAll(transactionManager: EntityManager) {
     return await transactionManager.getRepository(StaticSection).find();
+  }
+
+  /**
+   * 
+   * @param transactionEntityManager 
+   * @param uuid 
+   * @returns 
+   */
+   async deleteStaticSection(
+    transactionEntityManager: EntityManager,
+    uuid: string,
+  ) {
+    return await this.staticSectionRepository.deleteStaticSection(
+      transactionEntityManager,
+      uuid
+    );
   }
 }
