@@ -39,6 +39,7 @@ export class StaticItemRepository extends Repository<StaticItem> {
       title: createStaticItem.title,
       url: createStaticItem.url,
       description: createStaticItem.description,
+      other: createStaticItem.other,
     });
 
     try {
