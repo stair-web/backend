@@ -62,7 +62,8 @@ export class StaticPageService {
         });
 
       let sections = [];
-      for (let e of siteRelations) {
+      const siteRelationsSorted = siteRelations.sort((a,b) => Number(a.id) - Number(b.id))
+      for (let e of siteRelationsSorted) {
         if (!isNullOrUndefined(e.section)) {
           const section = await transactionManager
             .getRepository(StaticSection)
@@ -74,7 +75,8 @@ export class StaticPageService {
             );
             if (relationItems) {
               section['items'] = [];
-              for (let i of relationItems) {
+              const relationItemsSorted = relationItems.sort((a,b) => Number(a.id) - Number(b.id))
+              for (let i of relationItemsSorted) {
                 if (!isNullOrUndefined(i.item)) {
                   const item = await transactionManager
                     .getRepository(StaticItem)
