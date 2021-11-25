@@ -81,7 +81,9 @@ export class StaticPageService {
                   const item = await transactionManager
                     .getRepository(StaticItem)
                     .findOne({ id: i.item.id, isDeleted: false });
-                  section['items'].push(item);
+                  if (item) {
+                    section['items'].push(item);
+                  }
                 }
               }
             }
