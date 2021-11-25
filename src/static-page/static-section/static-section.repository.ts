@@ -84,4 +84,18 @@ export class StaticSectionRepository extends Repository<StaticSection> {
       message: `Xoá StaticSection thành công.`,
     };
   }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param id 
+   * @returns 
+   */
+  async getSectionById(transactionManager: EntityManager, id: number) {
+    return await transactionManager
+      .getRepository(StaticSection)
+      .findOne({
+        id,
+      });
+  }
 }

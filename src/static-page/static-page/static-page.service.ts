@@ -1,5 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { isNullOrUndefined, isUuid, uuidv4 } from 'src/common/utils/common.util';
+import {
+  isNullOrUndefined,
+  isUuid,
+  uuidv4,
+} from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { StaticItem } from '../static-item/static-item.entity';
 import { StaticItemRepository } from '../static-item/static-item.repository';
@@ -14,12 +18,11 @@ import { StaticPageDto } from './dto/static-page.dto';
 
 @Injectable()
 export class StaticPageService {
-
   constructor(
     private siteRepository: StaticSiteRepository,
     private sectionRepository: StaticSectionRepository,
     private itemRepository: StaticItemRepository,
-    private relationRepository: StaticRelationRepository
+    private relationRepository: StaticRelationRepository,
   ) {}
   /**
    *
@@ -130,8 +133,8 @@ export class StaticPageService {
     }
 
     const site = await transactionManager
-        .getRepository(StaticSite)
-        .findOne({ uuid: updateStaticPageDto.uuid });
+      .getRepository(StaticSite)
+      .findOne({ uuid: updateStaticPageDto.uuid });
 
     const updateSiteBasicInfo = transactionManager.create(StaticSite, {
       id: site.id,
@@ -142,48 +145,129 @@ export class StaticPageService {
       await transactionManager.save(updateSiteBasicInfo);
       const { item } = updateStaticPageDto;
 
+      let isCreate = false;
       if (!isNullOrUndefined(item)) {
-        if (isNullOrUndefined(item.uuid)) {
-          item.uuid = uuidv4();
-        }
-        const updateItemInfo = await this.itemRepository.saveStaticItem(transactionManager, item, true);
         if (isNullOrUndefined(item.id)) {
-          this.relationRepository.addSiteItem(transactionManager, site, updateItemInfo);
+          item.uuid = uuidv4();
+          isCreate = true;
+        } else {
+          item.uuid = (
+            await this.itemRepository.getItemById(transactionManager, item.id)
+          ).uuid;
+        }
+
+        const updateItemInfo = await this.itemRepository.saveStaticItem(
+          transactionManager,
+          item,
+          true,
+        ); // dont use isCreate in this save
+
+        const checkExitsRelation = !isNullOrUndefined(
+          this.relationRepository.checkRelationExists(
+            transactionManager,
+            site,
+            null,
+            updateItemInfo,
+            false,
+          ),
+        );
+
+        if (isCreate || !checkExitsRelation) {
+          this.relationRepository.addSiteItem(
+            transactionManager,
+            site,
+            updateItemInfo,
+          );
         }
       }
 
       const { sections } = updateStaticPageDto;
       if (!isNullOrUndefined(sections) && sections.length > 0) {
         for (let section of sections) {
-          // const updateSectionInfo = transactionManager.create(StaticSection, {
-          //   id: section?.id,
-          //   title: section.title,
-          // });
-          // await transactionManager.save(updateSectionInfo);
-
-
-          if (isNullOrUndefined(section.uuid)) {
-            section.uuid = uuidv4();
-          }
-          const updateSectionInfo = await this.sectionRepository.saveStaticSection(transactionManager, section, true);
+          let isCreate = false;
           if (isNullOrUndefined(section.id)) {
-            this.relationRepository.addSiteSection(transactionManager, site, updateSectionInfo);
+            section.uuid = uuidv4();
+            isCreate = true;
+          } else {
+            section.uuid = (
+              await this.sectionRepository.getSectionById(
+                transactionManager,
+                section.id,
+              )
+            ).uuid;;
           }
+
+          const updateSectionInfo =
+            await this.sectionRepository.saveStaticSection(
+              transactionManager,
+              section,
+              true,
+            ); // dont use isCreate in this save
+
+          const checkExitsRelation = !isNullOrUndefined(
+            this.relationRepository.checkRelationExists(
+              transactionManager,
+              site,
+              updateSectionInfo,
+              null,
+              false,
+            ),
+          );
+
+          if (isCreate || !checkExitsRelation) {
+            this.relationRepository.addSiteSection(
+              transactionManager,
+              site,
+              updateSectionInfo,
+            );
+          }
+
           const { items } = section;
 
-
           for (let item of items) {
-            if (isNullOrUndefined(item.uuid)) {
-              item.uuid = uuidv4();
-            }
-            const updateItemInfo = await this.itemRepository.saveStaticItem(transactionManager, item, true);
-            if (isNullOrUndefined(item.id)) {
-              this.relationRepository.addSectionItem(transactionManager, updateSectionInfo, updateItemInfo);
+            let isCreate = false;
+            
+            if (!isNullOrUndefined(item)) {
+              if (isNullOrUndefined(item.id)) {
+                item.uuid = uuidv4();
+                isCreate = true;
+              } else {
+                item.uuid = (
+                  await this.itemRepository.getItemById(
+                    transactionManager,
+                    item.id,
+                  )
+                ).uuid;
+              }
+
+              const updateItemInfo = await this.itemRepository.saveStaticItem(
+                transactionManager,
+                item,
+                true,
+              ); // dont use isCreate in this save
+
+              const checkExitsRelation = !isNullOrUndefined(
+                this.relationRepository.checkRelationExists(
+                  transactionManager,
+                  updateSectionInfo,
+                  null,
+                  updateItemInfo,
+                  false,
+                ),
+              );
+
+              if (isCreate || !checkExitsRelation) {
+                this.relationRepository.addSectionItem(
+                  transactionManager,
+                  updateSectionInfo,
+                  updateItemInfo,
+                );
+              }
             }
           }
         }
       }
-      return { code: 201, message: "Cập nhật trang thành công!" };
+      return { code: 201, message: 'Cập nhật trang thành công!' };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

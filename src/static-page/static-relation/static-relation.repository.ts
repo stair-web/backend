@@ -50,9 +50,9 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
 
   /**
    * @description add relation between Site and Section
-   * @param transactionManager 
-   * @param site 
-   * @param section 
+   * @param transactionManager
+   * @param site
+   * @param section
    */
   async addSiteSection(
     transactionManager: EntityManager,
@@ -76,9 +76,9 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
 
   /**
    * @description add relation between Site and Item
-   * @param transactionManager 
-   * @param site 
-   * @param item 
+   * @param transactionManager
+   * @param site
+   * @param item
    */
   async addSiteItem(
     transactionManager: EntityManager,
@@ -102,9 +102,9 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
 
   /**
    * @description add relation between Section and Item
-   * @param transactionManager 
-   * @param section 
-   * @param item 
+   * @param transactionManager
+   * @param section
+   * @param item
    */
   async addSectionItem(
     transactionManager: EntityManager,
@@ -128,16 +128,17 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
 
   /**
    * @description check relation exists
-   * @param transactionManager 
-   * @param site 
-   * @param section 
-   * @param item 
+   * @param transactionManager
+   * @param site
+   * @param section
+   * @param item
    */
   async checkRelationExists(
     transactionManager: EntityManager,
     site: StaticSite,
     section: StaticSection,
     item: StaticItem,
+    enableExceptions?: boolean,
   ) {
     const checkRelationExist = await transactionManager
       .getRepository(StaticRelation)
@@ -148,22 +149,22 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
         isDeleted: false,
       });
 
-    if (!isNullOrUndefined(checkRelationExist)) {
+    if (!isNullOrUndefined(checkRelationExist) && enableExceptions) {
       throw new ConflictException(
         `Relation đã tồn tại trong hệ thống. Không thể tạo thêm relation!`,
       );
-    } else {
-      return checkRelationExist;
     }
+
+    return checkRelationExist;
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
    */
-   async deleteStaticRelation(transactionManager: EntityManager, uuid: string) {
+  async deleteStaticRelation(transactionManager: EntityManager, uuid: string) {
     const checkStaticRelationExist = await transactionManager
       .getRepository(StaticRelation)
       .findOne({
