@@ -33,6 +33,9 @@ export class StaticRelationService {
         },
       },
       relations: ['site', 'section', 'item'],
+      order: {
+        id: 'DESC',
+      },
     });
   }
 
@@ -230,10 +233,10 @@ export class StaticRelationService {
 
   /**
    * @description delete a section-item relation with section uuid & item uuid
-   * @param transactionManager 
-   * @param sectionUuid 
-   * @param itemUuid 
-   * @returns 
+   * @param transactionManager
+   * @param sectionUuid
+   * @param itemUuid
+   * @returns
    */
   async deleteRelationSectionItem(
     transactionManager: EntityManager,

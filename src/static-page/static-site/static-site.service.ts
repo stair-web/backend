@@ -16,9 +16,7 @@ import { StaticSiteRepository } from './static-site.repository';
 
 @Injectable()
 export class StaticSiteService {
-  constructor(
-    private staticSiteRepository: StaticSiteRepository,
-  ) {}
+  constructor(private staticSiteRepository: StaticSiteRepository) {}
 
   /**
    *
@@ -35,7 +33,7 @@ export class StaticSiteService {
       await this.staticSiteRepository.saveStaticSite(
         transactionManager,
         createStaticSite,
-        true
+        true,
       );
       return { statusCode: 201, description: 'Tạo Static Site thành công' };
     } catch (error) {
@@ -52,10 +50,10 @@ export class StaticSiteService {
    * @param createStaticSite
    * @returns
    */
-   async updateStaticSite(
+  async updateStaticSite(
     transactionManager: EntityManager,
     createStaticSite: CreateStaticSiteDto,
-    uuid
+    uuid,
   ) {
     createStaticSite.uuid = uuid;
     try {
@@ -93,22 +91,26 @@ export class StaticSiteService {
    * @returns
    */
   async getAll(transactionManager: EntityManager) {
-    return await transactionManager.getRepository(StaticSite).find();
+    return await transactionManager.getRepository(StaticSite).find({
+      order: {
+        id: 'DESC',
+      },
+    });
   }
 
   /**
-   * 
-   * @param transactionEntityManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionEntityManager
+   * @param uuid
+   * @returns
    */
-   async deleteStaticSite(
+  async deleteStaticSite(
     transactionEntityManager: EntityManager,
     uuid: string,
   ) {
     return await this.staticSiteRepository.deleteStaticSite(
       transactionEntityManager,
-      uuid
+      uuid,
     );
   }
 }
