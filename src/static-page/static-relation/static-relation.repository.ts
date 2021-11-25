@@ -186,13 +186,39 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
       await transactionManager.save(relation);
     } catch (error) {
       Logger.error(error);
-      throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình xoà StaticRelation, vui lòng thử lại sau.`,
+      throw new InternalServerErrorException(error);
+    }
+    
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
+   */
+  async deleteRelationSectionItem(
+    transactionManager: EntityManager,
+    section: StaticSection,
+    item: StaticItem,
+  ) {
+    const checkStaticRelationExist = await this.checkRelationExists(transactionManager, null, section, item, false);
+
+    if (isNullOrUndefined(checkStaticRelationExist)) {
+      throw new ConflictException(
+        `Static Relation chưa tồn tại trong hệ thống. Không thể thực thi yêu cầu!`,
       );
     }
-    return {
-      statusCode: 201,
-      message: `Xoá StaticRelation thành công.`,
-    };
+
+    const relation = transactionManager.create(StaticRelation, {
+      id: checkStaticRelationExist?.id,
+      isDeleted: true,
+    });
+
+    try {
+      await transactionManager.save(relation);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 }

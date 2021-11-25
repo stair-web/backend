@@ -100,9 +100,30 @@ export class StaticRelationController {
    })
    @ApiOperation({ summary: 'Xoá Static Relation.' })
    @ApiResponse({ status: 201, description: 'Xoá Static Relation thành công' })
-   async deletePost(@Param('uuid') uuid: string) {
+   async deleteStaticRelation(@Param('uuid') uuid: string) {
      return await this.connection.transaction((transactionManager) => {
        return this.staticRelationService.deleteStaticRelation(transactionManager, uuid);
      });
    }
+
+   /**
+   *
+   * @param uuid
+   * @returns
+   */
+    @Delete('break-up/section-item/:sectionUuid/:itemUuid')
+    @ApiResponse({
+      status: 500,
+      description: 'Lỗi hệ thống trong quá trình xoá Static Relation.',
+    })
+    @ApiOperation({ summary: 'Xoá Static Relation.' })
+    @ApiResponse({ status: 201, description: 'Xoá Static Relation thành công' })
+    async deleteRelationSectionItem(
+      @Param('sectionUuid') sectionUuid: string,
+      @Param('itemUuid') itemUuid: string,
+    ) {
+      return await this.connection.transaction((transactionManager) => {
+        return this.staticRelationService.deleteRelationSectionItem(transactionManager, sectionUuid, itemUuid);
+      });
+    }
 }
