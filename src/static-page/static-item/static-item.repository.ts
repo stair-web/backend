@@ -50,10 +50,10 @@ export class StaticItemRepository extends Repository<StaticItem> {
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
    */
   async deleteStaticItem(transactionManager: EntityManager, uuid: string) {
     const checkStaticItemExist = await transactionManager
@@ -85,5 +85,19 @@ export class StaticItemRepository extends Repository<StaticItem> {
       statusCode: 201,
       message: `Xoá StaticItem thành công.`,
     };
+  }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param id 
+   * @returns 
+   */
+  async getItemById(transactionManager: EntityManager, id: number) {
+    return await transactionManager
+      .getRepository(StaticItem)
+      .findOne({
+        id,
+      });
   }
 }
