@@ -58,6 +58,7 @@ export class StaticPageService {
             site,
             isDeleted: false,
           },
+          order: { item: 'ASC' },
         });
 
       let sections = [];
@@ -194,7 +195,7 @@ export class StaticPageService {
                 transactionManager,
                 section.id,
               )
-            ).uuid;;
+            ).uuid;
           }
 
           const updateSectionInfo =
@@ -226,7 +227,7 @@ export class StaticPageService {
 
           for (let item of items) {
             let isCreate = false;
-            
+
             if (!isNullOrUndefined(item)) {
               if (isNullOrUndefined(item.id)) {
                 item.uuid = uuidv4();

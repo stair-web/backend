@@ -24,13 +24,13 @@ export class StaticRelationService {
    */
   async getAll(transactionManager: EntityManager) {
     return await transactionManager.getRepository(StaticRelation).find({
-      join:{
+      join: {
         alias: 'staticTablesRelation',
-        leftJoinAndSelect:{
+        leftJoinAndSelect: {
           site: 'staticTablesRelation.site',
           section: 'staticTablesRelation.section',
-          item: 'staticTablesRelation.item'
-        }
+          item: 'staticTablesRelation.item',
+        },
       },
       relations: ['site', 'section', 'item'],
     });
@@ -142,6 +142,13 @@ export class StaticRelationService {
     }
   }
 
+  /**
+   *
+   * @param transactionManager
+   * @param sectionUuid
+   * @param itemUuid
+   * @returns
+   */
   async addSectionItem(
     transactionManager: EntityManager,
     sectionUuid: string,
@@ -196,18 +203,90 @@ export class StaticRelationService {
   }
 
   /**
-   * 
-   * @param transactionEntityManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionEntityManager
+   * @param uuid
+   * @returns
    */
-   async deleteStaticRelation(
+  async deleteStaticRelation(
     transactionEntityManager: EntityManager,
     uuid: string,
   ) {
-    return await this.staticRelationRepository.deleteStaticRelation(
-      transactionEntityManager,
-      uuid
-    );
+    try {
+      await this.staticRelationRepository.deleteStaticRelation(
+        transactionEntityManager,
+        uuid,
+      );
+      return {
+        statusCode: 201,
+        message: `Xoá Static Relation thành công!`,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình xoá Static Relation. Vui lòng thử lại sau!`,
+      );
+    }
+  }
+
+  /**
+   * @description delete a section-item relation with section uuid & item uuid
+   * @param transactionManager 
+   * @param sectionUuid 
+   * @param itemUuid 
+   * @returns 
+   */
+  async deleteRelationSectionItem(
+    transactionManager: EntityManager,
+    sectionUuid: string,
+    itemUuid: string,
+  ) {
+    let section, item;
+    if (isUuid(sectionUuid)) {
+      section = await transactionManager
+        .getRepository(StaticSection)
+        .findOne({ uuid: sectionUuid });
+    } else {
+      throw new InternalServerErrorException(
+        'Section Uuid này không hợp lệ. Vui lòng kiểm tra và thử lại sau!',
+      );
+    }
+
+    if (isUuid(itemUuid)) {
+      item = await transactionManager
+        .getRepository(StaticItem)
+        .findOne({ uuid: itemUuid });
+    } else {
+      throw new InternalServerErrorException(
+        'Item Uuid này không hợp lệ. Vui lòng kiểm tra và thử lại sau!',
+      );
+    }
+
+    if (!item || !section) {
+      throw new InternalServerErrorException(
+        `${
+          !item ? 'Item' : 'Section'
+        } này không tồn tại nên không thể xoá mối quan hệ. Vui lòng kiểm tra và thử lại sau!`,
+      );
+    }
+
+    try {
+      await this.staticRelationRepository.deleteRelationSectionItem(
+        transactionManager,
+        section,
+        item,
+      );
+      return {
+        statusCode: 201,
+        message: `Xoá Static Relation thành công!`,
+      };
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình xoá Static Relation. Vui lòng thử lại sau!`,
+        );
+      }
+    }
   }
 }
