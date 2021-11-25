@@ -89,7 +89,11 @@ export class StaticItemService {
    * @returns
    */
   async getAll(transactionManager: EntityManager) {
-    return await transactionManager.getRepository(StaticItem).find();
+    return await transactionManager.getRepository(StaticItem).find({
+      order:{
+        id: 'DESC'
+      }
+    });
   }
 
   /**

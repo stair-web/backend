@@ -29,7 +29,7 @@ export class StaticSectionService {
       await this.staticSectionRepository.saveStaticSection(
         transactionManager,
         createStaticSection,
-        true
+        true,
       );
       return { statusCode: 201, description: 'Tạo Static Section thành công' };
     } catch (error) {
@@ -46,10 +46,10 @@ export class StaticSectionService {
    * @param createStaticSection
    * @returns
    */
-   async updateStaticSection(
+  async updateStaticSection(
     transactionManager: EntityManager,
     createStaticSection: CreateStaticSectionDto,
-    uuid
+    uuid,
   ) {
     createStaticSection.uuid = uuid;
     try {
@@ -57,7 +57,10 @@ export class StaticSectionService {
         transactionManager,
         createStaticSection,
       );
-      return { statusCode: 201, description: 'Update Static Section thành công' };
+      return {
+        statusCode: 201,
+        description: 'Update Static Section thành công',
+      };
     } catch (error) {
       Logger.error(error);
       if (error instanceof ConflictException) {
@@ -76,8 +79,10 @@ export class StaticSectionService {
    * @param uuid
    * @returns
    */
-   async getStaticSection(transactionManager: EntityManager, uuid) {
-    return await transactionManager.getRepository(StaticSection).findOne({ uuid });
+  async getStaticSection(transactionManager: EntityManager, uuid) {
+    return await transactionManager
+      .getRepository(StaticSection)
+      .findOne({ uuid });
   }
 
   /**
@@ -87,22 +92,26 @@ export class StaticSectionService {
    * @returns
    */
   async getAll(transactionManager: EntityManager) {
-    return await transactionManager.getRepository(StaticSection).find();
+    return await transactionManager.getRepository(StaticSection).find({
+      order: {
+        id: 'DESC',
+      },
+    });
   }
 
   /**
-   * 
-   * @param transactionEntityManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionEntityManager
+   * @param uuid
+   * @returns
    */
-   async deleteStaticSection(
+  async deleteStaticSection(
     transactionEntityManager: EntityManager,
     uuid: string,
   ) {
     return await this.staticSectionRepository.deleteStaticSection(
       transactionEntityManager,
-      uuid
+      uuid,
     );
   }
 }
