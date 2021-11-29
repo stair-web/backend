@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { StaticSiteService } from './static-site.service';
 import { CreateStaticSiteDto } from './dto/create-static-site.dto';
 import { UpdateStaticSiteDto } from './dto/update-static-site.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
+import { SiteType } from './enum/site-type.enum';
 
 const controllerName = 'static-site';
 @ApiTags(controllerName)
@@ -50,42 +52,45 @@ export class StaticSiteController {
    * @param createStaticSite
    * @returns
    */
-   @Put('/:uuid')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
-   })
-   @ApiOperation({ summary: 'Update Static Site.' })
-   @ApiResponse({ status: 201, description: 'Tạo Static Site thành công' })
-   async updateStaticSite(@Param('uuid') uuid: string, @Body() createStaticSite: CreateStaticSiteDto) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticSiteService.updateStaticSite(
-         transactionManager,
-         createStaticSite,
-         uuid
-       );
-     });
-   }
+  @Put('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
+  })
+  @ApiOperation({ summary: 'Update Static Site.' })
+  @ApiResponse({ status: 201, description: 'Tạo Static Site thành công' })
+  async updateStaticSite(
+    @Param('uuid') uuid: string,
+    @Body() createStaticSite: CreateStaticSiteDto,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticSiteService.updateStaticSite(
+        transactionManager,
+        createStaticSite,
+        uuid,
+      );
+    });
+  }
 
   /**
-   * 
+   *
    * @returns all static page
    */
-   @Get()
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
-   })
-   async GetStaticSite() {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticSiteService.getAll(transactionManager);
-     });
-   }
+  @Get()
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
+  })
+  async GetStaticSite() {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticSiteService.getAll(transactionManager);
+    });
+  }
 
   /**
-   * 
-   * @param uuid 
-   * @returns 
+   *
+   * @param uuid
+   * @returns
    */
   @Get('/:uuid')
   @ApiResponse({
@@ -103,16 +108,33 @@ export class StaticSiteController {
    * @param uuid
    * @returns
    */
-   @Delete('/:uuid')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình xoá Static Site.',
-   })
-   @ApiOperation({ summary: 'Xoá Static Site.' })
-   @ApiResponse({ status: 201, description: 'Xoá Static Site thành công' })
-   async deletePost(@Param('uuid') uuid: string) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.staticSiteService.deleteStaticSite(transactionManager, uuid);
-     });
-   }
+  @Delete('/:uuid')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình xoá Static Site.',
+  })
+  @ApiOperation({ summary: 'Xoá Static Site.' })
+  @ApiResponse({ status: 201, description: 'Xoá Static Site thành công' })
+  async deletePost(@Param('uuid') uuid: string) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticSiteService.deleteStaticSite(transactionManager, uuid);
+    });
+  }
+
+  /**
+   * 
+   * @param uuid 
+   * @param type 
+   * @returns 
+   */
+  @Post('apply-type/:uuid/:type')
+  @ApiQuery({ name: 'type', enum: SiteType })
+  async applySiteType(
+    @Param('uuid') uuid: string,
+    @Query('type') type: SiteType
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.staticSiteService.applySiteType(transactionManager, uuid, type);
+    });
+  }
 }
