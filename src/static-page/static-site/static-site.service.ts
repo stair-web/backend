@@ -11,6 +11,7 @@ import { EntityManager } from 'typeorm';
 import { StaticSectionRepository } from '../static-section/static-section.repository';
 import { CreateStaticSiteDto } from './dto/create-static-site.dto';
 import { UpdateStaticSiteDto } from './dto/update-static-site.dto';
+import { SiteType } from './enum/site-type.enum';
 import { StaticSite } from './static-site.entity';
 import { StaticSiteRepository } from './static-site.repository';
 
@@ -108,9 +109,51 @@ export class StaticSiteService {
     transactionEntityManager: EntityManager,
     uuid: string,
   ) {
-    return await this.staticSiteRepository.deleteStaticSite(
-      transactionEntityManager,
-      uuid,
-    );
+    try {
+      await this.staticSiteRepository.deleteStaticSite(
+        transactionEntityManager,
+        uuid,
+      );
+      return {code: 201, message:'Xoá Static Site thành công!'}
+    } catch (error) {
+      Logger.error(error);
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình xoá Static Site.`,
+        );
+      }
+    }
+  }
+
+  /**
+   *
+   * @param transactionEntityManager
+   * @param uuid
+   * @returns
+   */
+   async applySiteType(
+    transactionEntityManager: EntityManager,
+    uuid: string,
+    type: SiteType
+  ) {
+    try {
+      await this.staticSiteRepository.applySiteType(
+        transactionEntityManager,
+        uuid,
+        type
+      );
+      return {code: 201, message:'Apply Site Type thành công!'}
+    } catch (error) {
+      Logger.error(error);
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          `Lỗi hệ thống trong quá trình apply Site Type.`,
+        );
+      }
+    }
   }
 }

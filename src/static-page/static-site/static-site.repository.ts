@@ -6,6 +6,7 @@ import {
 import { uuidv4, isNullOrUndefined } from 'src/common/utils/common.util';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { CreateStaticSiteDto } from './dto/create-static-site.dto';
+import { SiteType } from './enum/site-type.enum';
 import { StaticSite } from './static-site.entity';
 
 @EntityRepository(StaticSite)
@@ -36,7 +37,7 @@ export class StaticSiteRepository extends Repository<StaticSite> {
     const staticSite = transactionManager.create(StaticSite, {
       id: checkSiteExist?.id,
       uuid: createStaticSite.uuid,
-      title: createStaticSite.title
+      title: createStaticSite.title,
     });
 
     try {
@@ -47,12 +48,12 @@ export class StaticSiteRepository extends Repository<StaticSite> {
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param uuid 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param uuid
+   * @returns
    */
-   async deleteStaticSite(transactionManager: EntityManager, uuid: string) {
+  async deleteStaticSite(transactionManager: EntityManager, uuid: string) {
     const checkStaticSiteExist = await transactionManager
       .getRepository(StaticSite)
       .findOne({
@@ -82,5 +83,66 @@ export class StaticSiteRepository extends Repository<StaticSite> {
       statusCode: 201,
       message: `Xoá StaticSite thành công.`,
     };
+  }
+
+  /**
+   * 
+   * @param transactionManager 
+   * @param uuid 
+   * @param type 
+   */
+  async applySiteType(
+    transactionManager: EntityManager,
+    uuid: string,
+    type: SiteType,
+  ) {
+    const checkSiteExist = await transactionManager
+      .getRepository(StaticSite)
+      .findOne({
+        uuid,
+      });
+
+    if (isNullOrUndefined(checkSiteExist)) {
+      throw new ConflictException(
+        `Site chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    await this.shiftSiteType(transactionManager,type);
+
+    const staticSite = transactionManager.create(StaticSite, {
+      id: checkSiteExist?.id,
+      type,
+    });
+
+    try {
+      await transactionManager.save(staticSite);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  private async shiftSiteType(
+    transactionManager: EntityManager,
+    type: SiteType,
+  ) {
+    const checkSiteHasType = await transactionManager
+      .getRepository(StaticSite)
+      .findOne({
+        type,
+      });
+
+    if (checkSiteHasType) {
+      const staticSite = transactionManager.create(StaticSite, {
+        id: checkSiteHasType?.id,
+        type: SiteType.UNKNOWN,
+      });
+
+      try {
+        await transactionManager.save(staticSite)
+      } catch (error) {
+        Logger.error(error);
+      }
+    }
   }
 }

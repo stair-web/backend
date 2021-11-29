@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { StaticRelation } from '../static-relation/static-relation.entity';
+import { SiteType } from './enum/site-type.enum';
 
 @Entity({ name: 'static_site', schema: DBSchema.SCM_ARI_PUBLIC })
 export class StaticSite extends BaseEntity {
@@ -51,4 +52,9 @@ export class StaticSite extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @Column({
+    default: () => 'UNKNOWN',
+  })
+  type?: SiteType;
 }
