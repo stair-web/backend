@@ -3,7 +3,7 @@ import { PartnerSectionItemService } from './partner-section-item.service';
 import { PartnerSectionItemController } from './partner-section-item.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { PartnerSectionItemRepository } from './partner.repository';
+import { PartnerSectionItemRepository } from './partner-section-item.repository';
 
 @Module({
   imports: [

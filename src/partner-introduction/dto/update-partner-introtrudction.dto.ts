@@ -1,8 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsString, IsBoolean } from 'class-validator';
-import { CreatePartnerSectionItemDto } from './create-partner-section-item.dto';
 
-export class UpdatePartnerSectionItemDto extends PartialType(CreatePartnerSectionItemDto) {
+export class UpdatePartnerIntroductionDto {
     @ApiProperty()
     @IsString()
     uuid: string;
@@ -13,7 +12,11 @@ export class UpdatePartnerSectionItemDto extends PartialType(CreatePartnerSectio
 
     @ApiProperty()
     @IsString()
-    imgUrl: string;
+    url: string;
+
+    @ApiProperty()
+    @IsString()
+    description: string;
 
     @ApiProperty()
     @IsString()

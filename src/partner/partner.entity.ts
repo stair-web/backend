@@ -1,3 +1,5 @@
+import { PartnerPartnership } from './../partner-partnership/partner-partnership.entity';
+import { PartnerIntroduction } from './../partner-introduction/partner-introduction.entity';
 import { PartnerSectionItem } from './../partner-section-item/partner-section-item.entity';
 import {
   Column,
@@ -8,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { PartnerType } from './enum/TypePartner.enum';
 
 @Entity({ name: 'partner',  schema: DBSchema.SCM_ARI_PUBLIC})
 export class Partner {
@@ -19,6 +22,9 @@ export class Partner {
 
   @Column()
   urlLogo: string;
+
+  @Column()
+  partnerType: PartnerType;
 
   @Column()
   introDescription: string;
@@ -46,6 +52,24 @@ export class Partner {
     },
   )
   partnerSectionItemList: PartnerSectionItem[];
+
+  @OneToMany(
+    () => PartnerIntroduction,
+    (partnerIntroduction: PartnerIntroduction) => partnerIntroduction.partner,
+    {
+      eager: false,
+    },
+  )
+  partnerInstroductionList: PartnerIntroduction[];
+
+  @OneToMany(
+    () => PartnerPartnership,
+    (partnerPartnership: PartnerPartnership) => partnerPartnership.partner,
+    {
+      eager: false,
+    },
+  )
+  partnerPartnershipList: PartnerPartnership[];
 
   @Column({
     type: 'timestamp without time zone',

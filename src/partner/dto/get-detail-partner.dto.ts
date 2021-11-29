@@ -3,6 +3,7 @@ import { ApiProperty, ApiResponse } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { GetDetailPartnerSectionItemDto } from 'src/partner-section-item/dto/get-detail-partner-section-item.dto';
 import { PartnerUuidEnum } from '../enum/PartnerUuidEnum';
+import { PartnerType } from '../enum/TypePartner.enum';
 export class GetDetailPartnerDto {
   @ApiProperty()
   uuid: string;
@@ -34,6 +35,11 @@ export class GetDetailPartnerDto {
   @ApiProperty()
   @IsString()
   sectionItemTitle: string;
+
+  @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    partnerType: PartnerType;
 
   @ApiProperty({ type: GetDetailPartnerSectionItemDto, isArray: true })
   partnerSectionItemList: GetDetailPartnerSectionItemDto[];

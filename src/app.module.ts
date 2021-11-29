@@ -26,6 +26,8 @@ import { StaticRelationModule } from './static-page/static-relation/static-relat
 import { CandidateModule } from './candidate/candidate.module';
 import { PartnerModule } from './partner/partner.module';
 import { PartnerSectionItemModule } from './partner-section-item/partner-section-item.module';
+import { PartnerIntroductionModule } from './partner-introduction/partner-introduction.module';
+import { PartnerPartnershipModule } from './partner-partnership/partner-partnership.module';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -72,6 +74,8 @@ import { PartnerSectionItemModule } from './partner-section-item/partner-section
     CandidateModule,
     PartnerModule,
     PartnerSectionItemModule,
+    PartnerIntroductionModule,
+    PartnerPartnershipModule,
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway],
