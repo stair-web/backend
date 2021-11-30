@@ -15,7 +15,7 @@ COPY --from=builder /app .
 ARG NODE_ENV=local
 ENV NODE_ENV=${NODE_ENV}
 EXPOSE 8888
-CMD ["npm","run","start:local"]
+CMD ["npm","run","start:prod"]
 
 
 
