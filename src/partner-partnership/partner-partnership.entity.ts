@@ -1,16 +1,16 @@
 import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { DBSchema } from 'src/common/enum/db-schemas.enum';
-import { Partner } from 'src/partner/partner.entity';
-
-@Entity({ name: 'partner_section_item', schema: DBSchema.SCM_ARI_PUBLIC })
-export class PartnerSectionItem {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+  } from 'typeorm';
+  import { DBSchema } from 'src/common/enum/db-schemas.enum';
+  import { Partner } from 'src/partner/partner.entity';
+  
+  @Entity({ name: 'partner_partnership', schema: DBSchema.SCM_ARI_PUBLIC })
+export class PartnerPartnership {
     @PrimaryGeneratedColumn()
     id: number;
   
@@ -21,10 +21,13 @@ export class PartnerSectionItem {
     title: string;
   
     @Column()
-    imgUrl: string;
-
+    url: string;
+  
     @Column()
     language: string;
+
+    @Column()
+    description: string;
 
     @ManyToOne(
       () => Partner,
