@@ -9,7 +9,7 @@ services:
           env_file:
                 - ./env/prod.env
           environment:
-                - NODE_ENV=prod
+                - NODE_ENV=dev
           ports:
                   - "${SERVER_PORT}:${APP_PORT}"
           build: .
