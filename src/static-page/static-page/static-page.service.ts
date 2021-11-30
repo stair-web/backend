@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import {
   isNullOrUndefined,
   isUuid,
@@ -42,6 +46,10 @@ export class StaticPageService {
         .getRepository(StaticSite)
         .findOne({ uuid });
 
+      if (!site) {
+        return { code: 201, data: null };
+      }
+
       let staticPage = new StaticPageResponseDto(site);
 
       const siteRelations = await transactionManager
@@ -63,7 +71,9 @@ export class StaticPageService {
         });
 
       let sections = [];
-      const siteRelationsSorted = siteRelations.sort((a,b) => Number(a.id) - Number(b.id))
+      const siteRelationsSorted = siteRelations.sort(
+        (a, b) => Number(a.id) - Number(b.id),
+      );
       for (let e of siteRelationsSorted) {
         if (!isNullOrUndefined(e.section)) {
           const section = await transactionManager
@@ -76,7 +86,9 @@ export class StaticPageService {
             );
             if (relationItems) {
               section['items'] = [];
-              const relationItemsSorted = relationItems.sort((a,b) => Number(a.id) - Number(b.id))
+              const relationItemsSorted = relationItems.sort(
+                (a, b) => Number(a.id) - Number(b.id),
+              );
               for (let i of relationItemsSorted) {
                 if (!isNullOrUndefined(i.item)) {
                   const item = await transactionManager
@@ -128,11 +140,18 @@ export class StaticPageService {
     });
   }
 
-  async getPageBySiteType(transactionManager: EntityManager, siteType: SiteType) {
+  async getPageBySiteType(
+    transactionManager: EntityManager,
+    siteType: SiteType,
+  ) {
     try {
       const site = await transactionManager
         .getRepository(StaticSite)
         .findOne({ type: siteType });
+
+      if (!site) {
+        return { code: 201, data: null };
+      }
 
       let staticPage = new StaticPageResponseDto(site);
 
@@ -155,7 +174,9 @@ export class StaticPageService {
         });
 
       let sections = [];
-      const siteRelationsSorted = siteRelations.sort((a,b) => Number(a.id) - Number(b.id))
+      const siteRelationsSorted = siteRelations.sort(
+        (a, b) => Number(a.id) - Number(b.id),
+      );
       for (let e of siteRelationsSorted) {
         if (!isNullOrUndefined(e.section)) {
           const section = await transactionManager
@@ -168,7 +189,9 @@ export class StaticPageService {
             );
             if (relationItems) {
               section['items'] = [];
-              const relationItemsSorted = relationItems.sort((a,b) => Number(a.id) - Number(b.id))
+              const relationItemsSorted = relationItems.sort(
+                (a, b) => Number(a.id) - Number(b.id),
+              );
               for (let i of relationItemsSorted) {
                 if (!isNullOrUndefined(i.item)) {
                   const item = await transactionManager
@@ -194,15 +217,16 @@ export class StaticPageService {
       staticPage.sections = sections;
       return { code: 201, data: { staticPage } };
     } catch (error) {
+      Logger.error(error);
       throw new InternalServerErrorException(error);
     }
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param updateStaticPageDto 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param updateStaticPageDto
+   * @returns
    */
   async updateStaticPage(
     transactionManager: EntityManager,
