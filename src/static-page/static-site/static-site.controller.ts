@@ -55,10 +55,10 @@ export class StaticSiteController {
   @Put('/:uuid')
   @ApiResponse({
     status: 500,
-    description: 'Lỗi hệ thống trong quá trình tạo Static Site.',
+    description: 'Lỗi hệ thống trong quá trình cập nhật Static Site.',
   })
   @ApiOperation({ summary: 'Update Static Site.' })
-  @ApiResponse({ status: 201, description: 'Tạo Static Site thành công' })
+  @ApiResponse({ status: 201, description: 'cập nhật Static Site thành công' })
   async updateStaticSite(
     @Param('uuid') uuid: string,
     @Body() createStaticSite: CreateStaticSiteDto,

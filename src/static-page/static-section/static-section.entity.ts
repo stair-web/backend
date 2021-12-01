@@ -1,4 +1,5 @@
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import { StaticItem } from 'src/static-page/static-item/static-item.entity';
 import {
   BaseEntity,
@@ -26,6 +27,9 @@ export class StaticSection extends BaseEntity {
 
   @Column()
   title: string;
+
+  @Column()
+  language: LanguageTypeEnum;
 
   @Column()
   isDeleted: boolean;

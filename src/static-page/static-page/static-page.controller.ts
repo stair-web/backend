@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import { Connection } from 'typeorm';
 import { StaticRelationService } from '../static-relation/static-relation.service';
 import { SiteType } from '../static-site/enum/site-type.enum';
@@ -31,15 +32,16 @@ export class StaticPageController {
     });
   }
 
-  @Get('type/:siteType')
+  @Get('type/:siteType/:language')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình get Static Page.',
   })
   @ApiQuery({ name: 'siteType', enum: SiteType })
-  async getPageBySiteType(@Query('siteType') siteType: SiteType) {
+  @ApiQuery({ name: 'language', enum: LanguageTypeEnum })
+  async getPageBySiteType(@Query('siteType') siteType: SiteType,@Query('language') language: LanguageTypeEnum) {
     return await this.connection.transaction((transactionManager) => {
-      return this.staticPageService.getPageBySiteType(transactionManager, siteType);
+      return this.staticPageService.getPageBySiteType(transactionManager, siteType,language);
     });
   }
 
