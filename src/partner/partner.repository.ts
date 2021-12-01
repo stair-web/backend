@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
 import { LanguagerPartnerEnum } from './enum/LanguagePartner.enum';
@@ -54,7 +55,7 @@ export class PartnerRepository extends Repository<Partner> {
   .getOne();
    
   }
-  async getDetailPartnerByType(transactionManager: EntityManager, type: PartnerType, language:LanguagerPartnerEnum) {
+  async getDetailPartnerByType(transactionManager: EntityManager, type: PartnerType, language:LanguageTypeEnum) {
     try {
       let data =  await transactionManager.getRepository(Partner).createQueryBuilder('partner')
     .leftJoin("partner.partnerSectionItemList", "partnerSectionItem",'partnerSectionItem.isDeleted = :isDeleted', { isDeleted: 'false' })

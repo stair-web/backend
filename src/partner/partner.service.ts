@@ -17,11 +17,12 @@ import { isNullOrUndefined } from 'src/lib/utils/util';
 import { LanguagerPartnerEnum } from './enum/LanguagePartner.enum';
 import { PartnerType } from './enum/TypePartner.enum';
 import { GetDetailParterByType } from './dto/get-detail-partner-by-type.dto';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 
 @Injectable()
 export class PartnerService {
   constructor(private partnerRepository: PartnerRepository) {}
-  async getDetailPartnerByType(transactionManager: EntityManager, type: PartnerType,language:LanguagerPartnerEnum) {
+  async getDetailPartnerByType(transactionManager: EntityManager, type: PartnerType,language:LanguageTypeEnum) {
     console.log(123123123);
     
     let data = await this.partnerRepository.getDetailPartnerByType(

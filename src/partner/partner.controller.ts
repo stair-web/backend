@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@
 import { PartnerService } from './partner.service';
 import { CreatePartnerDto } from './dto/create-partner.dto';
 import { UpdatePartnerDto } from './dto/update-partner.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { GetDetailPartnerDto } from './dto/get-detail-partner.dto';
 import { Partner } from './partner.entity';
 import { PartnerType } from './enum/TypePartner.enum';
 import { LanguagerPartnerEnum } from './enum/LanguagePartner.enum';
 import { GetDetailParterByType } from './dto/get-detail-partner-by-type.dto';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 
 @Controller('partner')
 @ApiTags('Partner')
@@ -71,11 +72,37 @@ export class PartnerController {
   })
   @ApiOperation({ summary: 'Lấy thông tin Partner by Type. ' })
   @ApiResponse({ status: 201, type: GetDetailPartnerDto })
-  async getDetailbyType(@Param('type') type: PartnerType,@Query('language') language:LanguagerPartnerEnum) {
+  async getDetailbyType(@Param('type') type: PartnerType,@Query('language') language:LanguageTypeEnum) {
     return await this.connection.transaction((transactionManager) => {
       return this.partnerService.getDetailPartnerByType(transactionManager, type, language);
     });
   }
+
+
+  @Get('/:type:language')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình lấy thông tin Partner.',
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'type của page doxa: DOXA',
+  })
+  @ApiResponse({
+    status: 101,
+    description: 'type của page ans: ANS',
+  })
+  @ApiOperation({ summary: 'Lấy thông tin Partner by Type. ' })
+  @ApiQuery({ name: 'type', enum: PartnerType })
+  @ApiQuery({ name: 'language', enum: LanguageTypeEnum })
+  @ApiResponse({ status: 201, type: GetDetailPartnerDto })
+  async getDetailbyTypeAndLanguage(@Param('type') type: PartnerType,@Param('language') language:LanguageTypeEnum) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.partnerService.getDetailPartnerByType(transactionManager, type, language);
+    });
+  }
+
+
 
 
   @Put('/:uuid')

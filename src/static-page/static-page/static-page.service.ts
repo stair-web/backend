@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import {
   isNullOrUndefined,
   isUuid,
@@ -143,6 +144,7 @@ export class StaticPageService {
   async getPageBySiteType(
     transactionManager: EntityManager,
     siteType: SiteType,
+    language:LanguageTypeEnum
   ) {
     try {
       const site = await transactionManager
@@ -179,9 +181,16 @@ export class StaticPageService {
       );
       for (let e of siteRelationsSorted) {
         if (!isNullOrUndefined(e.section)) {
-          const section = await transactionManager
+          let section ;
+            if(language !== LanguageTypeEnum.All){
+              section  = await transactionManager
+              .getRepository(StaticSection)
+              .findOne({ id: e.section.id, isDeleted: false,language:language });
+            } else{
+              section  = await transactionManager
             .getRepository(StaticSection)
             .findOne({ id: e.section.id, isDeleted: false });
+            }
           if (section) {
             const relationItems = await this.getStaticObject(
               transactionManager,
