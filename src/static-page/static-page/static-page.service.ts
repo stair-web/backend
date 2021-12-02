@@ -144,7 +144,7 @@ export class StaticPageService {
   async getPageBySiteType(
     transactionManager: EntityManager,
     siteType: SiteType,
-    language:LanguageTypeEnum
+    language:LanguageTypeEnum = LanguageTypeEnum.All
   ) {
     try {
       const site = await transactionManager
@@ -153,8 +153,7 @@ export class StaticPageService {
 
       if (!site) {
         return { code: 201, data: null };
-      }
-
+      }      
       let staticPage = new StaticPageResponseDto(site);
 
       const siteRelations = await transactionManager

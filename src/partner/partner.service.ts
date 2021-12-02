@@ -23,7 +23,6 @@ import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 export class PartnerService {
   constructor(private partnerRepository: PartnerRepository) {}
   async getDetailPartnerByType(transactionManager: EntityManager, type: PartnerType,language:LanguageTypeEnum) {
-    console.log(123123123);
     
     let data = await this.partnerRepository.getDetailPartnerByType(
       transactionManager,

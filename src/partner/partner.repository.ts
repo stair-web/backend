@@ -95,8 +95,8 @@ export class PartnerRepository extends Repository<Partner> {
     .where(`partner.partnerType = :type`, { type:type })
     .andWhere('partner.isDeleted = :isDeleted', { isDeleted: 'false' })
   .getOne();
+    
       if(data){
-        console.log(data);
         
         if(language !== 'all'){
           data.partnerInstroductionList =  data.partnerInstroductionList.filter(ele=>ele.language === language);

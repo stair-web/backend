@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@
 import { PartnerService } from './partner.service';
 import { CreatePartnerDto } from './dto/create-partner.dto';
 import { UpdatePartnerDto } from './dto/update-partner.dto';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { GetDetailPartnerDto } from './dto/get-detail-partner.dto';
 import { Partner } from './partner.entity';
@@ -79,7 +79,7 @@ export class PartnerController {
   }
 
 
-  @Get('/:type:language')
+  @Get('/:type/:language')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình lấy thông tin Partner.',
@@ -93,8 +93,8 @@ export class PartnerController {
     description: 'type của page ans: ANS',
   })
   @ApiOperation({ summary: 'Lấy thông tin Partner by Type. ' })
-  @ApiQuery({ name: 'type', enum: PartnerType })
-  @ApiQuery({ name: 'language', enum: LanguageTypeEnum })
+  @ApiParam({ name: 'type', enum: PartnerType })
+  @ApiParam({ name: 'language', enum: LanguageTypeEnum })
   @ApiResponse({ status: 201, type: GetDetailPartnerDto })
   async getDetailbyTypeAndLanguage(@Param('type') type: PartnerType,@Param('language') language:LanguageTypeEnum) {
     return await this.connection.transaction((transactionManager) => {
