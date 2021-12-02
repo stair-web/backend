@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import { uuidv4 } from 'src/common/utils/common.util';
 import { EntityManager } from 'typeorm';
 import { ApprovePostDto } from './dto/approve-post.dto';
@@ -107,7 +108,9 @@ export class PostService {
   async getPostsByCategory(
     transactionEntityManager: EntityManager,
     categoryUuid,
+    language: LanguageTypeEnum
   ) {
+    
     try {
       const posts = await transactionEntityManager.getRepository(Post).find({
         join: {
@@ -129,12 +132,17 @@ export class PostService {
             'post.language',
             'post.isDeleted',
             'post.fileType',
+            'post.refUuid',
             'category.uuid',
           ])
             .where(`category.uuid = :categoryUuid`, { categoryUuid })
             .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
             .andWhere('post.isApproved = :isApproved', { isApproved: 'true' })
-            .orderBy('post.createdAt', 'DESC');
+            .orderBy('post.createdAt', 'DESC')
+            if(language !== LanguageTypeEnum.All){
+              qb.andWhere('post.language = :language', { language: language })
+            }
+
         },
       });
 

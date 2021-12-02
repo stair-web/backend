@@ -13,9 +13,10 @@ import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Connection } from 'typeorm';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetAllPostDto } from './dto/get-all-post.dto';
 import { ApprovePostDto } from './dto/approve-post.dto';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 
 @ApiTags('Post')
 @Controller('post')
@@ -75,15 +76,16 @@ export class PostController {
     });
   }
 
-  @Get('category/:categoryUuid')
+  @Get('category/:categoryUuid/:language')
   @ApiResponse({
     status: 201,
     description: 'Lấy danh sách bài viết theo category thành công.',
   })
+  @ApiParam({name:'language',enum:LanguageTypeEnum})
   @ApiOperation({ summary: 'Danh sách bài viết theo category.' })
-  async getPostsByCategory(@Param('categoryUuid') uuid: string) {
+  async getPostsByCategory(@Param('categoryUuid') uuid: string, @Param('language') language: LanguageTypeEnum) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.getPostsByCategory(transactionManager, uuid);
+      return this.postService.getPostsByCategory(transactionManager, uuid,language);
     });
   }
 
