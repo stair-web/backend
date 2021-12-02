@@ -74,17 +74,20 @@ export class PostRepository extends Repository<Post> {
           'post.updatedAt',
           'post.fileType',
           'post.language',
+          'post.refUuid',
           'category.uuid',
           'category.categoryName',
         ])
         .where('post.isDeleted = FALSE')
-        .andWhere('post.language = :language', {
-          language: getAllPostDto.language,
-        })
+        
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.createdAt', 'DESC');
-
+        if(getAllPostDto.language != LanguageTypeEnum.All){
+          query.andWhere('post.language = :language', {
+            language: getAllPostDto.language,
+          })
+        }
       // Filter list
       if (!isNullOrUndefined(filter)) {
         const object = paramStringToJson(filter);
