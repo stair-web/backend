@@ -89,16 +89,16 @@ export class PostController {
     });
   }
 
-  @Delete('/:uuid')
+  @Delete('/:refUuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình xoá bài viết.',
   })
   @ApiOperation({ summary: 'Xoá bài viết.' })
   @ApiResponse({ status: 201, description: 'Xoá bài viết thành công' })
-  async deletePost(@Param('uuid') uuid: string) {
+  async deletePost(@Param('refUuid') refUuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.deletePost(transactionManager, uuid);
+      return this.postService.deletePost(transactionManager, refUuid);
     });
   }
 
