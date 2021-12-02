@@ -20,23 +20,31 @@ export class PostService {
     transactionEntityManager: EntityManager,
     createPostDto: CreatePostDto,
   ) {
-    createPostDto.uuid = uuidv4();
+
+    const refUuid = uuidv4();
+
+    createPostDto.vn.uuid = uuidv4();
+    createPostDto.vn.refUuid = refUuid;
+    createPostDto.en.uuid = uuidv4();
+    createPostDto.en.refUuid = refUuid;
+
     return await this.postRepository.savePost(
       transactionEntityManager,
       createPostDto,
       true,
+      refUuid
     );
   }
 
   async updatePost(
     transactionEntityManager: EntityManager,
     createPostDto: CreatePostDto,
-    uuid: string,
+    refUuid: string,
   ) {
-    createPostDto.uuid = uuid;
-    return await this.postRepository.savePost(
+    return await this.postRepository.updatePost(
       transactionEntityManager,
       createPostDto,
+      refUuid,
     );
   }
 
@@ -61,7 +69,8 @@ export class PostService {
   }
 
   async getPostDetail(transactionEntityManager: EntityManager, postUuid) {
-    return await transactionEntityManager.getRepository(Post).findOne({
+
+    const listPost = await  transactionEntityManager.getRepository(Post).find({
       join: {
         alias: 'post',
         leftJoinAndSelect: {
@@ -81,13 +90,18 @@ export class PostService {
           'post.updatedAt',
           'post.isDeleted',
           'post.fileType',
+          'post.language',
           'post.isApproved',
+          'post.refUuid',
           'category.uuid',
         ])
-          .where(`post.uuid = :postUuid`, { postUuid })
+          .where(`post.refUuid = :postUuid`, { postUuid })
           .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
       },
     });
+    const vn = listPost.find(ele=> ele.language === 'vn');
+    const en = listPost.find(ele=> ele.language === 'en');
+    return {vn:vn,en:en}
   }
 
   async getPostsByCategory(
@@ -112,6 +126,7 @@ export class PostService {
             'post.content',
             'post.createdAt',
             'post.updatedAt',
+            'post.language',
             'post.isDeleted',
             'post.fileType',
             'category.uuid',

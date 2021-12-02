@@ -7,4 +7,6 @@ export enum SiteType {
   WEB_MOB = 'WEB_MOB',
   OUR_SOURCE = 'OUR_SOURCE',
   DEV_ARI = 'DEV_ARI',
+  PARTNER_DOXA = 'PARTNER_DOXA',
+  PARTNER_ANS = 'PARTNER_ANS',
 }

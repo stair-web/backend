@@ -1,7 +1,7 @@
 
 export enum LanguageTypeEnum {
-    VietNam = 'vn',
-    English = 'eng',
-    All = 'all',
-  }
-  
+  VietNam = 'vn',
+  English = 'en',
+  All = 'all',
+}
+

@@ -36,6 +36,10 @@ export class Post extends BaseEntity {
   @Column()
   priority: string;
 
+
+  @Column()
+  language: string;
+
   @ManyToOne(() => Category, (category: Category) => category.posts, {
     eager: false,
   })
@@ -74,6 +78,9 @@ export class Post extends BaseEntity {
 
   @Column()
   uuid: string;
+
+  @Column()
+  refUuid: string;
 
   @Column()
   fileType: string;

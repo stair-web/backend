@@ -38,16 +38,16 @@ export class PostController {
     });
   }
 
-  @Put('/:uuid')
+  @Put('/:refUuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình cập nhật bài viết.',
   })
   @ApiOperation({ summary: 'Cập nhật bài viết.' })
   @ApiResponse({ status: 201, description: 'Cập nhật bài viết thành công' })
-  async update(@Body() createPostDto: CreatePostDto, @Param('uuid') uuid: string) {
+  async update(@Body() createPostDto: CreatePostDto, @Param('refUuid') refUuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.updatePost(transactionManager, createPostDto, uuid);
+      return this.postService.updatePost(transactionManager, createPostDto, refUuid);
     });
   }
 
@@ -63,15 +63,15 @@ export class PostController {
     });
   }
 
-  @Get('/:uuid')
+  @Get('/:refUuid')
   @ApiResponse({
     status: 201,
     description: 'Lấy chi tiết bài viết thành công.',
   })
   @ApiOperation({ summary: 'Chi tiết bài viết' })
-  async getPostDetail(@Param('uuid') uuid: string) {
+  async getPostDetail(@Param('refUuid') refUuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.getPostDetail(transactionManager, uuid);
+      return this.postService.getPostDetail(transactionManager, refUuid);
     });
   }
 

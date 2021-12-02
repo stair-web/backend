@@ -1,3 +1,4 @@
+import { LanguageTypeEnum } from './../../common/enum/language-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { SortValue } from '../../common/sort-value.enum';
@@ -33,4 +34,7 @@ export class GetAllPostDto {
 
   @ApiProperty()
   sorts?: sortPostDto;
+
+  @ApiProperty({enum:LanguageTypeEnum})
+  language?: LanguageTypeEnum;
 }
