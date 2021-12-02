@@ -290,26 +290,25 @@ export class PostRepository extends Repository<Post> {
       message: `Cập nhật bài viết thành công.`,
     };
   }
-  async deletePost(transactionManager: EntityManager, uuid: string) {
+  async deletePost(transactionManager: EntityManager, refUuid: string) {
     const checkPostExist = await transactionManager
       .getRepository(Post)
-      .findOne({
-        uuid,
+      .find({
+        refUuid,
       });
 
-    if (isNullOrUndefined(checkPostExist)) {
+    if (checkPostExist.length === 0) {
       throw new ConflictException(
         `Bài viết chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
-    }
-
-    const post = transactionManager.create(Post, {
-      id: checkPostExist?.id,
-      isDeleted: true,
-    });
+    } 
+    checkPostExist.forEach(ele=>{
+      ele.isDeleted = true;
+    })
+   
 
     try {
-      await transactionManager.save(post);
+      await transactionManager.save(checkPostExist);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
