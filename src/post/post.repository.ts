@@ -83,7 +83,7 @@ export class PostRepository extends Repository<Post> {
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.createdAt', 'DESC');
-        if(getAllPostDto.language != LanguageTypeEnum.All){
+        if(getAllPostDto.language !== LanguageTypeEnum.All && getAllPostDto.language !== undefined){
           query.andWhere('post.language = :language', {
             language: getAllPostDto.language,
           })
@@ -156,16 +156,29 @@ export class PostRepository extends Repository<Post> {
       (ele) => ele.language === 'vn',
     );
 
+    //Case update
     if (checkPostExist.length === 0 && isCreate === false) {
       throw new ConflictException(
         `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     }
 
+
+    //Case create
+    let languageCreate = createPostDto.language === LanguageTypeEnum.English?LanguageTypeEnum.English:LanguageTypeEnum.VietNam;
+    const checkPostExistLanguage = checkPostExist.find(
+      (ele) => ele.language === languageCreate,
+    );
+      if(!isNullOrUndefined(checkPostExistLanguage)){
+        throw new ConflictException(
+          `Bài viết vỡi ngôn ngữ này đã tồn tại!`,
+        );
+      }
+
     const checkCategoryExist = await transactionManager
       .getRepository(Category)
       .findOne({
-        uuid: createPostDto.en.categoryUuid,
+        uuid: createPostDto.categoryUuid,
       });
 
     if (isNullOrUndefined(checkCategoryExist)) {
@@ -174,36 +187,23 @@ export class PostRepository extends Repository<Post> {
       );
     }
     //en
-    const postEn = transactionManager.create(Post, {
+    const post = transactionManager.create(Post, {
       id: checkPostExistEn?.id,
-      uuid: createPostDto.en.uuid,
-      title: createPostDto.en.title,
-      shortDescription: createPostDto.en.shortDescription,
-      imageSrc: createPostDto.en.imageSrc,
-      content: createPostDto.en.content,
+      uuid: createPostDto.uuid,
+      title: createPostDto.title,
+      shortDescription: createPostDto.shortDescription,
+      imageSrc: createPostDto.imageSrc,
+      content: createPostDto.content,
       category: checkCategoryExist,
-      fileType: createPostDto.en.fileType,
-      language: LanguageTypeEnum.English,
-      refUuid: createPostDto.en.refUuid,
+      fileType: createPostDto.fileType,
+      language: createPostDto.language,
+      refUuid: createPostDto.refUuid,
     });
 
-    //vn
-    const postVn = transactionManager.create(Post, {
-      id: checkPostExistVn?.id,
-      uuid: createPostDto.vn.uuid,
-      title: createPostDto.vn.title,
-      shortDescription: createPostDto.vn.shortDescription,
-      imageSrc: createPostDto.vn.imageSrc,
-      content: createPostDto.vn.content,
-      category: checkCategoryExist,
-      fileType: createPostDto.vn.fileType,
-      language: LanguageTypeEnum.VietNam,
-      refUuid: createPostDto.vn.refUuid,
-    });
+    
 
     try {
-      await transactionManager.save(postEn);
-      await transactionManager.save(postVn);
+      await transactionManager.save(post);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -220,30 +220,35 @@ export class PostRepository extends Repository<Post> {
   async updatePost(
     transactionManager: EntityManager,
     createPostDto: CreatePostDto,
-    refUuid,
+    uuid,
   ) {
    
-    const checkPostExist = await transactionManager.getRepository(Post).find({
-      refUuid: refUuid,
+    const checkPostExist = await transactionManager.getRepository(Post).findOne({
+      uuid: uuid,
     });
 
-    const checkPostExistEn = checkPostExist.find(
-      (ele) => ele.language === 'en',
-    );
-    const checkPostExistVn = checkPostExist.find(
-      (ele) => ele.language === 'vn',
-    );
+    const checkPostExistrefUuid = await transactionManager.getRepository(Post).findOne({
+      refUuid: createPostDto.refUuid, isDeleted :false,
+    });
 
-    if (checkPostExist.length === 0) {
+
+    if (isNullOrUndefined(checkPostExist) ) {
       throw new ConflictException(
         `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     }
 
+    
+    // if (isNullOrUndefined(checkPostExistrefUuid) ) {
+    //   throw new ConflictException(
+    //     `Reference Post không tồn tại trong hệ thống!`,
+    //   );
+    // }
+
     const checkCategoryExist = await transactionManager
       .getRepository(Category)
       .findOne({
-        uuid: createPostDto.en.categoryUuid,
+        uuid: createPostDto.categoryUuid,
       });
 
     if (isNullOrUndefined(checkCategoryExist)) {
@@ -252,31 +257,20 @@ export class PostRepository extends Repository<Post> {
       );
     }
 
-    //en    
-    checkPostExistEn.uuid = createPostDto.en.uuid;
-    checkPostExistEn.title = createPostDto.en.title;
-    checkPostExistEn.shortDescription = createPostDto.en.shortDescription;
-    checkPostExistEn.imageSrc = createPostDto.en.imageSrc;
-    checkPostExistEn.content = createPostDto.en.content;
-    checkPostExistEn.category = checkCategoryExist;
-    checkPostExistEn.fileType = createPostDto.en.fileType;
-    checkPostExistEn.language = LanguageTypeEnum.English;
-    checkPostExistEn.refUuid = createPostDto.en.refUuid;
+    
+    checkPostExist.uuid = createPostDto.uuid;
+    checkPostExist.title = createPostDto.title;
+    checkPostExist.shortDescription = createPostDto.shortDescription;
+    checkPostExist.imageSrc = createPostDto.imageSrc;
+    checkPostExist.content = createPostDto.content;
+    checkPostExist.category = checkCategoryExist;
+    checkPostExist.fileType = createPostDto.fileType;
+    // checkPostExist.language = createPostDto.language;
+    // checkPostExist.refUuid = createPostDto.refUuid;
 
-    //vn
-    checkPostExistVn.uuid = createPostDto.vn.uuid;
-    checkPostExistVn.title = createPostDto.vn.title;
-    checkPostExistVn.shortDescription = createPostDto.vn.shortDescription;
-    checkPostExistVn.imageSrc = createPostDto.vn.imageSrc;
-    checkPostExistVn.content = createPostDto.vn.content;
-    checkPostExistVn.category = checkCategoryExist;
-    checkPostExistVn.fileType = createPostDto.vn.fileType;
-    checkPostExistVn.language =  LanguageTypeEnum.VietNam;
-    checkPostExistVn.refUuid = createPostDto.vn.refUuid;
-
+ 
     try {
-      await transactionManager.save(checkPostExistEn);
-      await transactionManager.save(checkPostExistVn);
+      await transactionManager.save(checkPostExist);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -290,21 +284,19 @@ export class PostRepository extends Repository<Post> {
       message: `Cập nhật bài viết thành công.`,
     };
   }
-  async deletePost(transactionManager: EntityManager, refUuid: string) {
+  async deletePost(transactionManager: EntityManager, uuid: string) {
     const checkPostExist = await transactionManager
       .getRepository(Post)
-      .find({
-        refUuid,
+      .findOne({
+        uuid,
       });
 
-    if (checkPostExist.length === 0) {
+    if (isNullOrUndefined(checkPostExist)) {
       throw new ConflictException(
         `Bài viết chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     } 
-    checkPostExist.forEach(ele=>{
-      ele.isDeleted = true;
-    })
+    checkPostExist.isDeleted = true;
    
 
     try {
