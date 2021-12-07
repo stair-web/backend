@@ -39,18 +39,20 @@ export class PostController {
     });
   }
 
-  @Put('/:refUuid')
+  @Put('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình cập nhật bài viết.',
   })
   @ApiOperation({ summary: 'Cập nhật bài viết.' })
   @ApiResponse({ status: 201, description: 'Cập nhật bài viết thành công' })
-  async update(@Body() createPostDto: CreatePostDto, @Param('refUuid') refUuid: string) {
+  async update(@Body() createPostDto: CreatePostDto, @Param('uuid') refUuid: string) {
     return await this.connection.transaction((transactionManager) => {
       return this.postService.updatePost(transactionManager, createPostDto, refUuid);
     });
   }
+
+
 
   @Get()
   @ApiResponse({
@@ -64,15 +66,40 @@ export class PostController {
     });
   }
 
-  @Get('/:refUuid')
+  @Get('uuid/:uuid')
   @ApiResponse({
     status: 201,
     description: 'Lấy chi tiết bài viết thành công.',
   })
   @ApiOperation({ summary: 'Chi tiết bài viết' })
-  async getPostDetail(@Param('refUuid') refUuid: string) {
+  async getPostDetailByUuid(@Param('uuid') uuid: string) {
+    
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.getPostDetailUuid(transactionManager, uuid);
+    });
+  }
+
+  @Get('/ref/:refUuid')
+  @ApiResponse({
+    status: 201,
+    description: 'Lấy chi tiết bài viết thành công.',
+  })
+  @ApiOperation({ summary: 'Chi tiết bài viết' })
+  async getPostDetail(@Param('refUuid') refUuid: string) {        
     return await this.connection.transaction((transactionManager) => {
       return this.postService.getPostDetail(transactionManager, refUuid);
+    });
+  }
+
+  @Get('/ref')
+  @ApiResponse({
+    status: 201,
+    description: 'Lấy ref.',
+  })
+  @ApiOperation({ summary: 'Lấy Ref' })
+  async getListRef() {    
+    return await this.connection.transaction((transactionManager) => {
+      return this.postService.getRef(transactionManager);
     });
   }
 
@@ -89,16 +116,16 @@ export class PostController {
     });
   }
 
-  @Delete('/:refUuid')
+  @Delete('/:uuid')
   @ApiResponse({
     status: 500,
     description: 'Lỗi hệ thống trong quá trình xoá bài viết.',
   })
   @ApiOperation({ summary: 'Xoá bài viết.' })
   @ApiResponse({ status: 201, description: 'Xoá bài viết thành công' })
-  async deletePost(@Param('refUuid') refUuid: string) {
+  async deletePost(@Param('uuid') uuid: string) {
     return await this.connection.transaction((transactionManager) => {
-      return this.postService.deletePost(transactionManager, refUuid);
+      return this.postService.deletePost(transactionManager, uuid);
     });
   }
 
