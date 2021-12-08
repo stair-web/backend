@@ -141,8 +141,14 @@ export class PostService {
         ])
           .where(`post.refUuid = :postUuid`, { postUuid })
           .andWhere('post.isDeleted = :isDeleted', { isDeleted: 'false' })
+          .andWhere('post.isApproved = :isApproved', { isApproved: 'true' })
       },
     });
+    if(listPost.length === 0){
+      throw new ConflictException(
+        `Post không tồn tại!`,
+      );
+    }
     const vn = listPost.find(ele=> ele.language === 'vn');
     const en = listPost.find(ele=> ele.language === 'en');
     return {vn:vn,en:en}
