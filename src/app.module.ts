@@ -28,6 +28,8 @@ import { PartnerModule } from './partner/partner.module';
 import { PartnerSectionItemModule } from './partner-section-item/partner-section-item.module';
 import { PartnerIntroductionModule } from './partner-introduction/partner-introduction.module';
 import { PartnerPartnershipModule } from './partner-partnership/partner-partnership.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 @Module({
   imports: [
     PrometheusModule.register(),
@@ -78,6 +80,7 @@ import { PartnerPartnershipModule } from './partner-partnership/partner-partners
     PartnerPartnershipModule,
   ],
   controllers: [HealthController, AppController],
-  providers: [AppGateway],
+  providers: [AppGateway,
+  ],
 })
 export class AppModule {}

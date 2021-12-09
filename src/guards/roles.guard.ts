@@ -15,14 +15,21 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-
+    
     if (!request.headers.authorization) {
       throw new UnauthorizedException();
     }
     request.token = await this.validateToken(request.headers.authorization);
-    const userRoles: string[] = request.token.role;
+    const userRoles: string[] = request.token.roles;
 
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const requiredRoles  = this.reflector.get<string[]>('roles', context.getHandler());
+
+    
+    if (!requiredRoles) {
+      return true;
+    }
+    // const { user } = context.switchToHttp().getRequest();
+    // return requiredRoles.some((role) => user.roles?.includes(role));
 
     // if (!roles) {
     //   request.user = getRepository(AppUser).findOne({
@@ -33,9 +40,13 @@ export class RolesGuard implements CanActivate {
     //   return true;
     // }
 
-    console.log(this.findCommonElement(userRoles, roles));
 
-    if (!this.findCommonElement(roles, userRoles)) {
+    // console.log(request.token);
+    // console.log(context.getHandler());
+    
+    // console.log(this.findCommonElement(userRoles, roles));
+
+    if (!this.findCommonElement(requiredRoles, userRoles)) {
       throw new UnauthorizedException();
     }
 
@@ -48,9 +59,11 @@ export class RolesGuard implements CanActivate {
   }
 
   async validateToken(auth: string) {
+    
     if (auth.split(' ')[0] !== 'Bearer') {
       throw new UnauthorizedException('Invalid token');
     }
+    
     const token = auth.split(' ')[1];
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

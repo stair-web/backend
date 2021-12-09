@@ -330,26 +330,32 @@ export class UserService {
    * @returns
    */
   async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
-    const { username, email, password } = signInDto;
-    const user = await transactionManager.getRepository(User).findOne({
+    const { input, password} = signInDto;
+    let user = await transactionManager.getRepository(User).findOne({
       where: [
         {
-          username,
+          username:input,
           isDeleted: false,
           // isForgetPassword: false,
-        },
-        {
-          email,
-          isDeleted: false,
-          // isForgetPassword: false,
-        },
+        }
       ],
     });
-
-    // check user exists?
+    if(!user){
+       user = await transactionManager.getRepository(User).findOne({
+        where: [
+          {
+            email:input,
+            isDeleted: false,
+            // isForgetPassword: false,
+          }
+        ],
+      });
+    }
+    // check user exists?    
+    
     if (!user) {
       throw new InternalServerErrorException(
-        'ERR-01: Tên đăng nhập hoặc mật khẩu không đúng.',
+        'ERR-01: Thông tin đăng nhập không đúng.',
       );
     } else {
       // if (user.isMailVerified === false) {
@@ -365,20 +371,20 @@ export class UserService {
       // check password
       if ((await bcrypt.compare(password, user.password)) === false) {
         throw new InternalServerErrorException(
-          'ERR-02: Tên đăng nhập hoặc mật khẩu không đúng.',
+          'ERR-02: Thông tin đăng nhập không đúng.',
         );
       } else {
         const userRole = await this.userRoleService.getUserRoleByUserId(
           transactionManager,
           user.id,
         );
+        
         const roles = [];
         userRole.forEach((e) => roles.push(e.roleCode));
         const payload: JwtPayload = {
           email: user.email,
           roles,
         };
-        console.log(payload);
         const accessToken = await this.jwtService.sign(payload);
         return {
           statusCode: 201,
