@@ -9,6 +9,8 @@ import { EmailModule } from 'src/email/email.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserRoleModule } from 'src/user-role/user-role.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Module({
   imports: [
@@ -27,6 +29,9 @@ import { UserRoleModule } from 'src/user-role/user-role.module';
     UserRoleModule
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService,
+   ],
+   exports:[UserService,
+  ]
 })
 export class UserModule {}

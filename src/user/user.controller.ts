@@ -11,6 +11,7 @@ import {
   ValidationPipe,
   Req,
   InternalServerErrorException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,10 +23,14 @@ import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { AcitveUserDto } from './dto/active-user.dto';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
+import { Roles } from 'src/guards/roles.decorator';
+import { Role } from 'src/guards/role.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
 @Controller(controllerName)
+
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -39,6 +44,8 @@ export class UserController {
    * @returns all the users
    */
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người dùng thành công.',
