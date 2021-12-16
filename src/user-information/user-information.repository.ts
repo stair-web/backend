@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { isNullOrUndefined } from 'src/lib/utils/util';
+import { Team } from 'src/team/team.entity';
 import { Repository, EntityRepository, EntityManager } from 'typeorm';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { GetAllUserInformationDto } from './dto/get-all-user-information.dto';
@@ -74,13 +75,15 @@ export class UserInformationRepository extends Repository<UserInformation> {
     transactionManager: EntityManager,
     uuid: string,
   ) {
-    const checkUserInformationExist = await transactionManager
+    try {
+      const checkUserInformationExist = await transactionManager
       .getRepository(UserInformation)
       .findOne({
         where: { uuid },
-        select: ['uuid', 'staffId','firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
+        select: ['uuid', 'staffId','team','firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
       });
-
+      console.log(checkUserInformationExist);
+      
     if (isNullOrUndefined(checkUserInformationExist)) {
       throw new NotFoundException(
         `Hiện không tìm thấy User Information này. Vui lòng thử lại sau!`,
@@ -91,6 +94,13 @@ export class UserInformationRepository extends Repository<UserInformation> {
       statusCode: 201,
       data: { userInformationDetail: checkUserInformationExist },
     };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        `Vui lòng thử lại sau!`,
+      );
+    }    
+    
   }
 
   async saveUserInformation(
@@ -107,6 +117,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
       shortDescription,
       position,
       dob,
+      teamUuid,
     } = createUserInformationDto;
 
     const checkUserInformationExist = await transactionManager
@@ -115,11 +126,24 @@ export class UserInformationRepository extends Repository<UserInformation> {
         uuid,
       });
 
+      const checkTeam = await transactionManager
+      .getRepository(Team)
+      .findOne({
+        uuid:teamUuid,
+      });
+
     if (isNullOrUndefined(checkUserInformationExist) && isCreate === false) {
       throw new ConflictException(
         `User Information chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     }
+
+    if (isNullOrUndefined(checkTeam) && isCreate === false) {
+      throw new ConflictException(
+        `Team chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
 
     const userInformation = transactionManager.create(UserInformation, {
       id: checkUserInformationExist?.id,
@@ -131,6 +155,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
       shortDescription,
       position,
       dob,
+      team:checkTeam
     });
 
     try {

@@ -260,6 +260,5 @@ export class CustomerRepository extends Repository<Customer> {
     );
   }
 
-  return customer;
     }
 }

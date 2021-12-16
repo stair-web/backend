@@ -20,6 +20,10 @@ export class CreateUserInformationDto {
   @ApiProperty({ default: `lastName_${Date.now()}` })
   lastName: string;
   
+  @IsString()
+  @ApiProperty({ default: `teamUuid${Date.now()}` })
+  teamUuid: string;
+
   @ApiProperty({ default: `https://picsum.photos/200` })
   profilePhotoKey: string;
 

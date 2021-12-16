@@ -158,6 +158,7 @@ export class UserRepository extends Repository<User> {
             'userInformation.staffId',
             'userInformation.createdAt',
             'userInformation.updatedAt',
+
           ])
           .where('user.isDeleted = :isDeleted', { isDeleted: false })
           .andWhere('user.uuid = :uuid', { uuid })

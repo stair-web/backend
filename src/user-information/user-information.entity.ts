@@ -1,6 +1,7 @@
 import { BaseEntity, Entity, PrimaryColumn, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { User } from "src/user/user.entity";
 import { DBSchema } from "src/common/enum/db-schemas.enum";
+import { Team } from "src/team/team.entity";
 
 @Entity({ name: 'user_information', schema: DBSchema.SCM_ARI_PUBLIC })
 export class UserInformation extends BaseEntity {
@@ -47,4 +48,8 @@ export class UserInformation extends BaseEntity {
     @OneToOne(type => User, user => user.id)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: User;
+
+    @OneToOne((type) => Team, team => team.id)
+    @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
+    team: Team;
 }
