@@ -355,7 +355,7 @@ export class UserService {
     
     if (!user) {
       throw new InternalServerErrorException(
-        'ERR-01: Thông tin đăng nhập không đúng.',
+        'Thông tin đăng nhập không đúng.',
       );
     } else {
       // if (user.isMailVerified === false) {
@@ -371,7 +371,7 @@ export class UserService {
       // check password
       if ((await bcrypt.compare(password, user.password)) === false) {
         throw new InternalServerErrorException(
-          'ERR-02: Thông tin đăng nhập không đúng.',
+          'Thông tin đăng nhập không đúng.',
         );
       } else {
         const userRole = await this.userRoleService.getUserRoleByUserId(
