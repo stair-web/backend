@@ -9,6 +9,7 @@ import {
   } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { Staff } from 'src/staff/staff.entity';
+import { UserInformation } from 'src/user-information/user-information.entity';
 
 @Entity({name : 'dayoff', schema: DBSchema.SCM_ARI_PUBLIC})
 export class DayOff  extends BaseEntity {
@@ -53,8 +54,13 @@ export class DayOff  extends BaseEntity {
     @Column()
     approvedAt: Date;
 
-    @OneToOne(type => Staff, staff => staff.staff)
-    @JoinColumn({ name: 'staffId', referencedColumnName: 'id' })
-    staff: Staff;
+    @Column()
+    isDeleted: Date;
+
+    @OneToOne(type => UserInformation, staff => staff.staff)
+    @JoinColumn({ name: 'staff_id', referencedColumnName: 'userId' })
+    staff: UserInformation;
+
+    
 
 }

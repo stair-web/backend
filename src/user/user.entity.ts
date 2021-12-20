@@ -13,6 +13,7 @@ import { Exclude } from 'class-transformer';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { UserRole } from 'src/user-role/user-role.entity';
 import { UserInformation } from 'src/user-information/user-information.entity';
+import { Staff } from 'src/staff/staff.entity';
 
 @Entity({ name: 'user', schema: DBSchema.SCM_ARI_PUBLIC })
 export class User extends BaseEntity {
@@ -71,6 +72,13 @@ export class User extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @Column()
+  staffId: number;
+
+  @OneToOne(type => Staff, staff => staff.staff)
+  @JoinColumn({ name: 'staffId', referencedColumnName: 'id' })
+  staff: Staff;
 
   @OneToMany((type) => UserRole, (role) => role.user)
   role: UserRole[];

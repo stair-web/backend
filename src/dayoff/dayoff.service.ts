@@ -3,7 +3,9 @@ https://docs.nestjs.com/providers#services
 */
 
 import { Injectable } from '@nestjs/common';
+import { User } from 'src/user/user.entity';
 import { EntityManager } from 'typeorm';
+import { DayOff } from './dayoff.entity';
 import { DayoffRepository } from './dayoff.repository';
 import { DayOffSearch } from './dto/dayoff-search.dto';
 
@@ -19,6 +21,72 @@ export class DayoffService {
         transactionManager: EntityManager,
         dayOffSearch: DayOffSearch,) {
         return this.dayoffRepository.getAllDayOffAdmin(transactionManager, dayOffSearch);
-      }
-    
+    }
+
+    async getAllDayOffStaff(
+        transactionManager: EntityManager,
+        dayOffSearch: DayOffSearch,
+        user: User) {
+        return this.dayoffRepository.getAllDayOffStaff(transactionManager, dayOffSearch, user);
+    }
+
+    async getDetailDayOff(
+        transactionManager: EntityManager,
+        uuid: string,) {
+        const dayOff = await transactionManager.getRepository(DayOff).findOne({
+            join: {
+                alias: 'staff',
+                leftJoinAndSelect: {
+                    category: 'dayoff.staff',
+                },
+            },
+            relations: ['staff'],
+            where: (qb) => {
+                qb.select([
+                  'dayoff.id',
+                  'dayoff.uuid',
+                  'dayoff.dateLeave',
+                  'dayoff.time',
+                  'dayoff.type',
+                  'dayoff.status',
+                  'dayoff.reason',
+                  'dayoff.updatedAt',
+                  'dayoff.createdAt',
+                  'dayoff.approvedById',
+                  'dayoff.approvedAt',
+                  'staff.uuid',
+                  'staff.firstName',
+                  'staff.lastName',
+                  'staff.startingDate',
+                  'staff.dob',
+                  'staff.phoneNumber',
+                  'staff.description',
+                  'staff.position',
+                  'staff.avatar',
+                ])
+                  .where(`dayoff.uuid = :uuid`, { uuid })
+              },
+        })
+    }
+
+    async updateDayOff(
+        transactionManager: EntityManager,
+        dayOffSearch: DayOffSearch,
+        uuid: string) {
+        return this.dayoffRepository.updateDayOff(transactionManager, dayOffSearch, uuid);
+    }
+
+    async createDayOff(
+        transactionManager: EntityManager,
+        dayOffSearch: DayOffSearch,) {
+        return this.dayoffRepository.createDayOff(transactionManager, dayOffSearch);
+    }
+
+    async approve(
+        transactionManager: EntityManager,
+        user: User,
+        uuid: string) {
+        return this.dayoffRepository.approveDayOff(transactionManager, user, uuid);
+    }
+
 }

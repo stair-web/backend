@@ -9,6 +9,7 @@ import {
   } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { DayOff } from 'src/dayoff/dayoff.entity';
+import { User } from 'src/user/user.entity';
 
 @Entity({name : 'staff', schema: DBSchema.SCM_ARI_PUBLIC})
 export class Staff  extends BaseEntity {
@@ -64,6 +65,9 @@ export class Staff  extends BaseEntity {
 
     @OneToOne(type => DayOff, dayoff => dayoff.staff)
     staff: Staff;
+
+    @OneToOne(type => User, user => user.staff)
+    user: User;
     
 
 }
