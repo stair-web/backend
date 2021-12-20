@@ -3,7 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Get, Query, UseGuards, Post, Param, Put } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { GetUser } from 'src/user/get-user.decorator';
@@ -19,7 +19,8 @@ export class DayoffController {
         private readonly dayoffService: DayoffService,
     ) {}
   @Get()
-  // @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người nghỉ phép thành công.',
@@ -32,7 +33,8 @@ export class DayoffController {
   } 
 
   @Get('staff')
-  // @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người nghỉ phép thành công.',
@@ -48,7 +50,8 @@ export class DayoffController {
   } 
 
   @Get('/:uuid')
-  // @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người nghỉ phép thành công.',
@@ -61,7 +64,8 @@ export class DayoffController {
   } 
 
   @Post()
-  // @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 201,
     description: 'Tạo thành công.',
@@ -74,7 +78,8 @@ export class DayoffController {
   } 
 
   @Put('/:uuid')
-  // @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 201,
     description: 'Update thành công.',
@@ -89,7 +94,8 @@ export class DayoffController {
   }
 
   @Put('approve/:uuid')
-  // @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 201,
     description: 'Approve thành công.',

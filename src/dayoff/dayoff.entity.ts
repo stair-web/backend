@@ -57,7 +57,7 @@ export class DayOff  extends BaseEntity {
     @Column()
     isDeleted: Date;
 
-    @OneToOne(type => UserInformation, staff => staff.staff)
+    @OneToOne(type => UserInformation, staff => staff.dayoff)
     @JoinColumn({ name: 'staff_id', referencedColumnName: 'userId' })
     staff: UserInformation;
 

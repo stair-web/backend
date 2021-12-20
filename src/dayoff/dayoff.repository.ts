@@ -109,6 +109,7 @@ export class DayoffRepository extends Repository<DayOff> {
       createdAt: new Date(),
       updatedAt: new Date()
     })
+    await transactionManager.save(dayOff);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(

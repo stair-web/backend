@@ -76,10 +76,6 @@ export class User extends BaseEntity {
   @Column()
   staffId: number;
 
-  @OneToOne(type => Staff, staff => staff.staff)
-  @JoinColumn({ name: 'staffId', referencedColumnName: 'id' })
-  staff: Staff;
-
   @OneToMany((type) => UserRole, (role) => role.user)
   role: UserRole[];
 

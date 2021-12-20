@@ -35,9 +35,9 @@ export class DayoffService {
         uuid: string,) {
         const dayOff = await transactionManager.getRepository(DayOff).findOne({
             join: {
-                alias: 'staff',
+                alias: 'dayoff',
                 leftJoinAndSelect: {
-                    category: 'dayoff.staff',
+                    staff: 'dayoff.staff',
                 },
             },
             relations: ['staff'],

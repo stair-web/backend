@@ -65,9 +65,6 @@ export class Staff  extends BaseEntity {
 
     @OneToOne(type => DayOff, dayoff => dayoff.staff)
     staff: Staff;
-
-    @OneToOne(type => User, user => user.staff)
-    user: User;
     
 
 }
