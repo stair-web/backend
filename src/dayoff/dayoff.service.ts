@@ -60,13 +60,15 @@ export class DayoffService {
                   'staff.startingDate',
                   'staff.dob',
                   'staff.phoneNumber',
-                  'staff.description',
+                  'staff.shortDescription',
                   'staff.position',
-                  'staff.avatar',
+                  'staff.profilePhotoKey',
                 ])
                   .where(`dayoff.uuid = :uuid`, { uuid })
               },
         })
+
+        return dayOff
     }
 
     async updateDayOff(
