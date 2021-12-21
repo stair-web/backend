@@ -63,6 +63,7 @@ export class DayoffService {
                   'staff.shortDescription',
                   'staff.position',
                   'staff.profilePhotoKey',
+                  'staff.remain',
                 ])
                   .where(`dayoff.uuid = :uuid`, { uuid })
               },

@@ -13,7 +13,6 @@ import { Exclude } from 'class-transformer';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
 import { UserRole } from 'src/user-role/user-role.entity';
 import { UserInformation } from 'src/user-information/user-information.entity';
-import { Staff } from 'src/staff/staff.entity';
 
 @Entity({ name: 'user', schema: DBSchema.SCM_ARI_PUBLIC })
 export class User extends BaseEntity {

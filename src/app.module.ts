@@ -1,6 +1,4 @@
-import { RemainModule } from './remain/remain.module';
 import { DayoffModule } from './dayoff/dayoff.module';
-import { StaffModule } from './staff/staff.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -35,9 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
 @Module({
   imports: [
-        RemainModule, 
         DayoffModule, 
-        StaffModule, 
     PrometheusModule.register(),
     ConfigModule.forRoot({
       envFilePath: `env/${process.env.NODE_ENV || 'local'}.env`,
@@ -84,7 +80,6 @@ import { RolesGuard } from './guards/roles.guard';
     PartnerSectionItemModule,
     PartnerIntroductionModule,
     PartnerPartnershipModule,
-    StaffModule
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway,

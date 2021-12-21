@@ -8,7 +8,6 @@ import {
     JoinColumn,
   } from 'typeorm';
 import { DBSchema } from 'src/common/enum/db-schemas.enum';
-import { Staff } from 'src/staff/staff.entity';
 import { UserInformation } from 'src/user-information/user-information.entity';
 
 @Entity({name : 'dayoff', schema: DBSchema.SCM_ARI_PUBLIC})

@@ -48,10 +48,15 @@ export class UserInformation extends BaseEntity {
     @Column()
     startingDate: Date;
 
+    @Column()
+    remain: number;
+
     @OneToOne(type => User, user => user.id)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: User;
 
     @OneToOne(type => DayOff, dayoff => dayoff.staff)
     dayoff: DayOff;
+
+
 }
