@@ -7,6 +7,7 @@ import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { uuidv4 } from 'src/common/utils/common.util';
 import { DayOffStatus } from 'src/common/enum/dayoff-status';
 import { User } from 'src/user/user.entity';
+import { UserInformation } from 'src/user-information/user-information.entity';
 
 @EntityRepository(DayOff)
 export class DayoffRepository extends Repository<DayOff> {
@@ -150,7 +151,18 @@ export class DayoffRepository extends Repository<DayOff> {
     uuid: string,
   ) {
     try {
-
+    let dayOff = await transactionManager.getRepository(DayOff).findOne({ uuid, isDeleted: false });
+    if (dayOff.status == 'APPROVED') {
+      throw new InternalServerErrorException(
+        'Ngày này đã được approve rồi!',
+      );
+    }
+    let staffId = dayOff.staffId;
+    let userInfo = await transactionManager
+    .getRepository(UserInformation).findOne({
+      where: { userId : staffId },
+    });    
+    
     await transactionManager.update(DayOff, 
       { uuid },
       {
@@ -159,6 +171,15 @@ export class DayoffRepository extends Repository<DayOff> {
         approvedById: user.id,
         approvedAt: new Date(),
       })
+    // Giảm số ngày phép
+    if (dayOff.type == 1) {
+      if (dayOff.time == 0 && userInfo.remain >= 1) {
+        userInfo.remain = userInfo.remain - 1;
+      } else if((dayOff.time == 1 || dayOff.time == 2) && userInfo.remain >= 0.5) {
+        userInfo.remain = userInfo.remain - 0.5
+      }
+    }
+    await transactionManager.getRepository(UserInformation).save(userInfo);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(

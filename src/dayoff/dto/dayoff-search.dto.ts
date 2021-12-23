@@ -15,7 +15,7 @@ export class DayOffSearch {
 
     reason?: string;
 
-    type?: string;
+    type?: number;
 
     page = 0;
 }

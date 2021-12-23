@@ -33,13 +33,16 @@ export class DayOff  extends BaseEntity {
     time: number
 
     @Column()
-    type: string;
+    type: number;
 
     @Column()
     status: string;
 
     @Column()
     reason: string;
+
+    @Column()
+    timeNumber: number;
 
     @Column()
     createdAt: Date;

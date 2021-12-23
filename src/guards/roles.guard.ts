@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
+import { User } from 'src/user/user.entity';
 // import { AppUser } from 'src/app-user/app-user.entity';
 import { getRepository } from 'typeorm';
 
@@ -25,20 +26,20 @@ export class RolesGuard implements CanActivate {
     const requiredRoles  = this.reflector.get<string[]>('roles', context.getHandler());
 
     
-    if (!requiredRoles) {
-      return true;
-    }
+    // if (!requiredRoles) {
+    //   return true;
+    // }
     // const { user } = context.switchToHttp().getRequest();
     // return requiredRoles.some((role) => user.roles?.includes(role));
 
-    // if (!roles) {
-    //   request.user = getRepository(AppUser).findOne({
-    //     email: request.token.email,
-    //     isActive: true,
-    //     isDeleted: false,
-    //   });
-    //   return true;
-    // }
+    if (!requiredRoles) {
+      request.user = getRepository(User).findOne({
+        email: request.token.email,
+        isActive: true,
+        isDeleted: false,
+      });
+      return true;
+    }
 
 
     // console.log(request.token);
@@ -50,11 +51,11 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    // request.user = getRepository(AppUser).findOne({
-    //   email: request.token.email,
-    //   isActive: true,
-    //   isDeleted: false,
-    // });
+    request.user = getRepository(User).findOne({
+      email: request.token.email,
+      isActive: true,
+      isDeleted: false,
+    });
     return true;
   }
 
