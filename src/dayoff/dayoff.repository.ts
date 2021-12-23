@@ -1,3 +1,4 @@
+import { UserInformation } from './../user-information/user-information.entity';
 import { isNullOrUndefined } from 'src/lib/utils/util';
 import { GetAllUserDto } from 'src/user/dto/get-all-user.dto';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
@@ -10,7 +11,6 @@ import { User } from 'src/user/user.entity';
 
 @EntityRepository(DayOff)
 export class DayoffRepository extends Repository<DayOff> {
-
   async getAllDayOffAdmin(
     transactionManager: EntityManager,
     dayOffSearch: DayOffSearch,
@@ -53,7 +53,7 @@ export class DayoffRepository extends Repository<DayOff> {
   async getAllDayOffStaff(
     transactionManager: EntityManager,
     dayOffSearch: DayOffSearch,
-    user: User
+    user: User,
   ) {
     const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
 
@@ -66,7 +66,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
-
+    
     // Full text search
     if (!isNullOrUndefined(status) && status !== '') {
       query.andWhere('LOWER(dayoff.status) LIKE LOWER(:status)', {
@@ -95,22 +95,42 @@ export class DayoffRepository extends Repository<DayOff> {
     dayOffSearch: DayOffSearch,
   ) {
     try {
-    let uuid = uuidv4();
-    const { dateLeave, staffId, time,  type, reason } = dayOffSearch;
 
-    const dayOff = await transactionManager.create(DayOff, {
-      uuid,
-      dateLeave,
-      staffId,
-      time,
-      type,
-      status: DayOffStatus.PENDING,
-      reason,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    })
-    await transactionManager.save(dayOff);
+      const { dateLeave, staffId, time, type, reason, listDateOff } =
+        dayOffSearch;
+      //staffId get form token
+      let listSave = [];
+      console.log(listDateOff);
+
+     let staff = await transactionManager.getRepository(UserInformation).findOne({id:16})
+
+      listDateOff.forEach(async (ele) => {
+        //find duplicate
+        let uuid = uuidv4();
+
+        let dayOff = await transactionManager.create(DayOff, {
+          uuid,
+          dateLeave: ele.date,
+          staffId:17,
+          time: ele.time,
+          type,
+          status: DayOffStatus.PENDING,
+          reason,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log(dayOff);
+        
+      await transactionManager.save(dayOff);
+        
+        listSave.push(dayOff);
+      });
+      // await transactionManager.save(listSave);
+
+      return { status: 200, description: 'Tạo thành công.' };
     } catch (error) {
+      console.log(error);
+      
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
@@ -124,18 +144,20 @@ export class DayoffRepository extends Repository<DayOff> {
     uuid: string,
   ) {
     try {
-    const { dateLeave, staffId, time,  type, reason } = dayOffSearch;
+      const { dateLeave, staffId, time, type, reason } = dayOffSearch;
 
-    const dayOff = await transactionManager.update(DayOff, 
-      { uuid },
-      {
-        dateLeave: dateLeave,
-        staffId: staffId,
-        time: time,
-        type: type,
-        reason: reason,
-        updatedAt: new Date()
-      })
+      const dayOff = await transactionManager.update(
+        DayOff,
+        { uuid },
+        {
+          dateLeave: dateLeave,
+          staffId: staffId,
+          time: time,
+          type: type,
+          reason: reason,
+          updatedAt: new Date(),
+        },
+      );
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -148,18 +170,36 @@ export class DayoffRepository extends Repository<DayOff> {
     transactionManager: EntityManager,
     user: User,
     uuid: string,
+    isCancel:boolean,
   ) {
     try {
-
-    await transactionManager.update(DayOff, 
-      { uuid },
-      {
-        status: DayOffStatus.APPROVED,
-        updatedAt: new Date(),
-        approvedById: user.id,
-        approvedAt: new Date(),
-      })
+      if(isCancel){
+        await transactionManager.update(
+          DayOff,
+          { uuid },
+          {
+            status: DayOffStatus.APPROVED,
+            updatedAt: new Date(),
+            approvedById: user.id,
+            approvedAt: new Date(),
+          },
+        );
+      } else{
+        await transactionManager.update(
+          DayOff,
+          { uuid },
+          {
+            status: DayOffStatus.APPROVED,
+            updatedAt: new Date(),
+            approvedById: user.id,
+            approvedAt: new Date(),
+          },
+        );
+      }
+      
     } catch (error) {
+      console.log(error);
+      
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình tạo ngày nghỉ',

@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Get, Query, UseGuards, Post, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Query, UseGuards, Post, Param, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
@@ -103,9 +103,13 @@ export class DayoffController {
   @ApiOperation({ summary: 'Approve lịch nghỉ phép' })
   async approve(
     @Param('uuid') uuid: string,
-    @GetUser() user: User) {
+    @Req() req,
+    @GetUser() user: User,
+    @Body() isCancel: boolean,
+    ) {
+   
     return await this.connection.transaction((transactionManager) => {
-      return this.dayoffService.approve(transactionManager, user, uuid);
+      return this.dayoffService.approve(transactionManager, user, uuid,isCancel);
     });
   }
 }

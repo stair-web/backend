@@ -87,8 +87,10 @@ export class DayoffService {
     async approve(
         transactionManager: EntityManager,
         user: User,
-        uuid: string) {
-        return this.dayoffRepository.approveDayOff(transactionManager, user, uuid);
+        uuid: string,
+        isCancel:boolean,
+        ) {
+        return this.dayoffRepository.approveDayOff(transactionManager, user, uuid,isCancel);
     }
 
 }

@@ -31,7 +31,7 @@ export class DayOff  extends BaseEntity {
     staffId: number
 
     @Column()
-    time: number
+    time: string
 
     @Column()
     type: string;

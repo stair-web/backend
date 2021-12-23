@@ -384,6 +384,7 @@ export class UserService {
         const payload: JwtPayload = {
           email: user.email,
           roles,
+          user,
         };
         const accessToken = await this.jwtService.sign(payload);
         return {

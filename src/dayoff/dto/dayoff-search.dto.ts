@@ -9,13 +9,24 @@ export class DayOffSearch {
 
     dateLeave?: Date;
 
+    fromDate?: Date;
+
+    toDate?: Date;
+
     staffId?: number;
 
-    time?: number;
+    time?: string;
 
     reason?: string;
 
     type?: string;
 
+    listDateOff:DateOffItem[];
+
     page = 0;
+}
+export class DateOffItem {
+    time?: string;
+    date?: Date;
+    isError?:boolean;
 }
