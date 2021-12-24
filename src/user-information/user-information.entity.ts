@@ -2,6 +2,7 @@ import { BaseEntity, Entity, PrimaryColumn, Column, OneToOne, JoinColumn, ManyTo
 import { User } from "src/user/user.entity";
 import { DBSchema } from "src/common/enum/db-schemas.enum";
 import { DayOff } from "src/dayoff/dayoff.entity";
+import { Team } from "src/team/team.entity";
 
 @Entity({ name: 'user_information', schema: DBSchema.SCM_ARI_PUBLIC })
 export class UserInformation extends BaseEntity {
@@ -50,6 +51,13 @@ export class UserInformation extends BaseEntity {
 
     @Column()
     remain: number;
+
+    @Column()
+    teamId: number;
+
+    @OneToOne(type => Team, team => team.id)
+    @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
+    team: Team;
 
     @OneToOne(type => User, user => user.id)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })

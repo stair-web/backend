@@ -31,6 +31,7 @@ import { PartnerIntroductionModule } from './partner-introduction/partner-introd
 import { PartnerPartnershipModule } from './partner-partnership/partner-partnership.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
+import { TeamModule } from './team/team.module';
 @Module({
   imports: [
         DayoffModule, 
@@ -80,6 +81,7 @@ import { RolesGuard } from './guards/roles.guard';
     PartnerSectionItemModule,
     PartnerIntroductionModule,
     PartnerPartnershipModule,
+    TeamModule
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway,

@@ -108,4 +108,18 @@ export class DayoffController {
       return this.dayoffService.approve(transactionManager, user, uuid);
     });
   }
+
+  @Post('staff-report')
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 201,
+    description: 'Report thành công.',
+  })
+  @ApiOperation({ summary: 'Reprort lịch nghỉ phép' })
+  async report() {
+    return await this.connection.transaction((transactionManager) => {
+      return this.dayoffService.report(transactionManager);
+    });
+  }
 }

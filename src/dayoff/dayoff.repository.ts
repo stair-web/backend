@@ -98,6 +98,17 @@ export class DayoffRepository extends Repository<DayOff> {
     try {
     let uuid = uuidv4();
     const { dateLeave, staffId, time,  type, reason } = dayOffSearch;
+    let userInfo = await transactionManager.getRepository(UserInformation).findOne({
+      where: { userId : staffId },
+    });
+
+    if (type == 1) {
+      if (time == 0 && userInfo.remain >= 1) {
+        userInfo.remain = userInfo.remain - 1;
+      } else if((time == 1 || time == 2) && userInfo.remain >= 0.5) {
+        userInfo.remain = userInfo.remain - 0.5
+      }
+    }
 
     const dayOff = await transactionManager.create(DayOff, {
       uuid,
@@ -110,7 +121,11 @@ export class DayoffRepository extends Repository<DayOff> {
       createdAt: new Date(),
       updatedAt: new Date()
     })
+    // trừ luôn vào tổng số ngày phép
     await transactionManager.save(dayOff);
+
+    await transactionManager.getRepository(UserInformation).save(userInfo);
+
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -172,14 +187,80 @@ export class DayoffRepository extends Repository<DayOff> {
         approvedAt: new Date(),
       })
     // Giảm số ngày phép
+    // if (dayOff.type == 1) {
+    //   if (dayOff.time == 0 && userInfo.remain >= 1) {
+    //     userInfo.remain = userInfo.remain - 1;
+    //   } else if((dayOff.time == 1 || dayOff.time == 2) && userInfo.remain >= 0.5) {
+    //     userInfo.remain = userInfo.remain - 0.5
+    //   }
+    // }
+    await transactionManager.getRepository(UserInformation).save(userInfo);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+      );
+    }
+  }
+
+  async cancelDayOff(
+    transactionManager: EntityManager,
+    user: User,
+    uuid: string,
+  ) {
+    try {
+    let dayOff = await transactionManager.getRepository(DayOff).findOne({ uuid, isDeleted: false });
+    if (dayOff.status == 'APPROVED') {
+      throw new InternalServerErrorException(
+        'Ngày này đã được approve rồi!',
+      );
+    }
+    let staffId = dayOff.staffId;
+    let userInfo = await transactionManager
+    .getRepository(UserInformation).findOne({
+      where: { userId : staffId },
+    });    
+    
+    await transactionManager.update(DayOff, 
+      { uuid },
+      {
+        status: DayOffStatus.CANCEL,
+        updatedAt: new Date(),
+        approvedById: user.id,
+        approvedAt: new Date(),
+      })
+    // Tăng số ngày phép
     if (dayOff.type == 1) {
-      if (dayOff.time == 0 && userInfo.remain >= 1) {
-        userInfo.remain = userInfo.remain - 1;
-      } else if((dayOff.time == 1 || dayOff.time == 2) && userInfo.remain >= 0.5) {
-        userInfo.remain = userInfo.remain - 0.5
+      if (dayOff.time == 0) {
+        userInfo.remain = userInfo.remain + 1;
+      } else if((dayOff.time == 1 || dayOff.time == 2)) {
+        userInfo.remain = userInfo.remain + 0.5
       }
     }
     await transactionManager.getRepository(UserInformation).save(userInfo);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+      );
+    }
+  }
+    
+  async report(transactionManager: EntityManager) {
+    try {
+      const query = transactionManager
+      .getRepository(DayOff)
+      .createQueryBuilder('d')
+      .leftJoin('d.staff', 'ui')
+      .leftJoin('ui.team', 't')
+      .select("d.staff_id, ui.last_name, t.name, ui.remain, ui.sum(CASE WHEN type = 1 THEN time ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time ELSE 0 END) as type_2")
+      .groupBy("d.staff_id, ui.last_name, t.name, ui.reamain")
+
+    // Full text search
+    const data = await query.execute();
+    console.log(query.getQuery())
+    console.log(data);
+    return data;
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(

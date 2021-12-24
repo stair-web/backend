@@ -92,4 +92,8 @@ export class DayoffService {
         return this.dayoffRepository.approveDayOff(transactionManager, user, uuid);
     }
 
+    async report(transactionManager: EntityManager,){
+        return this.dayoffRepository.report(transactionManager);
+    }
+
 }
