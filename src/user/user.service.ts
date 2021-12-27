@@ -153,28 +153,9 @@ export class UserService {
         Object.keys(userInformation).map(
           (key) => (user.userInformation[key] = userInformation[key]),
         );
-        // user.userInformation.shortDescription = userInformation.shortDescription;
-        console.log();
       }
-     const query =  await transactionManager
-        .getRepository(UserInformation)
-        .createQueryBuilder(
-          "UPDATE public.user_information SET id=19, uuid='60ffd56b-9abc-49ae-babb-7496477dc1cf', first_name=NULL, last_name='Ung Tiến Dũng', profile_photo_key=NULL, private_email=NULL, phone_number='012345648', dob='1998-01-01 00:00:00.000', short_description='Short Description1231232', position=NULL, created_at='2021-11-15 18:02:02.640', updated_at='2021-11-15 18:02:02.640', staff_id='7DC1CF', team_id=NULL, starting_date='2018-04-03', remain=15.0   WHERE user_id=16;   ",
-        );
-        console.log(query.getQuery()
-        
-        );
-        const data =  await query.execute();
-        return data;
-      // await transactionManager
-      //   .getRepository(UserInformation)
-      //   .save(user.userInformation);
-
-      // console.log(
-      //   await transactionManager
-      //     .getRepository(UserInformation)
-      //     .save(user.userInformation),
-      // );
+      await transactionManager.save(user.userInformation);
+       
     } catch (error) {
       console.log(error);
 

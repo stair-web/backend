@@ -132,14 +132,11 @@ export class DayoffRepository extends Repository<DayOff> {
       }
     await transactionManager.save(dayOff);
     console.log(userInfo);
-
       listSave.push(dayOff);
     });
-    
    
     // trừ luôn vào tổng số ngày phép
-
-    await transactionManager.getRepository(UserInformation).save(userInfo);
+    await transactionManager.save(userInfo);
 
     } catch (error) {
       Logger.error(error);
