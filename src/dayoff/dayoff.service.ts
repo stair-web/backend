@@ -92,6 +92,21 @@ export class DayoffService {
         return this.dayoffRepository.approveDayOff(transactionManager, user, uuid);
     }
 
+    async reject(
+        transactionManager: EntityManager,
+        user: User,
+        uuid: string) {
+        return this.dayoffRepository.rejectDayOff(transactionManager, user, uuid);
+    }
+
+    
+    async delete(
+        transactionManager: EntityManager,
+        user: User,
+        uuid: string) {
+        return this.dayoffRepository.deleteDayoff(transactionManager, user, uuid);
+    }
+
     async report(transactionManager: EntityManager,){
         return this.dayoffRepository.report(transactionManager);
     }

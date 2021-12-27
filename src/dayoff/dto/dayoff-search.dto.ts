@@ -18,4 +18,6 @@ export class DayOffSearch {
     type?: number;
 
     page = 0;
+
+    listDateOff = [];
 }

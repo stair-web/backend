@@ -17,7 +17,12 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Connection } from 'typeorm';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
@@ -26,11 +31,13 @@ import { CheckExistsUserDto } from './dto/check-exists-user.dto';
 import { Roles } from 'src/guards/roles.decorator';
 import { Role } from 'src/guards/role.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { GetUser } from './get-user.decorator';
+import { User } from './user.entity';
+import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
 @Controller(controllerName)
-
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -216,10 +223,10 @@ export class UserController {
 
   /**
    * @description to check value if exists
-   * @param param 
-   * @param value 
+   * @param param
+   * @param value
    * @returns 201 202
-   * @example 
+   * @example
    *  /check-exists/username/example
    * OR: /check-exists/email/example@email.com
    */
@@ -246,6 +253,60 @@ export class UserController {
       return this.userService.checkUserExists(
         transactionManager,
         new CheckExistsUserDto(object),
+      );
+    });
+  }
+
+  @Get('/profile/me')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình lấy thông tin người dùng.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy dữ liệu người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
+  async getLoginUser(@GetUser() user: User) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.getUserByUuid(transactionManager, user.uuid);
+    });
+  }
+
+  /**
+   * @method PUT
+   * @description Update user's information.
+   * @param updateUserDto
+   * @param uuid
+   * @returns
+   */
+  @Put('/profile/me')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình chỉnh sửa thông tin người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chỉnh sửa thông tin người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Chỉnh sửa người dùng.' })
+  async updateLoginUser(
+    @Body() updateUserDto: UpdateProfileUserDto,
+    @GetUser() user: User,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.updateUser(
+        transactionManager,
+        updateUserDto,
+        user.uuid,
       );
     });
   }

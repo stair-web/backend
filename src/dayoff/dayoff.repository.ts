@@ -28,6 +28,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
 
+    
     // Full text search
     if (!isNullOrUndefined(status) && status !== '') {
       query.andWhere('LOWER(dayoff.status) LIKE LOWER(:status)', {
@@ -64,6 +65,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .leftJoin('dayoff.staff', 'staff')
       .select(['dayoff', 'staff'])
       .where({ isDeleted: false })
+      .andWhere({ staffId: user.id })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
@@ -96,33 +98,46 @@ export class DayoffRepository extends Repository<DayOff> {
     dayOffSearch: DayOffSearch,
   ) {
     try {
-    let uuid = uuidv4();
-    const { dateLeave, staffId, time,  type, reason } = dayOffSearch;
+    const { dateLeave, staffId, time,  type, reason ,listDateOff } = dayOffSearch;
     let userInfo = await transactionManager.getRepository(UserInformation).findOne({
       where: { userId : staffId },
     });
+    let listSave = [];
 
-    if (type == 1) {
-      if (time == 0 && userInfo.remain >= 1) {
-        userInfo.remain = userInfo.remain - 1;
-      } else if((time == 1 || time == 2) && userInfo.remain >= 0.5) {
-        userInfo.remain = userInfo.remain - 0.5
+   
+    listDateOff.forEach(async (ele) => {
+      //find duplicate
+      let uuid = uuidv4();
+
+      let dayOff = await transactionManager.create(DayOff, {
+        uuid,
+        dateLeave: ele.date,
+        staffId:staffId,
+        time: ele.time,
+        type,
+        status: DayOffStatus.PENDING,
+        reason,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      console.log(ele);
+      console.log(parseInt(ele.type) == 1);
+      
+      if (type == 1) {
+        if (parseInt(ele.time)  ==  0 && userInfo.remain >= 1) {
+          userInfo.remain = userInfo.remain - 1;
+        } else if(( parseInt(ele.time )  == 1 ||  parseInt(ele.time )  == 2) && userInfo.remain >= 0.5) {
+          userInfo.remain = userInfo.remain - 0.5
+        }
       }
-    }
-
-    const dayOff = await transactionManager.create(DayOff, {
-      uuid,
-      dateLeave,
-      staffId,
-      time,
-      type,
-      status: DayOffStatus.PENDING,
-      reason,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    })
-    // trừ luôn vào tổng số ngày phép
     await transactionManager.save(dayOff);
+    console.log(userInfo);
+
+      listSave.push(dayOff);
+    });
+    
+   
+    // trừ luôn vào tổng số ngày phép
 
     await transactionManager.getRepository(UserInformation).save(userInfo);
 
@@ -140,18 +155,22 @@ export class DayoffRepository extends Repository<DayOff> {
     uuid: string,
   ) {
     try {
-    const { dateLeave, staffId, time,  type, reason } = dayOffSearch;
+    const { staffId,  type, reason ,listDateOff} = dayOffSearch;
 
-    const dayOff = await transactionManager.update(DayOff, 
-      { uuid },
-      {
-        dateLeave: dateLeave,
-        staffId: staffId,
-        time: time,
-        type: type,
-        reason: reason,
-        updatedAt: new Date()
-      })
+    listDateOff.forEach(async (ele) => {
+      const dayOff = await transactionManager.update(DayOff, 
+        { uuid },
+        {
+          dateLeave:  ele.date,
+          staffId: staffId,
+          time: ele.time,
+          type: type,
+          reason: reason,
+          updatedAt: new Date()
+        })
+
+ });
+    
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -165,19 +184,19 @@ export class DayoffRepository extends Repository<DayOff> {
     user: User,
     uuid: string,
   ) {
-    try {
+    
     let dayOff = await transactionManager.getRepository(DayOff).findOne({ uuid, isDeleted: false });
-    if (dayOff.status == 'APPROVED') {
-      throw new InternalServerErrorException(
-        'Ngày này đã được approve rồi!',
-      );
-    }
+    // if (dayOff.status == 'APPROVED') {
+    //   throw new InternalServerErrorException(
+    //     'Ngày này đã được approve rồi!',
+    //   );
+    // }
+    try {
     let staffId = dayOff.staffId;
     let userInfo = await transactionManager
     .getRepository(UserInformation).findOne({
       where: { userId : staffId },
     });    
-    
     await transactionManager.update(DayOff, 
       { uuid },
       {
@@ -185,6 +204,89 @@ export class DayoffRepository extends Repository<DayOff> {
         updatedAt: new Date(),
         approvedById: user.id,
         approvedAt: new Date(),
+      })
+    // Giảm số ngày phép
+    // if (dayOff.type == 1) {
+    //   if (dayOff.time == 0 && userInfo.remain >= 1) {
+    //     userInfo.remain = userInfo.remain - 1;
+    //   } else if((dayOff.time == 1 || dayOff.time == 2) && userInfo.remain >= 0.5) {
+    //     userInfo.remain = userInfo.remain - 0.5
+    //   }
+    // }
+    await transactionManager.getRepository(UserInformation).save(userInfo);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+      );
+    }
+  }
+
+  async rejectDayOff(
+    transactionManager: EntityManager,
+    user: User,
+    uuid: string,
+  ) {
+    try {
+    let dayOff = await transactionManager.getRepository(DayOff).findOne({ uuid, isDeleted: false });
+    // if (dayOff.status == 'REJECT') {
+    //   throw new InternalServerErrorException(
+    //     'Ngày này đã được cancel rồi!',
+    //   );
+    // }
+    let staffId = dayOff.staffId;
+    let userInfo = await transactionManager
+    .getRepository(UserInformation).findOne({
+      where: { userId : staffId },
+    });    
+    await transactionManager.update(DayOff, 
+      { uuid },
+      {
+        status: DayOffStatus.CANCEL,
+        updatedAt: new Date(),
+        approvedById: user.id,
+      })
+    // Giảm số ngày phép
+    // if (dayOff.type == 1) {
+    //   if (dayOff.time == 0 && userInfo.remain >= 1) {
+    //     userInfo.remain = userInfo.remain - 1;
+    //   } else if((dayOff.time == 1 || dayOff.time == 2) && userInfo.remain >= 0.5) {
+    //     userInfo.remain = userInfo.remain - 0.5
+    //   }
+    // }
+    await transactionManager.getRepository(UserInformation).save(userInfo);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+      );
+    }
+  }
+
+
+  async deleteDayoff(
+    transactionManager: EntityManager,
+    user: User,
+    uuid: string,
+  ) {
+    try {
+    let dayOff = await transactionManager.getRepository(DayOff).findOne({ uuid, isDeleted: false });
+    // if (dayOff.status == 'REJECT') {
+    //   throw new InternalServerErrorException(
+    //     'Ngày này đã được cancel rồi!',
+    //   );
+    // }
+    let staffId = dayOff.staffId;
+    let userInfo = await transactionManager
+    .getRepository(UserInformation).findOne({
+      where: { userId : staffId },
+    });    
+    await transactionManager.update(DayOff, 
+      { uuid },
+      {
+        status: DayOffStatus.CANCEL,
+        updatedAt: new Date(),
+        isDeleted:true,
       })
     // Giảm số ngày phép
     // if (dayOff.type == 1) {
@@ -253,18 +355,19 @@ export class DayoffRepository extends Repository<DayOff> {
       .createQueryBuilder('d')
       .leftJoin('d.staff', 'ui')
       .leftJoin('ui.team', 't')
-      .select("d.staff_id, ui.last_name, t.name, ui.remain, ui.sum(CASE WHEN type = 1 THEN time ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time ELSE 0 END) as type_2")
-      .groupBy("d.staff_id, ui.last_name, t.name, ui.reamain")
-
+      .select("d.staff_id, ui.last_name, t.name, ui.remain, sum(CASE WHEN type = 1 THEN time ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time ELSE 0 END) as type_2")
+      .groupBy("d.staff_id, ui.last_name, t.name, ui.remain")
+      console.log(query.getQuery())
+      // console.log(data);
+  
     // Full text search
     const data = await query.execute();
-    console.log(query.getQuery())
-    console.log(data);
+      
     return data;
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+        'Lỗi hệ thống trong quá tình lấy report',
       );
     }
   }

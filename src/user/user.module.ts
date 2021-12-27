@@ -11,10 +11,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserRoleModule } from 'src/user-role/user-role.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { UserInformationRepository } from 'src/user-information/user-information.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository, TokenEmailRepository]),
+    TypeOrmModule.forFeature([UserRepository, TokenEmailRepository, UserInformationRepository]),
     ConfigModule.forRoot({
       envFilePath: `env/${process.env.NODE_ENV || 'local'}.env`,
     }),
