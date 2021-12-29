@@ -4,13 +4,20 @@ import {
   paramStringToJson,
 } from 'src/lib/utils/util';
 import { GetAllUserDto } from 'src/user/dto/get-all-user.dto';
-import { EntityManager, EntityRepository, Not, Repository } from 'typeorm';
+import {
+  Brackets,
+  EntityManager,
+  EntityRepository,
+  Not,
+  Repository,
+} from 'typeorm';
 import { DayOff } from './dayoff.entity';
 import { DayOffSearch } from './dto/dayoff-search.dto';
 import {
   InternalServerErrorException,
   Logger,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { uuidv4 } from 'src/common/utils/common.util';
 import { DayOffStatus } from 'src/common/enum/dayoff-status';
@@ -103,6 +110,8 @@ export class DayoffRepository extends Repository<DayOff> {
     transactionManager: EntityManager,
     dayOffSearch: DayOffSearch,
   ) {
+    const listDup = [];
+
     try {
       const { dateLeave, staffId, time, type, reason, listDateOff } =
         dayOffSearch;
@@ -112,37 +121,52 @@ export class DayoffRepository extends Repository<DayOff> {
           where: { userId: staffId },
         });
       let listSave = [];
-      const listDup = [];
-      // const query = transactionManager
-      //   .getRepository(DayOff)
-      //   .createQueryBuilder('dateOff')
-      //   .select([
-      //     'dateOff.uuid',
-      //     'dateOff.dateLeave',
-      //     'dateOff.time',
-      //     'dateOff.type',
-      //     'dateOff.status',
-  
-       
-      //   ])
-      //   .where('candidate.isDeleted is FALSE')
-       
-      listDateOff.forEach( async (ele) => {
-        // console.log(new Date(ele.date).getU);
+      const query = transactionManager
+        .getRepository(DayOff)
+        .createQueryBuilder('dateOff')
+        .select([
+          'dateOff.uuid',
+          'dateOff.dateLeave',
+          'dateOff.time',
+          'dateOff.type',
+          'dateOff.status',
+        ])
+        .where(`dateOff.dateLeave IN (:...listDate)`, {
+          listDate: listDateOff.map((ele) => new Date(ele.date)),
+        })
+        .andWhere(
+          `dateOff.isDeleted is FALSE and dateOff.status  <> :status  and dateOff.staff_id = :staffId  `,
+          { status: 'CANCEL', staffId: staffId },
+        );
+      const listQueryDup = await query.getMany();
 
-        let dayOffTime = getDate(ele.date);
-
-        const dup = await transactionManager.getRepository(DayOff).findOne({
-          dateLeave: dayOffTime,
-          isDeleted: false,
-          staffId: staffId,
-          status: Not('CANCEL'),
-        });
-
-        if (!isNullOrUndefined(dup)) {
-          if (dup.time == 0 || dup.time == ele.time || ele.time == 0) {
-            listDup.push(dup);
-          }
+      listDateOff.forEach(async (ele) => {
+        if (listQueryDup.length > 0) {
+          // const dup = listQueryDup.find((eleDup) => {
+          //   return ( new Date(eleDup.dateLeave).toDateString() == new Date(ele.date).toDateString() );
+          // });
+          listQueryDup.forEach((eleQueryDup) => {
+            if (
+              new Date(eleQueryDup.dateLeave).toDateString() ==
+              new Date(ele.date).toDateString()
+            ) {
+              if (
+                eleQueryDup.time == 0 ||
+                eleQueryDup.time == ele.time ||
+                ele.time == 0
+              ) {
+                if (
+                  listDup.findIndex(
+                    (eleList) =>
+                      new Date(eleList.dateLeave).toDateString() ==
+                      new Date(ele.date).toDateString(),
+                  ) == -1
+                ) {
+                  listDup.push(ele);
+                }
+              }
+            }
+          });
         } else {
           if (userInfo.remain <= 0) {
             throw new ConflictException('Remain Date cant be smaller than 0!');
@@ -151,7 +175,7 @@ export class DayoffRepository extends Repository<DayOff> {
           let uuid = uuidv4();
           let dayOff = await transactionManager.create(DayOff, {
             uuid,
-            dateLeave: dayOffTime,
+            dateLeave: new Date(ele.date),
             staffId: staffId,
             time: ele.time,
             type,
@@ -172,23 +196,14 @@ export class DayoffRepository extends Repository<DayOff> {
               userInfo.remain = userInfo.remain - 0.5;
             }
           }
-          // console.log(dayOff);
 
           await transactionManager.save(dayOff);
           listSave.push(dayOff);
         }
       });
-      console.log(listDup.length > 0);
-      console.log(listDup);
 
       if (listDup.length > 0) {
-        return {
-          statusCode: 409,
-          data: {
-            listDuplicate: listDup,
-          },
-          message: 'Duplicate Date Leave!',
-        };
+        throw new ConflictException();
       } else {
         await transactionManager.save(userInfo);
         return {
@@ -197,8 +212,14 @@ export class DayoffRepository extends Repository<DayOff> {
         };
       }
     } catch (error) {
-      console.log(error);
-
+      if (error.status === 409) {
+        throw new ConflictException({
+          data: {
+            listDuplicate: listDup,
+          },
+          message: 'Duplicate Date Leave!',
+        });
+      }
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
@@ -213,22 +234,46 @@ export class DayoffRepository extends Repository<DayOff> {
   ) {
     try {
       const { staffId, type, reason, listDateOff } = dayOffSearch;
+      const dayOffList = await transactionManager.getRepository(DayOff).find({
+        staffId: staffId,
+        dateLeave: new Date(listDateOff[0].date),
+        isDeleted: false,
+      });
+
+      if (dayOffList.length === 0) {
+        throw new NotFoundException('Request not exist !');
+      }
+      dayOffList.forEach((dayOff) => {
+        if (
+          dayOff.uuid !== uuid &&
+          (listDateOff[0].time == 0 ||
+            dayOff.time == listDateOff[0].time ||
+            dayOff.time == 0)
+        ) {
+          throw new ConflictException('Duplicate Date !');
+        }
+      });
 
       listDateOff.forEach(async (ele) => {
-        const dayOff = await transactionManager.update(
-          DayOff,
-          { uuid },
-          {
-            dateLeave: ele.date,
-            staffId: staffId,
-            time: ele.time,
-            type: type,
-            reason: reason,
-            updatedAt: new Date(),
-          },
-        );
+        // const dayOff = await transactionManager.update(
+        //   DayOff,
+        //   { uuid },
+        //   {
+        //     dateLeave: ele.date,
+        //     staffId: staffId,
+        //     time: ele.time,
+        //     type: type,
+        //     reason: reason,
+        //     updatedAt: new Date(),
+        //   },
+        // );
       });
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Request not exist !');
+      } else if (error instanceof ConflictException) {
+        throw new ConflictException('Duplicate Date !');
+      }
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
@@ -451,37 +496,31 @@ export class DayoffRepository extends Repository<DayOff> {
           status: 'APPROVED',
         });
 
+      // from.getFullYear() +
+      // '-' +
+      // (from.getMonth() + 1) +
+      // '-' +
+      // from.getDate(),
       if (fromDate) {
         let from = new Date(fromDate);
         query.andWhere('d.dateLeave >= :from', {
-          from:
-            from.getFullYear() +
-            '-' +
-            (from.getMonth() + 1) +
-            '-' +
-            from.getDate(),
+          from: new Date(from),
         });
-        console.log(
-          from.getFullYear() +
-            '-' +
-            (from.getMonth() + 1) +
-            '-' +
-            from.getDate(),
-        );
-        // console.log((from).getUTCDate());
       }
+      // to.getFullYear() + '-' + (to.getMonth() + 1) + '-' + to.getDate(),
       if (toDate) {
         let to = new Date(toDate);
         query.andWhere('d.dateLeave <= :to', {
-          to: to.getFullYear() + '-' + (to.getMonth() + 1) + '-' + to.getDate(),
+          to: new Date(to),
         });
       }
-
+     
+      
       const data = await query.execute();
 
       return data;
     } catch (error) {
-      // console.log(error);
+      console.log(error);
 
       Logger.error(error);
       throw new InternalServerErrorException(
