@@ -155,6 +155,7 @@ export class UserService {
         );
       }
       await transactionManager.save(user.userInformation);
+       console.log(user);
        
     } catch (error) {
       console.log(error);

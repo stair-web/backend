@@ -21,6 +21,7 @@ import { User } from 'src/user/user.entity';
 import { Connection } from 'typeorm';
 import { DayoffService } from './dayoff.service';
 import { DayOffSearch } from './dto/dayoff-search.dto';
+import { ReportDayOffSearch } from './dto/report-day-off-search.dto';
 
 @Controller('dayoff')
 export class DayoffController {
@@ -171,9 +172,9 @@ export class DayoffController {
     description: 'Report thành công.',
   })
   @ApiOperation({ summary: 'Reprort lịch nghỉ phép' })
-  async report() {
+  async report(@Body('fromDate') dateOffReport:ReportDayOffSearch) {    
     return await this.connection.transaction((transactionManager) => {
-      return this.dayoffService.report(transactionManager);
+      return this.dayoffService.report(transactionManager,dateOffReport.fromDate,dateOffReport.toDate);
     });
   }
 }
