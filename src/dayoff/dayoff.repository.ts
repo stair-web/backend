@@ -113,8 +113,21 @@ export class DayoffRepository extends Repository<DayOff> {
     const listDup = [];
 
     try {
-      const { dateLeave, staffId, time, type, reason, listDateOff } =
-        dayOffSearch;
+      const { staffId, type, reason, listDateOff } = dayOffSearch;
+
+      //Check Different Year
+      if (listDateOff.length > 1) {
+        let findWrongYear = listDateOff.filter(
+          (ele) =>
+            new Date(ele.date).getFullYear() !=
+            new Date(listDateOff[0].date).getFullYear(),
+        );
+
+        if (findWrongYear.length > 0) {
+          throw Error('Cant not create with different year!!!');
+        }
+      }
+
       let userInfo = await transactionManager
         .getRepository(UserInformation)
         .findOne({
@@ -141,6 +154,7 @@ export class DayoffRepository extends Repository<DayOff> {
       const listQueryDup = await query.getMany();
 
       listDateOff.forEach(async (ele) => {
+        let canCreate = true;
         if (listQueryDup.length > 0) {
           // const dup = listQueryDup.find((eleDup) => {
           //   return ( new Date(eleDup.dateLeave).toDateString() == new Date(ele.date).toDateString() );
@@ -163,15 +177,17 @@ export class DayoffRepository extends Repository<DayOff> {
                   ) == -1
                 ) {
                   listDup.push(ele);
+                  canCreate = false;
                 }
               }
             }
           });
-        } else {
+        }
+
+        if (canCreate) {
           if (userInfo.remain <= 0) {
             throw new ConflictException('Remain Date cant be smaller than 0!');
           }
-
           let uuid = uuidv4();
           let dayOff = await transactionManager.create(DayOff, {
             uuid,
@@ -187,16 +203,28 @@ export class DayoffRepository extends Repository<DayOff> {
           });
 
           if (type == 1) {
+            const isCurrentYear =
+              new Date().getFullYear() == new Date(ele.date).getFullYear();
             if (parseInt(ele.time) == 0 && userInfo.remain >= 1) {
-              userInfo.remain = userInfo.remain - 1;
+              if (isCurrentYear) {
+                userInfo.remain = userInfo.remain - 1;
+              } else {
+                userInfo.dateOffNextYear = userInfo.dateOffNextYear + 1;
+              }
             } else if (
               (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) &&
               userInfo.remain >= 0.5
             ) {
-              userInfo.remain = userInfo.remain - 0.5;
+              if (isCurrentYear) {
+                userInfo.remain = userInfo.remain - 0.5;
+              } else {
+                userInfo.dateOffNextYear = userInfo.dateOffNextYear + 0.5;
+              }
             }
           }
-
+          if (userInfo.dateOffNextYear > 12) {
+            throw new ConflictException('Remain Date cant be smaller than 0!');
+          }
           await transactionManager.save(dayOff);
           listSave.push(dayOff);
         }
@@ -360,12 +388,26 @@ export class DayoffRepository extends Repository<DayOff> {
           approvedById: user.id,
         },
       );
+
       // Tăng số ngày phép
       if (dayOff.type == 1) {
+        const isCurrentYear =
+          new Date().getFullYear() == new Date(dayOff.dateLeave).getFullYear();
         if (dayOff.time == 0) {
-          userInfo.remain = userInfo.remain + 1;
-        } else if (dayOff.time == 1 || dayOff.time == 2) {
-          userInfo.remain = userInfo.remain + 0.5;
+          if (isCurrentYear) {
+            userInfo.remain = userInfo.remain + 1;
+          } else {
+            userInfo.dateOffNextYear = userInfo.dateOffNextYear - 1;
+          }
+        } else if (
+          (dayOff.time == 1 || dayOff.time == 2) &&
+          userInfo.remain >= 0.5
+        ) {
+          if (isCurrentYear) {
+            userInfo.remain = userInfo.remain + 0.5;
+          } else {
+            userInfo.dateOffNextYear = userInfo.dateOffNextYear - 0.5;
+          }
         }
       }
       await transactionManager.getRepository(UserInformation).save(userInfo);
@@ -399,10 +441,23 @@ export class DayoffRepository extends Repository<DayOff> {
         });
       // Tăng số ngày phép
       if (dayOff.type == 1) {
+        const isCurrentYear =
+          new Date().getFullYear() == new Date(dayOff.dateLeave).getFullYear();
         if (dayOff.time == 0) {
-          userInfo.remain = userInfo.remain + 1;
-        } else if (dayOff.time == 1 || dayOff.time == 2) {
-          userInfo.remain = userInfo.remain + 0.5;
+          if (isCurrentYear) {
+            userInfo.remain = userInfo.remain + 1;
+          } else {
+            userInfo.dateOffNextYear = userInfo.dateOffNextYear - 1;
+          }
+        } else if (
+          (dayOff.time == 1 || dayOff.time == 2) &&
+          userInfo.remain >= 0.5
+        ) {
+          if (isCurrentYear) {
+            userInfo.remain = userInfo.remain + 0.5;
+          } else {
+            userInfo.dateOffNextYear = userInfo.dateOffNextYear - 0.5;
+          }
         }
       }
       await transactionManager.update(
@@ -514,8 +569,7 @@ export class DayoffRepository extends Repository<DayOff> {
           to: new Date(to),
         });
       }
-     
-      
+
       const data = await query.execute();
 
       return data;

@@ -53,6 +53,9 @@ export class UserInformation extends BaseEntity {
     remain: number;
 
     @Column()
+    dateOffNextYear: number;
+
+    @Column()
     teamId: number;
 
     @OneToOne(type => Team, team => team.id)
