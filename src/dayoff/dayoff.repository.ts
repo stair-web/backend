@@ -186,6 +186,10 @@ export class DayoffRepository extends Repository<DayOff> {
 
         if (canCreate) {
           if (userInfo.remain <= 0) {
+            console.log("gêrewre");
+            console.log(userInfo.remain);
+            
+            
             throw new ConflictException('Remain Date cant be smaller than 0!');
           }
           let uuid = uuidv4();
@@ -222,9 +226,9 @@ export class DayoffRepository extends Repository<DayOff> {
               }
             }
           }
-          if (userInfo.dateOffNextYear > 12) {
-            throw new ConflictException('Remain Date cant be smaller than 0!');
-          }
+          // if (userInfo.dateOffNextYear > 12) {
+          //   throw new ConflictException('Remain Date cant be smaller than 0!');
+          // }
           await transactionManager.save(dayOff);
           listSave.push(dayOff);
         }
