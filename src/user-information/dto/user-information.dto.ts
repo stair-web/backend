@@ -11,6 +11,10 @@ export class UserInformationDto {
 
     lastName?: string;
 
+    remain?: number;
+
+    dateOffNextYear?: number;
+
     profilePhotoKey?: string;
 
     phoneNumber?: string;

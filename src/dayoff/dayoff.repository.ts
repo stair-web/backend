@@ -262,15 +262,21 @@ export class DayoffRepository extends Repository<DayOff> {
   ) {
     try {
       const { staffId, type, reason, listDateOff } = dayOffSearch;
+      const updateDate = new Date(listDateOff[0].date)
       const dayOffList = await transactionManager.getRepository(DayOff).find({
         staffId: staffId,
-        dateLeave: new Date(listDateOff[0].date),
+        dateLeave: updateDate,
         isDeleted: false,
       });
-
-      if (dayOffList.length === 0) {
+      const findDayOff = await transactionManager.getRepository(DayOff).findOne({uuid});
+      if (isNullOrUndefined(findDayOff)) {
         throw new NotFoundException('Request not exist !');
       }
+      const userInfo = await transactionManager
+      .getRepository(UserInformation)
+      .findOne({
+        where: { userId: staffId },
+      });
       dayOffList.forEach((dayOff) => {
         if (
           dayOff.uuid !== uuid &&
@@ -281,21 +287,44 @@ export class DayoffRepository extends Repository<DayOff> {
           throw new ConflictException('Duplicate Date !');
         }
       });
+      const currYear = (new Date()).getFullYear();
+      
+        if(findDayOff.time == 0 && (listDateOff[0].time == 1 || listDateOff[0].time == 2)  ){
+          //tăng remain
+          if(updateDate.getFullYear() == currYear){
+          userInfo.remain += 0.5
+          }else{
+            userInfo.remain -= 0.5
 
+          }
+        }else if ( listDateOff[0].time == 0 && ( findDayOff.time != 0)  ){
+          //Giảm remain
+          if(updateDate.getFullYear() == currYear){
+            userInfo.remain -= 0.5
+            }else{
+              userInfo.remain += 0.5
+            }
+        }
+        if(userInfo.remain < 0 || userInfo.dateOffNextYear > 12){
+          throw new InternalServerErrorException(
+            'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+          );
+        }
       listDateOff.forEach(async (ele) => {
-        // const dayOff = await transactionManager.update(
-        //   DayOff,
-        //   { uuid },
-        //   {
-        //     dateLeave: ele.date,
-        //     staffId: staffId,
-        //     time: ele.time,
-        //     type: type,
-        //     reason: reason,
-        //     updatedAt: new Date(),
-        //   },
-        // );
+        const dayOff = await transactionManager.update(
+          DayOff,
+          { uuid },
+          {
+            staffId: staffId,
+            time: listDateOff[0].time ,
+            type: type,
+            reason: reason,
+            updatedAt: new Date(),
+          },
+        );
       });
+      await userInfo.save();
+
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Request not exist !');

@@ -16,6 +16,7 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    // console.log(request.headers);
     
     if (!request.headers.authorization) {
       throw new UnauthorizedException();
