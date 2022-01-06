@@ -383,6 +383,8 @@ export class StaticPageService {
       }
       return { code: 201, message: 'Cập nhật trang thành công!' };
     } catch (error) {
+      console.log(error);
+      
       throw new InternalServerErrorException(error);
     }
   }

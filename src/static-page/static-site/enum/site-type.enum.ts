@@ -9,4 +9,5 @@ export enum SiteType {
   DEV_ARI = 'DEV_ARI',
   PARTNER_DOXA = 'PARTNER_DOXA',
   PARTNER_ANS = 'PARTNER_ANS',
+  PARTNER = 'PARTNER',
 }
