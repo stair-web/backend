@@ -308,7 +308,7 @@ export class DayoffRepository extends Repository<DayOff> {
           userInfo.remain += 0.5
         }
       }
-      if (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) {
+      if ( (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) && findDayOff.type == 1) {
         throw new InternalServerErrorException(
           'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
         );
