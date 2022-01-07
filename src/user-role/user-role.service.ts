@@ -11,7 +11,7 @@ export class UserRoleService {
   constructor(
     @InjectRepository(UserRoleRepository)
     private userRoleRepository: UserRoleRepository,
-  ) {}
+  ) { }
 
   async addUserRole(
     transactionManager: EntityManager,
@@ -63,9 +63,25 @@ export class UserRoleService {
   }
 
   async getUserRoleByUserId(transactionManager: EntityManager, userId: number) {
-    return await transactionManager.getRepository(UserRole).find({
-      where: { userId, isActive: true },
+
+    let data = await transactionManager.getRepository(UserRole).find({
+      where: { userId, isActive: true, },
       select: ['roleCode'],
     });
+    if (!data) {
+      data = [];
+    }
+    return data;
+  }
+
+
+  async deactiveUserRole(transactionManager: EntityManager, userId: number, roleCode: string) {
+
+    let data = await transactionManager.getRepository(UserRole).findOne({
+      where: { userId, isActive: true, roleCode: roleCode },
+    });
+    data.isActive = false;
+    await data.save();
+    return {message:'Deactive success!'};
   }
 }
