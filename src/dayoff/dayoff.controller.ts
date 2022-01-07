@@ -93,6 +93,7 @@ export class DayoffController {
     @Body() dayOffSearch: DayOffSearch,
     @GetUser() user: User,
   ) {
+
     dayOffSearch.staffId = user.id;
     return await this.connection.transaction((transactionManager) => {
       return this.dayoffService.createDayOff(transactionManager, dayOffSearch);

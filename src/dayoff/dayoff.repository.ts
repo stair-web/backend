@@ -155,6 +155,7 @@ export class DayoffRepository extends Repository<DayOff> {
 
       listDateOff.forEach(async (ele) => {
         let canCreate = true;
+
         if (listQueryDup.length > 0) {
           // const dup = listQueryDup.find((eleDup) => {
           //   return ( new Date(eleDup.dateLeave).toDateString() == new Date(ele.date).toDateString() );
@@ -176,7 +177,7 @@ export class DayoffRepository extends Repository<DayOff> {
                       new Date(ele.date).toDateString(),
                   ) == -1
                 ) {
-                  listDup.push(ele);
+                  listDup.push(ele);                  
                   canCreate = false;
                 }
               }
@@ -185,11 +186,8 @@ export class DayoffRepository extends Repository<DayOff> {
         }
 
         if (canCreate) {
-          if (userInfo.remain <= 0) {
-            console.log("gêrewre");
-            console.log(userInfo.remain);
-            
-            
+          if (userInfo.remain <= 0 && type == 1 ) {
+
             throw new ConflictException('Remain Date cant be smaller than 0!');
           }
           let uuid = uuidv4();
@@ -205,7 +203,8 @@ export class DayoffRepository extends Repository<DayOff> {
             updatedAt: new Date(),
             timeNumber: ele.time == 0 ? 1 : 0.5,
           });
-
+          console.log(dayOff);
+          
           if (type == 1) {
             const isCurrentYear =
               new Date().getFullYear() == new Date(ele.date).getFullYear();
@@ -272,15 +271,15 @@ export class DayoffRepository extends Repository<DayOff> {
         dateLeave: updateDate,
         isDeleted: false,
       });
-      const findDayOff = await transactionManager.getRepository(DayOff).findOne({uuid});
+      const findDayOff = await transactionManager.getRepository(DayOff).findOne({ uuid });
       if (isNullOrUndefined(findDayOff)) {
         throw new NotFoundException('Request not exist !');
       }
       const userInfo = await transactionManager
-      .getRepository(UserInformation)
-      .findOne({
-        where: { userId: staffId },
-      });
+        .getRepository(UserInformation)
+        .findOne({
+          where: { userId: staffId },
+        });
       dayOffList.forEach((dayOff) => {
         if (
           dayOff.uuid !== uuid &&
@@ -292,35 +291,35 @@ export class DayoffRepository extends Repository<DayOff> {
         }
       });
       const currYear = (new Date()).getFullYear();
-      
-        if(findDayOff.time == 0 && (listDateOff[0].time == 1 || listDateOff[0].time == 2)  ){
-          //tăng remain
-          if(updateDate.getFullYear() == currYear){
-          userInfo.remain += 0.5
-          }else{
-            userInfo.remain -= 0.5
 
-          }
-        }else if ( listDateOff[0].time == 0 && ( findDayOff.time != 0)  ){
-          //Giảm remain
-          if(updateDate.getFullYear() == currYear){
-            userInfo.remain -= 0.5
-            }else{
-              userInfo.remain += 0.5
-            }
+      if (findDayOff.time == 0 && (listDateOff[0].time == 1 || listDateOff[0].time == 2)) {
+        //tăng remain
+        if (updateDate.getFullYear() == currYear) {
+          userInfo.remain += 0.5
+        } else {
+          userInfo.remain -= 0.5
+
         }
-        if(userInfo.remain < 0 || userInfo.dateOffNextYear > 12){
-          throw new InternalServerErrorException(
-            'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
-          );
+      } else if (listDateOff[0].time == 0 && (findDayOff.time != 0)) {
+        //Giảm remain
+        if (updateDate.getFullYear() == currYear) {
+          userInfo.remain -= 0.5
+        } else {
+          userInfo.remain += 0.5
         }
+      }
+      if (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) {
+        throw new InternalServerErrorException(
+          'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+        );
+      }
       listDateOff.forEach(async (ele) => {
         const dayOff = await transactionManager.update(
           DayOff,
           { uuid },
           {
             staffId: staffId,
-            time: listDateOff[0].time ,
+            time: listDateOff[0].time,
             type: type,
             reason: reason,
             updatedAt: new Date(),
