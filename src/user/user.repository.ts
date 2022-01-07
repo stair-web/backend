@@ -135,7 +135,7 @@ export class UserRepository extends Repository<User> {
             userInformation: 'user.userInformation',
           },
         },
-        relations: ['userInformation'],
+        relations: ['userInformation',],
         where: (qb) => {
           qb.select([
             'user.id',
@@ -160,6 +160,7 @@ export class UserRepository extends Repository<User> {
             'userInformation.updatedAt',
             'userInformation.remain',
             'userInformation.dateOffNextYear',
+            'userInformation.teamId',
           ])
           .where('user.isDeleted = :isDeleted', { isDeleted: false })
           .andWhere('user.uuid = :uuid', { uuid })

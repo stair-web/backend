@@ -58,19 +58,16 @@ export class UserService {
     createUserDto: CreateUserDto,
   ) {
     /* check user if exists */
-    const { username, email , teamId} = createUserDto;
+    const { username, email } = createUserDto;
+    const teamId = createUserDto.userInformation.teamId;
     const user = await transactionManager.getRepository(User).findOne({
       where: [
         { username, isDeleted: false },
         { email, isDeleted: false },
       ],
     });
-
-    const team = await transactionManager.getRepository(Team).findOne({id:teamId});
-
-    if (isNullOrUndefined(team)) {
-      throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
-    }
+    
+   
 
     if (user) {
       throw new ConflictException(`Username này đã tồn tại trong hệ thống.`);
@@ -82,14 +79,14 @@ export class UserService {
     if (isNullOrUndefined(createUserDto.password)) {
       createUserDto.password = '123123';
     }
-    console.log(createUserDto.password);
 
     const userCreated = await this.usersRepository.createUser(
       transactionManager,
       createUserDto,
     );
-    userCreated.userInformation.team = team;
-    await userCreated.userInformation.team.save();
+    console.log(teamId);
+
+    
     await transactionManager.update(
       User,
       { id: userCreated.id },
@@ -97,6 +94,16 @@ export class UserService {
         isActive: true,
       },
     );
+    // if(teamId){
+    //   const team = await transactionManager.getRepository(Team).findOne({id:teamId ,isDeleted:false});
+
+    //   if (isNullOrUndefined(team)) {
+    //     throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
+    //   }
+    // userCreated.userInformation.teamId = teamId;
+    // await userCreated.userInformation.team.save();
+      
+    // }
     // set expired date for link
     const expired = new Date();
     expired.setDate(expired.getDate() + 7);

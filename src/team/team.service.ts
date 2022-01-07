@@ -14,7 +14,7 @@ export class TeamService {
   async getListTeam(
     transactionManager: EntityManager,
   ) {
-     const data =  transactionManager.getRepository(Team).find()
+     const data =  transactionManager.getRepository(Team).find({isDeleted:false})
     return data;
   }
 }
