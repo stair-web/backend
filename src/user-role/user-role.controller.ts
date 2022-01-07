@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserRoleService } from './user-role.service';
 import { AddUserRoleDto } from './dto/add-user-role.dto';
@@ -23,6 +23,12 @@ export class UserRoleController {
   async addUserRole(@Body(ValidationPipe) addUserRoleDto: AddUserRoleDto) {
     return await this.connection.transaction((transactionManager) => {
       return this.adminRoleService.addUserRole(transactionManager, addUserRoleDto);
+    });
+  }
+  @Get()
+  async getUserRoleById(@Query() uuid: number) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.adminRoleService.getUserRoleByUserId(transactionManager, uuid);
     });
   }
 }

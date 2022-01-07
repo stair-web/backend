@@ -51,8 +51,8 @@ export class UserController {
    * @returns all the users
    */
   @Get()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người dùng thành công.',
