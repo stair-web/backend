@@ -29,6 +29,8 @@ export class UserInformationDto {
 
     updatedAt?: Date;
 
+    teamId?:number;
+
     constructor() {
         this.uuid = "";
         this.userId = 0;
@@ -39,7 +41,8 @@ export class UserInformationDto {
         this.dob = new Date('1995-01-01');
         this.shortDescription = "";
         this.position = "";
-        this.staffId = ""
+        this.staffId = "";
+        this.teamId = null;
     }
 }
 
@@ -59,6 +62,9 @@ export class UserInformationSortDto {
     dob?: SortValue;
 
     shortDescription?: SortValue;
+
+    teamId?:number;
+
 
     position?: SortValue;
 

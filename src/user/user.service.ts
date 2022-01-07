@@ -34,6 +34,7 @@ import { uuidv4 } from 'src/common/utils/common.util';
 import { hashPwd } from 'src/common/utils/hash.util';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
 import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
+import { Team } from 'src/team/team.entity';
 
 @Injectable()
 export class UserService {
@@ -57,7 +58,7 @@ export class UserService {
     createUserDto: CreateUserDto,
   ) {
     /* check user if exists */
-    const { username, email } = createUserDto;
+    const { username, email , teamId} = createUserDto;
     const user = await transactionManager.getRepository(User).findOne({
       where: [
         { username, isDeleted: false },
@@ -65,9 +66,17 @@ export class UserService {
       ],
     });
 
+    const team = await transactionManager.getRepository(Team).findOne({id:teamId});
+
+    if (isNullOrUndefined(team)) {
+      throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
+    }
+
     if (user) {
       throw new ConflictException(`Username này đã tồn tại trong hệ thống.`);
     }
+
+    
 
     createUserDto.userInformation.uuid = uuidv4();
     if (isNullOrUndefined(createUserDto.password)) {
@@ -79,6 +88,8 @@ export class UserService {
       transactionManager,
       createUserDto,
     );
+    userCreated.userInformation.team = team;
+    await userCreated.userInformation.team.save();
     await transactionManager.update(
       User,
       { id: userCreated.id },
@@ -143,10 +154,20 @@ export class UserService {
       transactionManager,
       uuid,
     );
+    
 
     if (isNullOrUndefined(user)) {
       throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
+
+    if(userInformation.teamId){
+      const team = await transactionManager.getRepository(Team).findOne({id:userInformation.teamId});
+
+      if (isNullOrUndefined(team)) {
+        throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
+      }
+    }
+    
 
     try {
       if (userInformation) {

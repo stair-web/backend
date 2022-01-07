@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Connection } from "typeorm";
 import { TeamService } from "./team.service";
@@ -19,4 +19,12 @@ export class TeamController {
       return this.team$.getListTeam(transactionManager);
     });
   }
+  // @Post('')
+  // @ApiResponse({ status: 201, description: 'Lấy danh sách team thành công.' })
+  // @ApiOperation({ summary: 'Lấy danh sách team thành công.' })
+  // async updateTeamUser() {
+  //   return await this.connection.transaction((transactionManager) => {
+  //     return this.team$.getListTeam(transactionManager);
+  //   });
+  // }
 }

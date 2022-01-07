@@ -186,10 +186,7 @@ export class DayoffRepository extends Repository<DayOff> {
         }
 
         if (canCreate) {
-          if (userInfo.remain <= 0 && type == 1 ) {
-
-            throw new ConflictException('Remain Date cant be smaller than 0!');
-          }
+          
           let uuid = uuidv4();
           let dayOff = await transactionManager.create(DayOff, {
             uuid,
@@ -203,25 +200,36 @@ export class DayoffRepository extends Repository<DayOff> {
             updatedAt: new Date(),
             timeNumber: ele.time == 0 ? 1 : 0.5,
           });
-          console.log(dayOff);
           
           if (type == 1) {
             const isCurrentYear =
               new Date().getFullYear() == new Date(ele.date).getFullYear();
-            if (parseInt(ele.time) == 0 && userInfo.remain >= 1) {
+            if (parseInt(ele.time) == 0 ) {
               if (isCurrentYear) {
                 userInfo.remain = userInfo.remain - 1;
               } else {
                 userInfo.dateOffNextYear = userInfo.dateOffNextYear + 1;
+                
               }
             } else if (
-              (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) &&
-              userInfo.remain >= 0.5
+              (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) 
             ) {
               if (isCurrentYear) {
                 userInfo.remain = userInfo.remain - 0.5;
               } else {
                 userInfo.dateOffNextYear = userInfo.dateOffNextYear + 0.5;
+              }
+            }
+            
+            if(isCurrentYear){
+              if (userInfo.remain < 0 && type == 1 ) {
+
+                throw new ConflictException('Remain Date cant be smaller than 0!');
+              }
+            } else{
+              if (userInfo.dateOffNextYear > 12 && type == 1 ) {
+
+                throw new ConflictException('Remain Date cant be smaller than 0!');
               }
             }
           }
@@ -237,6 +245,8 @@ export class DayoffRepository extends Repository<DayOff> {
         throw new ConflictException();
       } else {
         await transactionManager.save(userInfo);
+        console.log(userInfo);
+        
         return {
           statusCode: 201,
           message: 'Create Success!',

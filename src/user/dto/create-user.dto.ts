@@ -20,6 +20,8 @@ export class CreateUserDto {
 
   password: string;
 
+  teamId: number;
+
   /* USER INFORMATION */
   @ApiProperty({
     default: {
