@@ -1,15 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { EntityManager } from "typeorm";
+import { CreateTeamDto } from "./dto/create-team.dto";
 import { Team } from "./team.entity";
+import { TeamRepository } from "./team.repository";
 
 @Injectable()
 export class TeamService {
-  constructor() {
+  constructor(
+    private teamRepo:TeamRepository,
+  ) {
   }
   async addTeam(
     transactionManager: EntityManager,
+    createTeamDto:CreateTeamDto,
   ) {
-    return 1;
+    return this.teamRepo.createTeam(transactionManager,createTeamDto);
   }
   async getListTeam(
     transactionManager: EntityManager,
