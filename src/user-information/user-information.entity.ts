@@ -32,6 +32,9 @@ export class UserInformation extends BaseEntity {
     dob: Date;
 
     @Column()
+    startDate?: Date;
+
+    @Column()
     shortDescription: string;
 
     @Column()

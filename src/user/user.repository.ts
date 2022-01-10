@@ -139,6 +139,7 @@ export class UserRepository extends Repository<User> {
         where: (qb) => {
           qb.select([
             'user.id',
+            'user.uuid',
             'user.username',
             'user.email',
             'user.isDeleted',

@@ -34,6 +34,7 @@ import { RolesGuard } from 'src/guards/roles.guard';
 import { GetUser } from './get-user.decorator';
 import { User } from './user.entity';
 import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
@@ -310,4 +311,20 @@ export class UserController {
       );
     });
   }
+
+
+
+  //Reset Password
+   @Post('reset-password-user')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình reset password.',
+   })
+   @ApiOperation({ summary: 'Reset Password.' })
+   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userService.resetPassword(transactionManager, resetPasswordDto);
+     });
+   }
 }

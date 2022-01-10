@@ -21,6 +21,8 @@ export class UserInformationDto {
 
     dob?: Date;
 
+    startDate?: Date;
+
     shortDescription?: string;
 
     position?: string;

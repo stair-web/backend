@@ -35,14 +35,16 @@ import { hashPwd } from 'src/common/utils/hash.util';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
 import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
 import { Team } from 'src/team/team.entity';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UserService {
+  
   constructor(
     private usersRepository: UserRepository,
     private configService: ConfigService,
     // private tokenEmailRepository: TokenEmailRepository,
-    // private emailService: EmailService,
+    private emailService: EmailService,
     private jwtService: JwtService,
     private userRoleService: UserRoleService,
   ) {}
@@ -84,7 +86,7 @@ export class UserService {
       transactionManager,
       createUserDto,
     );
-    console.log(teamId);
+    // console.log(teamId);
 
     
     await transactionManager.update(
@@ -143,6 +145,28 @@ export class UserService {
     return { statusCode: 201, message: 'Tạo người dùng thành công.' };
   }
 
+  // Send New Password to email
+  async resetPassword(transactionManager: EntityManager, resetPasswordDto: ResetPasswordDto) {
+    const user = await transactionManager.getRepository(User).findOne({uuid:resetPasswordDto.uuid});
+     if(isNullOrUndefined(user)){
+       throw new ConflictException('Người dùng không tồn tại.');
+     }
+      // hash password
+      const salt = await bcrypt.genSalt();
+      const password = await uuidv4();
+      const hashedPassword = await bcrypt.hash(password, salt);
+     user.salt = salt;
+     user.password  = hashedPassword;
+     // this.sendResetPasswordEmail()
+     let emailInfoDto = new EmailInfoDto();
+     emailInfoDto.email = user.email;
+     emailInfoDto.password = password;
+     emailInfoDto.username = user.username;
+     console.log(emailInfoDto);
+     
+  return this.emailService.sendResetPasswordUser(emailInfoDto, '');
+
+   }
   /**
    * @Description UPDATE user detail
    * @param transactionManager

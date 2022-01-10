@@ -107,6 +107,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
       shortDescription,
       position,
       dob,
+      startDate
     } = createUserInformationDto;
 
     const checkUserInformationExist = await transactionManager

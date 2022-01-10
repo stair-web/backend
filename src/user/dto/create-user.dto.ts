@@ -22,6 +22,8 @@ export class CreateUserDto {
 
   teamId: number;
 
+  startDate: Date;
+
   /* USER INFORMATION */
   @ApiProperty({
     default: {

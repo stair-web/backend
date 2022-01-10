@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Connection } from "typeorm";
 import { CreateTeamDto } from "./dto/create-team.dto";
@@ -34,12 +34,17 @@ export class TeamController {
   }
 
   //Xóa team
-  @Post('')
-  @ApiResponse({ status: 201, description: 'Tạo team thành công.' })
-  @ApiOperation({ summary: 'Tạo team.' })
-  async deleteTeam(@Body() createTeamDto :CreateTeamDto) {
-    return await this.connection.transaction((transactionManager) => {
-      return this.team$.addTeam(transactionManager,createTeamDto);
-    });
-  }
+  
+  // @Delete(':/uuid')
+  // @ApiResponse({ status: 201, description: 'Xóa team thành công.' })
+  // @ApiOperation({ summary: 'Xóa team.' })
+  // async deleteTeam(@Params()) {
+  //   return await this.connection.transaction((transactionManager) => {
+  //     return this.team$.addTeam(transactionManager,createTeamDto);
+  //   });
+  // }
+}
+
+function Params() {
+  throw new Error("Function not implemented.");
 }

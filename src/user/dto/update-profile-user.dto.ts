@@ -19,6 +19,7 @@ export class UpdateProfileUserDto {
       // position: 'tester',
       shortDescription: 'this is a demo user short description',
       dob: '1995-01-01',
+      startDate:'1995-01-01',
     },
   })
   userInformation: UserInformationDto;

@@ -7,19 +7,19 @@ import { TeamRepository } from "./team.repository";
 @Injectable()
 export class TeamService {
   constructor(
-    private teamRepo:TeamRepository,
+    private teamRepo: TeamRepository,
   ) {
   }
   async addTeam(
     transactionManager: EntityManager,
-    createTeamDto:CreateTeamDto,
+    createTeamDto: CreateTeamDto,
   ) {
-    return this.teamRepo.createTeam(transactionManager,createTeamDto);
+    return this.teamRepo.createTeam(transactionManager, createTeamDto);
   }
   async getListTeam(
     transactionManager: EntityManager,
   ) {
-     const data =  transactionManager.getRepository(Team).find({isDeleted:false})
+    const data = transactionManager.getRepository(Team).find({ where: { isDeleted: false }, relations: ['user'] })
     return data;
   }
 }

@@ -71,6 +71,10 @@ export class User extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+  
+  @Column()
+  startDate: Date;
+
 
   @Column()
   staffId: number;

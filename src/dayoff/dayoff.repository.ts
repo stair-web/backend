@@ -36,6 +36,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .getRepository(DayOff)
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
+      .leftJoin('staff.team', 't')
       .select(['dayoff', 'staff'])
       .where('dayoff.isDeleted = :isDeleted', { isDeleted: 'false' })
       .take(perPage || 25)
@@ -586,7 +587,7 @@ export class DayoffRepository extends Repository<DayOff> {
         .leftJoin('d.staff', 'ui')
         .leftJoin('ui.team', 't')
         .select(
-          'd.staff_id, ui.last_name, t.name, ui.remain, sum(CASE WHEN type = 1 THEN time_number ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time_number ELSE 0 END) as type_2',
+          'd.staff_id, ui.last_name, t.name as team, ui.remain, sum(CASE WHEN type = 1 THEN time_number ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time_number ELSE 0 END) as type_2',
         )
         .groupBy('d.staff_id, ui.last_name, t.name, ui.remain')
         .andWhere('d.isDeleted = false and d.status = :status', {
