@@ -36,7 +36,7 @@ export class EmailService {
       '_layout',
       'thermomix-logo.png',
     );
-    this.FROM_EMAIL = 'bhnhock@gmail.com';
+    this.FROM_EMAIL = 'buiduong0310@gmail.com';
     this.FROM_NAME = 'ari';
     this.STANDARD_MSG = {
       from: {
@@ -130,7 +130,7 @@ export class EmailService {
       hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
       const data = {
         title: EmailMapping.USER_RESET_PASSWORD.title,
-        name: emailInfoDto.name,
+        name: emailInfoDto.username,
         username: emailInfoDto.username,
         password: emailInfoDto.password,
         styles: [EmailMapping.USER_RESET_PASSWORD.templateFolder],
@@ -155,7 +155,7 @@ export class EmailService {
       return await this.sendMail(msg);
     } catch (error) {
       console.log(error);
-
+      throw new InternalServerErrorException('')
     }
 
   }
@@ -193,8 +193,8 @@ export class EmailService {
     hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
     const data = {
       title: EmailMapping.USER_ACTIVE_ACCOUNT.title,
-      name: emailInfoDto.name,
-      username: emailInfoDto.name,
+      name: emailInfoDto.username,
+      username: emailInfoDto.username,
       password: emailInfoDto.password,
       styles: [EmailMapping.USER_ACTIVE_ACCOUNT.templateFolder],
       activeLink: `${originName}/#/auth/confirm-password?token=${emailInfoDto.token}`,
@@ -211,7 +211,7 @@ export class EmailService {
       subject,
       text,
       html,
-      attachments: [this.HEADER_LOGO_ATTACHMENT],
+      // attachments: [this.HEADER_LOGO_ATTACHMENT],
     };
     return await this.sendMail(msg);
   }

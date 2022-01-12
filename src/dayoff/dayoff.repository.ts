@@ -149,9 +149,10 @@ export class DayoffRepository extends Repository<DayOff> {
           listDate: listDateOff.map((ele) => new Date(ele.date)),
         })
         .andWhere(
-          `dateOff.isDeleted is FALSE and dateOff.status  <> :status  and dateOff.staff_id = :staffId  `,
+          `dateOff.isDeleted is FALSE  and dateOff.staff_id = :staffId  `,
           { status: 'CANCEL', staffId: staffId },
         );
+        //and dateOff.status  <> :status
       const listQueryDup = await query.getMany();
 
       listDateOff.forEach(async (ele) => {

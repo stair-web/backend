@@ -35,6 +35,7 @@ import { GetUser } from './get-user.decorator';
 import { User } from './user.entity';
 import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
@@ -325,6 +326,24 @@ export class UserController {
    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
      return await this.connection.transaction((transactionManager) => {
        return this.userService.resetPassword(transactionManager, resetPasswordDto);
+     });
+   }
+
+   //Change Password
+   @Post('change-password')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình reset password.',
+   })
+   @ApiOperation({ summary: 'Change Password.' })
+   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+   async changePassword(@Body() changePasswordDto: ChangePasswordDto,
+   @GetUser() user: User,
+   ) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userService.changePassword(transactionManager, changePasswordDto,user);
      });
    }
 }
