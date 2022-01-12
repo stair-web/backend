@@ -19,12 +19,14 @@ export class TeamRepository extends Repository<Team> {
     if (isNullOrUndefined(team)) {
       throw new ConflictException('Team này không tồn tại.!');
     }
-    const  listUserInfo = await transactionManager.getRepository(UserInformation).find({teamId:team.id})
-    listUserInfo.forEach(ele=>{
-        ele.teamId = null;
+    const listUserInfo = await transactionManager.getRepository(UserInformation).find({ teamId: team.id })
+    listUserInfo.forEach(ele => {
+      ele.teamId = null;
     })
-    await  transactionManager.getRepository(UserInformation).save(listUserInfo);
-    return {message:"Xoá team thành công!"}
+    team.isDeleted = true;
+    await team.save();
+    await transactionManager.getRepository(UserInformation).save(listUserInfo);
+    return { message: "Xoá team thành công!" }
   }
   async updateTeam(
     transactionManager: EntityManager,
@@ -38,22 +40,24 @@ export class TeamRepository extends Repository<Team> {
     }
     const findDup = await transactionManager
       .getRepository(Team)
-      .findOne({ name: createTeamDto.name, uuid:Not(createTeamDto.uuid) });
+      .findOne({ name: createTeamDto.name, uuid: Not(createTeamDto.uuid) });
     if (!isNullOrUndefined(findDup)) {
       throw new ConflictException('Team này đã tồn tại.!');
     }
     if (createTeamDto.leaderId) {
       const findLeader = await transactionManager
         .getRepository(User)
-        .findOne({   where:{id: createTeamDto.leaderId}, relations: ['userInformation'] });
+        .findOne({ where: { id: createTeamDto.leaderId }, relations: ['userInformation'] });
       if (isNullOrUndefined(findLeader)) {
         throw new ConflictException('Leader này không tồn tại.!');
       }
-      if(findLeader.userInformation.teamId != team.id){
+      if (findLeader.userInformation.teamId != team.id) {
         throw new ConflictException('Leader này không thuộc về team này.!');
       }
-      
+
       team.leaderId = createTeamDto.leaderId;
+    }else{
+      team.leaderId = null;
     }
     team.name = createTeamDto.name;
     team.updatedAt = new Date();

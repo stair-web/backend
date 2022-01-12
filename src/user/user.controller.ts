@@ -346,4 +346,20 @@ export class UserController {
        return this.userService.changePassword(transactionManager, changePasswordDto,user);
      });
    }
+
+
+   @Get('leader')
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách người dùng thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách người dùng' })
+  async getLeader() {
+    return await this.connection.transaction(async (transactionManager) => {
+      const data = await this.userService.getLeader(transactionManager);
+       return{ data:data}
+    });
+  }
 }
