@@ -13,5 +13,8 @@ export class StaticSectionDto {
   title: string;
   
   @ApiProperty()
+  language: string;
+
+  @ApiProperty()
   items: StaticItemDto[];
 }

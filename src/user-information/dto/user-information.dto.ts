@@ -11,11 +11,17 @@ export class UserInformationDto {
 
     lastName?: string;
 
+    remain?: number;
+
+    dateOffNextYear?: number;
+
     profilePhotoKey?: string;
 
     phoneNumber?: string;
 
     dob?: Date;
+
+    startDate?: Date;
 
     shortDescription?: string;
 
@@ -24,6 +30,8 @@ export class UserInformationDto {
     createdAt?: Date;
 
     updatedAt?: Date;
+
+    teamId?:number;
 
     constructor() {
         this.uuid = "";
@@ -35,7 +43,8 @@ export class UserInformationDto {
         this.dob = new Date('1995-01-01');
         this.shortDescription = "";
         this.position = "";
-        this.staffId = ""
+        this.staffId = "";
+        this.teamId = null;
     }
 }
 
@@ -55,6 +64,9 @@ export class UserInformationSortDto {
     dob?: SortValue;
 
     shortDescription?: SortValue;
+
+    teamId?:number;
+
 
     position?: SortValue;
 

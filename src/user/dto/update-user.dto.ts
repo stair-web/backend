@@ -10,6 +10,8 @@ export class UpdateUserDto {
 
   /* USER INFORMATION */
   @ApiProperty({
+
+
     default: {
       firstName: `firstName_${Date.now()}`,
       lastName: `lastName_${Date.now()}`,
@@ -18,8 +20,10 @@ export class UpdateUserDto {
       position: 'tester',
       shortDescription: 'this is a demo user short description',
       dob: '1995-01-01',
+      teamId:null,
       isActive: true
     },
   })
   userInformation: UserInformationDto;
 }
+

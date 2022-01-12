@@ -13,4 +13,8 @@ export class GetDetailPartnerSectionItemDto {
     @ApiProperty()
     @IsString()
     imgUrl: string;
+
+    @ApiProperty()
+    @IsString()
+    language: string;
 }

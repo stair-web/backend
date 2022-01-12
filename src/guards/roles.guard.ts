@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
+import { User } from 'src/user/user.entity';
 // import { AppUser } from 'src/app-user/app-user.entity';
 import { getRepository } from 'typeorm';
 
@@ -15,42 +16,56 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-
+    // console.log(request.headers);
+    
     if (!request.headers.authorization) {
       throw new UnauthorizedException();
     }
     request.token = await this.validateToken(request.headers.authorization);
-    const userRoles: string[] = request.token.role;
+    const userRoles: string[] = request.token.roles;
 
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const requiredRoles  = this.reflector.get<string[]>('roles', context.getHandler());
 
-    // if (!roles) {
-    //   request.user = getRepository(AppUser).findOne({
-    //     email: request.token.email,
-    //     isActive: true,
-    //     isDeleted: false,
-    //   });
+    
+    // if (!requiredRoles) {
     //   return true;
     // }
+    // const { user } = context.switchToHttp().getRequest();
+    // return requiredRoles.some((role) => user.roles?.includes(role));
 
-    console.log(this.findCommonElement(userRoles, roles));
+    if (!requiredRoles) {
+      request.user = getRepository(User).findOne({
+        email: request.token.email,
+        isActive: true,
+        isDeleted: false,
+      });
+      return true;
+    }
 
-    if (!this.findCommonElement(roles, userRoles)) {
+
+    // console.log(request.token);
+    // console.log(context.getHandler());
+    
+    // console.log(this.findCommonElement(userRoles, roles));
+
+    if (!this.findCommonElement(requiredRoles, userRoles)) {
       throw new UnauthorizedException();
     }
 
-    // request.user = getRepository(AppUser).findOne({
-    //   email: request.token.email,
-    //   isActive: true,
-    //   isDeleted: false,
-    // });
+    request.user = getRepository(User).findOne({
+      email: request.token.email,
+      isActive: true,
+      isDeleted: false,
+    });
     return true;
   }
 
   async validateToken(auth: string) {
+    
     if (auth.split(' ')[0] !== 'Bearer') {
       throw new UnauthorizedException('Invalid token');
     }
+    
     const token = auth.split(' ')[1];
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

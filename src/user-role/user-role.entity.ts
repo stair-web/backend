@@ -21,6 +21,9 @@ export class UserRole extends BaseEntity {
     @Column()
     updatedAt: Date;
 
+    @Column()
+    isDeleted: boolean;
+
     @ManyToOne(type => User, user => user.role)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: User;

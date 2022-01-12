@@ -16,6 +16,10 @@ export class UpdatePartnerSectionItemDto extends PartialType(CreatePartnerSectio
     imgUrl: string;
 
     @ApiProperty()
+    @IsString()
+    language: string;
+
+    @ApiProperty()
     @IsBoolean()
     isDeleted: boolean;
 }

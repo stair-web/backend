@@ -11,17 +11,31 @@ import {
   ValidationPipe,
   Req,
   InternalServerErrorException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Connection } from 'typeorm';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { AcitveUserDto } from './dto/active-user.dto';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
+import { Roles } from 'src/guards/roles.decorator';
+import { Role } from 'src/guards/role.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { GetUser } from './get-user.decorator';
+import { User } from './user.entity';
+import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 const controllerName = 'user';
 @ApiTags(controllerName)
@@ -39,6 +53,8 @@ export class UserController {
    * @returns all the users
    */
   @Get()
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
   @ApiResponse({
     status: 200,
     description: 'Lấy danh sách người dùng thành công.',
@@ -209,10 +225,10 @@ export class UserController {
 
   /**
    * @description to check value if exists
-   * @param param 
-   * @param value 
+   * @param param
+   * @param value
    * @returns 201 202
-   * @example 
+   * @example
    *  /check-exists/username/example
    * OR: /check-exists/email/example@email.com
    */
@@ -242,4 +258,92 @@ export class UserController {
       );
     });
   }
+
+  @Get('/profile/me')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình lấy thông tin người dùng.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy dữ liệu người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
+  async getLoginUser(@GetUser() user: User) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.getUserByUuid(transactionManager, user.uuid);
+    });
+  }
+
+  /**
+   * @method PUT
+   * @description Update user's information.
+   * @param updateUserDto
+   * @param uuid
+   * @returns
+   */
+  @Put('/profile/me')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi trong quá trình chỉnh sửa thông tin người dùng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chỉnh sửa thông tin người dùng thành công',
+  })
+  @ApiOperation({ summary: 'Chỉnh sửa người dùng.' })
+  async updateLoginUser(
+    @Body() updateUserDto: UpdateProfileUserDto,
+    @GetUser() user: User,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.updateUser(
+        transactionManager,
+        updateUserDto,
+        user.uuid,
+      );
+    });
+  }
+
+
+
+  //Reset Password
+   @Post('reset-password-user')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình reset password.',
+   })
+   @ApiOperation({ summary: 'Reset Password.' })
+   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userService.resetPassword(transactionManager, resetPasswordDto);
+     });
+   }
+
+   //Change Password
+   @Post('change-password')
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình reset password.',
+   })
+   @ApiOperation({ summary: 'Change Password.' })
+   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+   async changePassword(@Body() changePasswordDto: ChangePasswordDto,
+   @GetUser() user: User,
+   ) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userService.changePassword(transactionManager, changePasswordDto,user);
+     });
+   }
 }

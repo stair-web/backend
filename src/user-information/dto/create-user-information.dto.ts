@@ -27,7 +27,11 @@ export class CreateUserInformationDto {
   @ApiProperty({ default: `+841234567890` })
   phoneNumber: string;
 
+  @ApiProperty({ default: `+841234567890` })
   dob: Date;
+  
+  @ApiProperty({ default: `+841234567890` })
+  startDate: Date;
 
   @ApiProperty({ default: `tester` })
   position: string;

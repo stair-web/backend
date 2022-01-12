@@ -1,12 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmpty, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Category } from 'src/category/category.entity';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
+import { LanguagerPartnerEnum } from 'src/partner/enum/LanguagePartner.enum';
 import { Topic } from 'src/topic/topic.entity';
 
-export class CreatePostDto {
+// export class CreatePostDto {
+//     en:ItemCreatePost;
+//     vn:ItemCreatePost;
+// }
+export class CreatePostDto{
 
   // @IsUUID()
+  @ApiProperty({ default: null })
   uuid?: string;
+
+  @ApiProperty({ default: null })
+  refUuid?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -26,8 +36,12 @@ export class CreatePostDto {
   })
   content: string;
 
+
   // @IsString()
   priority?: string;
+
+  @ApiProperty({ default: 'en' })
+  language:LanguageTypeEnum;
 
   @IsString()
   @ApiProperty({

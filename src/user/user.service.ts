@@ -1,3 +1,4 @@
+import { UserInformation } from './../user-information/user-information.entity';
 import {
   ConflictException,
   Injectable,
@@ -32,6 +33,10 @@ import { AcitveUserDto } from './dto/active-user.dto';
 import { uuidv4 } from 'src/common/utils/common.util';
 import { hashPwd } from 'src/common/utils/hash.util';
 import { CheckExistsUserDto } from './dto/check-exists-user.dto';
+import { UpdateProfileUserDto } from './dto/update-profile-user.dto';
+import { Team } from 'src/team/team.entity';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -39,7 +44,7 @@ export class UserService {
     private usersRepository: UserRepository,
     private configService: ConfigService,
     // private tokenEmailRepository: TokenEmailRepository,
-    // private emailService: EmailService,
+    private emailService: EmailService,
     private jwtService: JwtService,
     private userRoleService: UserRoleService,
   ) {}
@@ -56,27 +61,29 @@ export class UserService {
   ) {
     /* check user if exists */
     const { username, email } = createUserDto;
+    const teamId = createUserDto.userInformation.teamId;
     const user = await transactionManager.getRepository(User).findOne({
       where: [
         { username, isDeleted: false },
         { email, isDeleted: false },
       ],
     });
-
-    if (user) {
-      throw new ConflictException(`Username này đã tồn tại trong hệ thống.`)
+    console.log(user);
+    
+    if (!isNullOrUndefined(user)) {
+      throw new ConflictException(`Username này đã tồn tại trong hệ thống.`);
     }
 
     createUserDto.userInformation.uuid = uuidv4();
-    if (isNullOrUndefined(createUserDto.password)) {
-      createUserDto.password = '123123';
-    }
-    console.log(createUserDto.password);
+    createUserDto.password = uuidv4();
+    
 
     const userCreated = await this.usersRepository.createUser(
       transactionManager,
       createUserDto,
     );
+    // console.log(teamId);
+
     await transactionManager.update(
       User,
       { id: userCreated.id },
@@ -84,45 +91,71 @@ export class UserService {
         isActive: true,
       },
     );
-    // set expired date for link
-    const expired = new Date();
-    expired.setDate(expired.getDate() + 7);
+    if(teamId){
+      const team = await transactionManager.getRepository(Team).findOne({id:teamId ,isDeleted:false});
 
-    // const resetPasswordTokenDto: ResetPasswordTokenDto = {
-    //   email: userCreated.email,
-    //   timeStamp: expired.toString(),
-    //   isActive: true,
-    //   type: TokenEmailType.ACTIVE_ACCOUNT,
-    // };
+      if (isNullOrUndefined(team)) {
+        throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
+      }
+    userCreated.userInformation.teamId = teamId;
+    await userCreated.userInformation.team.save();
 
-    // const token = this.encryptDataToToken(resetPasswordTokenDto);
-    // //create token email
-    // const createTokenEmailDto: CreateTokenEmailDto = {
-    //   userId: userCreated.id,
-    //   token,
-    //   type: resetPasswordTokenDto.type,
-    // };
-    // await this.tokenEmailRepository.createTokenEmail(
-    //   transactionManager,
-    //   createTokenEmailDto,
-    // );
+    }
 
-    // Send email active account
-    // const emailInfoDto: EmailInfoDto = {
-    //   email: createUserDto.email,
-    //   name: createUserDto.firstName + ' ' + createUserDto.lastName,
-    //   username: createUserDto.firstName + ' ' + createUserDto.lastName,
-    //   password: createUserDto.password,
-    //   token,
-    // };
+   
+     // this.sendResetPasswordEmail()
+     let emailInfoDto = new EmailInfoDto();
+     emailInfoDto.email =  createUserDto.email ;
+     emailInfoDto.password =   createUserDto.password;
+     emailInfoDto.username =   username;
+ 
+     await this.emailService.sendActiveAccountEmail(emailInfoDto, '');
 
-    // await this.emailService.sendActiveAccountEmail(
-    //   emailInfoDto,
-    //   'url-active-user',
-    // );
     return { statusCode: 201, message: 'Tạo người dùng thành công.' };
   }
 
+  // Send New Password to email
+  async resetPassword(
+    transactionManager: EntityManager,
+    resetPasswordDto: ResetPasswordDto,
+  ) {
+    const user = await transactionManager
+      .getRepository(User)
+      .findOne({ uuid: resetPasswordDto.uuid });
+    if (isNullOrUndefined(user)) {
+      throw new ConflictException('Người dùng không tồn tại.');
+    }
+    // hash password
+    const salt = await bcrypt.genSalt();
+    const password = await uuidv4();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    user.salt = salt;
+    user.password = hashedPassword;
+    // this.sendResetPasswordEmail()
+    let emailInfoDto = new EmailInfoDto();
+    emailInfoDto.email = user.email;
+    emailInfoDto.password = password;
+    emailInfoDto.username = user.username;
+    // console.log(emailInfoDto);
+
+    return this.emailService.sendResetPasswordUser(emailInfoDto, '');
+  }
+  async changePassword(transactionManager: EntityManager, changePasswordDto: ChangePasswordDto, user: User){
+    
+  const findUser = await transactionManager.getRepository(User).findOne({uuid : user.uuid})
+  if (isNullOrUndefined(findUser)) {
+    throw new ConflictException('Người dùng không tồn tại.');
+  }
+  // hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(changePasswordDto.password, salt);
+  findUser.salt = salt;
+  findUser.password = hashedPassword;
+  await findUser.save();
+  return {statusCode:201, message:'Đổi mật khẩu thành công !'}
+
+  }
+  
   /**
    * @Description UPDATE user detail
    * @param transactionManager
@@ -132,37 +165,41 @@ export class UserService {
    */
   async updateUser(
     transactionManager: EntityManager,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateProfileUserDto,
     uuid: string,
   ) {
-    const { email, password, userInformation } = updateUserDto;
+    const { userInformation } = updateUserDto;
 
-    const user = await this.usersRepository.getUserByUuid(
+    const user: User = await this.usersRepository.getUserByUuid(
       transactionManager,
-      uuid
+      uuid,
     );
 
     if (isNullOrUndefined(user)) {
       throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
 
+    if (userInformation.teamId) {
+      const team = await transactionManager
+        .getRepository(Team)
+        .findOne({ id: userInformation.teamId });
+
+      if (isNullOrUndefined(team)) {
+        throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
+      }
+    }
+
     try {
-      if (email) {
-        user.email = email;
-      }
-      if (password) {
-        const { hashedPassword, salt } = await hashPwd(password);
-        if (hashedPassword) {
-          user.password = hashedPassword;
-          user.salt = salt;
-        }
-      }
       if (userInformation) {
-        Object.keys(userInformation).map(key => user.userInformation[key] = userInformation[key]);
+        Object.keys(userInformation).map(
+          (key) => (user.userInformation[key] = userInformation[key]),
+        );
       }
       await transactionManager.save(user.userInformation);
-      await transactionManager.save(user);
+      // console.log(user);
     } catch (error) {
+      console.log(error);
+
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi trong quá trình chỉnh sửa người dùng.',
@@ -183,7 +220,7 @@ export class UserService {
       uuid,
     );
     if (!user) {
-      throw new ConflictException('Không tìm thấy user này trong hệ thống!')
+      throw new ConflictException('Không tìm thấy user này trong hệ thống!');
     }
     return { statusCode: 201, data: { user } };
   }
@@ -330,26 +367,32 @@ export class UserService {
    * @returns
    */
   async signIn(transactionManager: EntityManager, signInDto: SignInDto) {
-    const { username, email, password } = signInDto;
-    const user = await transactionManager.getRepository(User).findOne({
+    const { input, password } = signInDto;
+    let user = await transactionManager.getRepository(User).findOne({
       where: [
         {
-          username,
-          isDeleted: false,
-          // isForgetPassword: false,
-        },
-        {
-          email,
+          username: input,
           isDeleted: false,
           // isForgetPassword: false,
         },
       ],
     });
-
+    if (!user) {
+      user = await transactionManager.getRepository(User).findOne({
+        where: [
+          {
+            email: input,
+            isDeleted: false,
+            // isForgetPassword: false,
+          },
+        ],
+      });
+    }
     // check user exists?
+
     if (!user) {
       throw new InternalServerErrorException(
-        'ERR-01: Tên đăng nhập hoặc mật khẩu không đúng.',
+        'ERR-01: Thông tin đăng nhập không đúng.',
       );
     } else {
       // if (user.isMailVerified === false) {
@@ -365,20 +408,21 @@ export class UserService {
       // check password
       if ((await bcrypt.compare(password, user.password)) === false) {
         throw new InternalServerErrorException(
-          'ERR-02: Tên đăng nhập hoặc mật khẩu không đúng.',
+          'ERR-02: Thông tin đăng nhập không đúng.',
         );
       } else {
         const userRole = await this.userRoleService.getUserRoleByUserId(
           transactionManager,
           user.id,
         );
+
         const roles = [];
         userRole.forEach((e) => roles.push(e.roleCode));
         const payload: JwtPayload = {
           email: user.email,
           roles,
+          uuid: user.uuid,
         };
-        console.log(payload);
         const accessToken = await this.jwtService.sign(payload);
         return {
           statusCode: 201,
@@ -390,38 +434,34 @@ export class UserService {
   }
 
   /**
-   * 
-   * @param transactionManager 
-   * @param checkExistsUserDto 
-   * @returns 
+   *
+   * @param transactionManager
+   * @param checkExistsUserDto
+   * @returns
    */
   async checkUserExists(
     transactionManager: EntityManager,
-    checkExistsUserDto: CheckExistsUserDto
+    checkExistsUserDto: CheckExistsUserDto,
   ) {
-
     const { username, email } = checkExistsUserDto;
-    const user = await transactionManager
-      .getRepository(User)
-      .findOne({
-        where: [
-          { username, isDeleted: false },
-          { email, isDeleted: false }
-        ]
-      });
-    console.log(user)
-    console.log(checkExistsUserDto)
+    const user = await transactionManager.getRepository(User).findOne({
+      where: [
+        { username, isDeleted: false },
+        { email, isDeleted: false },
+      ],
+    });
+ 
     if (user) {
       return {
         statusCode: 202,
         message: `Username này đã tồn tại trong hệ thống.`,
       };
-    } 
+    }
     // else {
-      return {
-        statusCode: 201,
-        message: `Username này chưa tồn tại trong hệ thống.`,
-      };
+    return {
+      statusCode: 201,
+      message: `Username này chưa tồn tại trong hệ thống.`,
+    };
     // }
   }
 }

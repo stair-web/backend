@@ -22,7 +22,10 @@ export class PartnerSectionItem {
   
     @Column()
     imgUrl: string;
-  
+
+    @Column()
+    language: string;
+
     @ManyToOne(
       () => Partner,
       (partner: Partner) => partner.id,

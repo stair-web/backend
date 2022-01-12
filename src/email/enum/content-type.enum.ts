@@ -6,8 +6,8 @@ export enum ContentType {
 
 export const EmailMapping = {
   USER_RESET_PASSWORD: {
-    title: 'Ari : Quên Mật Khẩu',
-    templateFolder: 'reset-password',
+    title: 'Ari : Reset Mật Khẩu',
+    templateFolder: 'reset-password-user',
   },
 
   USER_ACTIVE_ACCOUNT: {

@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import {
   isNullOrUndefined,
   isUuid,
@@ -11,6 +16,7 @@ import { StaticRelation } from '../static-relation/static-relation.entity';
 import { StaticRelationRepository } from '../static-relation/static-relation.repository';
 import { StaticSection } from '../static-section/static-section.entity';
 import { StaticSectionRepository } from '../static-section/static-section.repository';
+import { SiteType } from '../static-site/enum/site-type.enum';
 import { StaticSite } from '../static-site/static-site.entity';
 import { StaticSiteRepository } from '../static-site/static-site.repository';
 import { StaticPageResponseDto } from './dto/static-page-response.dto';
@@ -41,6 +47,10 @@ export class StaticPageService {
         .getRepository(StaticSite)
         .findOne({ uuid });
 
+      if (!site) {
+        return { code: 201, data: null };
+      }
+
       let staticPage = new StaticPageResponseDto(site);
 
       const siteRelations = await transactionManager
@@ -62,7 +72,9 @@ export class StaticPageService {
         });
 
       let sections = [];
-      const siteRelationsSorted = siteRelations.sort((a,b) => Number(a.id) - Number(b.id))
+      const siteRelationsSorted = siteRelations.sort(
+        (a, b) => Number(a.id) - Number(b.id),
+      );
       for (let e of siteRelationsSorted) {
         if (!isNullOrUndefined(e.section)) {
           const section = await transactionManager
@@ -75,7 +87,9 @@ export class StaticPageService {
             );
             if (relationItems) {
               section['items'] = [];
-              const relationItemsSorted = relationItems.sort((a,b) => Number(a.id) - Number(b.id))
+              const relationItemsSorted = relationItems.sort(
+                (a, b) => Number(a.id) - Number(b.id),
+              );
               for (let i of relationItemsSorted) {
                 if (!isNullOrUndefined(i.item)) {
                   const item = await transactionManager
@@ -127,6 +141,101 @@ export class StaticPageService {
     });
   }
 
+  async getPageBySiteType(
+    transactionManager: EntityManager,
+    siteType: SiteType,
+    language:LanguageTypeEnum = LanguageTypeEnum.All
+  ) {
+    try {
+      const site = await transactionManager
+        .getRepository(StaticSite)
+        .findOne({ type: siteType });
+
+      if (!site) {
+        return { code: 201, data: null };
+      }      
+      let staticPage = new StaticPageResponseDto(site);
+
+      const siteRelations = await transactionManager
+        .getRepository(StaticRelation)
+        .find({
+          join: {
+            alias: 'staticTablesRelation',
+            leftJoinAndSelect: {
+              site: 'staticTablesRelation.site',
+              section: 'staticTablesRelation.section',
+              item: 'staticTablesRelation.item',
+            },
+          },
+          where: {
+            site,
+            isDeleted: false,
+          },
+          order: { item: 'ASC' },
+        });
+
+      let sections = [];
+      const siteRelationsSorted = siteRelations.sort(
+        (a, b) => Number(a.id) - Number(b.id),
+      );
+      for (let e of siteRelationsSorted) {
+        if (!isNullOrUndefined(e.section)) {
+          let section ;
+            if(language !== LanguageTypeEnum.All){
+              section  = await transactionManager
+              .getRepository(StaticSection)
+              .findOne({ id: e.section.id, isDeleted: false,language:language });
+            } else{
+              section  = await transactionManager
+            .getRepository(StaticSection)
+            .findOne({ id: e.section.id, isDeleted: false });
+            }
+          if (section) {
+            const relationItems = await this.getStaticObject(
+              transactionManager,
+              { section: e.section },
+            );
+            if (relationItems) {
+              section['items'] = [];
+              const relationItemsSorted = relationItems.sort(
+                (a, b) => Number(a.id) - Number(b.id),
+              );
+              for (let i of relationItemsSorted) {
+                if (!isNullOrUndefined(i.item)) {
+                  const item = await transactionManager
+                    .getRepository(StaticItem)
+                    .findOne({ id: i.item.id, isDeleted: false });
+                  if (item) {
+                    section['items'].push(item);
+                  }
+                }
+              }
+            }
+            sections.push(section);
+          }
+        }
+        if (!isNullOrUndefined(e.item)) {
+          const item = await transactionManager
+            .getRepository(StaticItem)
+            .findOne({ id: e.item.id, isDeleted: false });
+          staticPage.item = item;
+        }
+      }
+
+      staticPage.sections = sections;
+      return { code: 201, data: { staticPage } };
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  /**
+   *
+   * @param transactionManager
+   * @param updateStaticPageDto
+   * @returns
+   */
   async updateStaticPage(
     transactionManager: EntityManager,
     updateStaticPageDto: StaticPageDto,
@@ -274,6 +383,8 @@ export class StaticPageService {
       }
       return { code: 201, message: 'Cập nhật trang thành công!' };
     } catch (error) {
+      console.log(error);
+      
       throw new InternalServerErrorException(error);
     }
   }

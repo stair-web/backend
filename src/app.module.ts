@@ -1,3 +1,4 @@
+import { DayoffModule } from './dayoff/dayoff.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -26,8 +27,14 @@ import { StaticRelationModule } from './static-page/static-relation/static-relat
 import { CandidateModule } from './candidate/candidate.module';
 import { PartnerModule } from './partner/partner.module';
 import { PartnerSectionItemModule } from './partner-section-item/partner-section-item.module';
+import { PartnerIntroductionModule } from './partner-introduction/partner-introduction.module';
+import { PartnerPartnershipModule } from './partner-partnership/partner-partnership.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
+import { TeamModule } from './team/team.module';
 @Module({
   imports: [
+        DayoffModule, 
     PrometheusModule.register(),
     ConfigModule.forRoot({
       envFilePath: `env/${process.env.NODE_ENV || 'local'}.env`,
@@ -72,8 +79,12 @@ import { PartnerSectionItemModule } from './partner-section-item/partner-section
     CandidateModule,
     PartnerModule,
     PartnerSectionItemModule,
+    PartnerIntroductionModule,
+    PartnerPartnershipModule,
+    TeamModule
   ],
   controllers: [HealthController, AppController],
-  providers: [AppGateway],
+  providers: [AppGateway,
+  ],
 })
 export class AppModule {}

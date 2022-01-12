@@ -35,3 +35,10 @@ export const setHeaderType = (
   fileName = removeAccents(fileName);
   res.header('Content-Disposition', `attachment; filename=${fileName}`);
 };
+
+export const getDate = (date: any) => {
+  date = new Date(date);
+  return (
+    date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+  );
+};

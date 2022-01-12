@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=builder /app .
 
 # Get port from source
-ARG NODE_ENV=prod
+ARG NODE_ENV=dev
 ENV NODE_ENV=${NODE_ENV}
 EXPOSE 8888
 CMD ["npm","run","start:prod"]

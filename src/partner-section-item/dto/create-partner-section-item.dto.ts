@@ -9,4 +9,8 @@ export class CreatePartnerSectionItemDto {
     @ApiProperty()
     @IsString()
     imgUrl: string;
+
+    @ApiProperty()
+    @IsString()
+    language: string;
 }

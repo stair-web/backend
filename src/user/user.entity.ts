@@ -71,6 +71,13 @@ export class User extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+  
+  @Column()
+  startDate: Date;
+
+
+  @Column()
+  staffId: number;
 
   @OneToMany((type) => UserRole, (role) => role.user)
   role: UserRole[];

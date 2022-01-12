@@ -40,14 +40,14 @@ export class UserRepository extends Repository<User> {
     const query = transactionEntityManager
       .getRepository(User)
       .createQueryBuilder('user')
-      .where('(user.email = :email)', {
+      .where('(user.email = :email) and user.isDeleted = FALSE', {
         email,
       })
-      .orWhere('(user.username = :email)', {
+      .orWhere('(user.username = :email and  user.isDeleted = FALSE)', {
         email,
       })
-      .andWhere('user.isDeleted = FALSE');
     const existsUser = await query.getOne();
+    
     if (existsUser) {
       throw new ConflictException(
         `Người dùng đã tồn tại trong hệ thống, vui lòng sử dụng email khác để đăng kí.`,
@@ -135,10 +135,11 @@ export class UserRepository extends Repository<User> {
             userInformation: 'user.userInformation',
           },
         },
-        relations: ['userInformation'],
+        relations: ['userInformation',],
         where: (qb) => {
           qb.select([
             'user.id',
+            'user.uuid',
             'user.username',
             'user.email',
             'user.isDeleted',
@@ -158,6 +159,10 @@ export class UserRepository extends Repository<User> {
             'userInformation.staffId',
             'userInformation.createdAt',
             'userInformation.updatedAt',
+            'userInformation.remain',
+            'userInformation.startDate',
+            'userInformation.dateOffNextYear',
+            'userInformation.teamId',
           ])
           .where('user.isDeleted = :isDeleted', { isDeleted: false })
           .andWhere('user.uuid = :uuid', { uuid })

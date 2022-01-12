@@ -4,9 +4,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Category } from 'src/category/category.entity';
+import { LanguageTypeEnum } from 'src/common/enum/language-type.enum';
 import { isNullOrUndefined, paramStringToJson } from 'src/lib/utils/util';
 import { Topic } from 'src/topic/topic.entity';
 import { EntityManager, EntityRepository, Repository } from 'typeorm';
+import { isBuffer } from 'util';
 import { ApprovePostDto } from './dto/approve-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetAllPostDto } from './dto/get-all-post.dto';
@@ -24,102 +26,26 @@ export class PostRepository extends Repository<Post> {
         .getRepository(Post)
         .findOne({ uuid: approvePostDto.uuid });
       if (isNullOrUndefined(post)) {
-        throw new ConflictException(
-          `Bài viết không tồn tại trong hệ thống!`,
-        );
+        throw new ConflictException(`Bài viết không tồn tại trong hệ thống!`);
       }
       post.isApproved = approvePostDto.isApproved;
       await transactionManager.save(post);
       return {
         statusCode: 201,
-        message: `${approvePostDto.isApproved?'Phê duyệt':'Huỷ phê duyệt'} bài viết thành công.`,
+        message: `${
+          approvePostDto.isApproved ? 'Phê duyệt' : 'Huỷ phê duyệt'
+        } bài viết thành công.`,
       };
-    
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình ${approvePostDto.isApproved?'phê duyệt':'huỷ phê duyệt'} bài viết, vui lòng thử lại sau.`,
+        `Lỗi hệ thống trong quá trình ${
+          approvePostDto.isApproved ? 'phê duyệt' : 'huỷ phê duyệt'
+        } bài viết, vui lòng thử lại sau.`,
       );
     }
   }
-  async updatePost(
-    transactionEntityManager: EntityManager,
-    updatePostDto: UpdatePostDto,
-    id: string,
-  ) {
-    try {
-      const idCategory = updatePostDto.category.id;
-      const idTopic = updatePostDto.category.id;
 
-      const queryPost = transactionEntityManager
-        .getRepository(Topic)
-        .createQueryBuilder('topic')
-        .where('(topic.id =:id)', {
-          id,
-        });
-
-      const queryCat = transactionEntityManager
-        .getRepository(Category)
-        .createQueryBuilder('category')
-        .where('(category.id =:idCategory)', {
-          idCategory,
-        });
-
-      const queryTopic = transactionEntityManager
-        .getRepository(Topic)
-        .createQueryBuilder('topic')
-        .where('(topic.id =:idTopic)', {
-          idTopic,
-        });
-
-      const category = await queryCat.getOne();
-      if (isNullOrUndefined(category)) {
-        throw new Error('Category không tồn tại');
-      }
-
-      // const topic = await queryTopic.getOne();
-      // if (isNullOrUndefined(topic)) {
-      //   throw new Error('Topic không tồn tại');
-      // }
-
-      const post = await queryPost.getOne();
-      if (isNullOrUndefined(post)) {
-        throw new Error('Bài viết không tồn tại');
-      }
-
-      const {
-        title,
-        shortDescription,
-        dateTime,
-        priority,
-        status,
-        isDeleted,
-        imageSrc,
-      } = updatePostDto;
-
-      transactionEntityManager.update(
-        Post,
-        { id: id },
-        {
-          category,
-          // topic,
-          title,
-          shortDescription,
-          dateTime,
-          priority,
-          status,
-          isDeleted,
-          imageSrc,
-        },
-      );
-      await transactionEntityManager.save(post);
-    } catch (error) {
-      Logger.error(error);
-      throw new InternalServerErrorException(
-        'Lỗi hệ thống trong quá trình cập nhật bài viết, vui lòng thử lại sau.',
-      );
-    }
-  }
   async getAll(
     transactionEntityManager: EntityManager,
     getAllPostDto: GetAllPostDto,
@@ -147,14 +73,21 @@ export class PostRepository extends Repository<Post> {
           'post.createdAt',
           'post.updatedAt',
           'post.fileType',
+          'post.language',
+          'post.refUuid',
           'category.uuid',
           'category.categoryName',
         ])
         .where('post.isDeleted = FALSE')
+        
         .take(perPage)
         .skip((page - 1) * perPage)
         .orderBy('post.createdAt', 'DESC');
-
+        if(getAllPostDto.language !== LanguageTypeEnum.All && getAllPostDto.language !== undefined){
+          query.andWhere('post.language = :language', {
+            language: getAllPostDto.language,
+          })
+        }
       // Filter list
       if (!isNullOrUndefined(filter)) {
         const object = paramStringToJson(filter);
@@ -210,33 +143,42 @@ export class PostRepository extends Repository<Post> {
     transactionManager: EntityManager,
     createPostDto: CreatePostDto,
     isCreate = false,
-  ) {
-    const {
-      uuid,
-      title,
-      shortDescription,
-      content,
-      imageSrc,
-      categoryUuid,
-      fileType,
-    } = createPostDto;
+    refUuid,
+  ) {    
+    const checkPostExist = await transactionManager.getRepository(Post).find({
+      refUuid: refUuid,
+    });
 
-    const checkPostExist = await transactionManager
-      .getRepository(Post)
-      .findOne({
-        uuid,
-      });
+    const checkPostExistEn = checkPostExist.find(
+      (ele) => ele.language === 'eng',
+    );
+    const checkPostExistVn = checkPostExist.find(
+      (ele) => ele.language === 'vn',
+    );
 
-    if (isNullOrUndefined(checkPostExist) && isCreate === false) {
+    //Case update
+    if (checkPostExist.length === 0 && isCreate === false) {
       throw new ConflictException(
         `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
     }
 
+
+    //Case create
+    let languageCreate = createPostDto.language === LanguageTypeEnum.English?LanguageTypeEnum.English:LanguageTypeEnum.VietNam;
+    const checkPostExistLanguage = checkPostExist.find(
+      (ele) => ele.language === languageCreate,
+    );
+      if(!isNullOrUndefined(checkPostExistLanguage)){
+        throw new ConflictException(
+          `Bài viết vỡi ngôn ngữ này đã tồn tại!`,
+        );
+      }
+
     const checkCategoryExist = await transactionManager
       .getRepository(Category)
       .findOne({
-        uuid: categoryUuid,
+        uuid: createPostDto.categoryUuid,
       });
 
     if (isNullOrUndefined(checkCategoryExist)) {
@@ -244,17 +186,21 @@ export class PostRepository extends Repository<Post> {
         `Category chưa tồn tại trong hệ thống. Vui lòng chọn category khác hoặc thử lại sau!`,
       );
     }
-
+    //en
     const post = transactionManager.create(Post, {
-      id: checkPostExist?.id,
-      uuid,
-      title,
-      shortDescription,
-      imageSrc,
-      content,
+      id: checkPostExistEn?.id,
+      uuid: createPostDto.uuid,
+      title: createPostDto.title,
+      shortDescription: createPostDto.shortDescription,
+      imageSrc: createPostDto.imageSrc,
+      content: createPostDto.content,
       category: checkCategoryExist,
-      fileType,
+      fileType: createPostDto.fileType,
+      language: createPostDto.language,
+      refUuid: createPostDto.refUuid,
     });
+
+    
 
     try {
       await transactionManager.save(post);
@@ -271,7 +217,73 @@ export class PostRepository extends Repository<Post> {
       message: `${isCreate ? 'Lưu' : 'Cập nhật'} bài viết thành công.`,
     };
   }
+  async updatePost(
+    transactionManager: EntityManager,
+    createPostDto: CreatePostDto,
+    uuid,
+  ) {
+   
+    const checkPostExist = await transactionManager.getRepository(Post).findOne({
+      uuid: uuid,
+    });
 
+    const checkPostExistrefUuid = await transactionManager.getRepository(Post).findOne({
+      refUuid: createPostDto.refUuid, isDeleted :false,
+    });
+
+
+    if (isNullOrUndefined(checkPostExist) ) {
+      throw new ConflictException(
+        `Post chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
+      );
+    }
+
+    
+    // if (isNullOrUndefined(checkPostExistrefUuid) ) {
+    //   throw new ConflictException(
+    //     `Reference Post không tồn tại trong hệ thống!`,
+    //   );
+    // }
+
+    const checkCategoryExist = await transactionManager
+      .getRepository(Category)
+      .findOne({
+        uuid: createPostDto.categoryUuid,
+      });
+
+    if (isNullOrUndefined(checkCategoryExist)) {
+      throw new ConflictException(
+        `Category chưa tồn tại trong hệ thống. Vui lòng chọn category khác hoặc thử lại sau!`,
+      );
+    }
+
+    
+    checkPostExist.uuid = createPostDto.uuid;
+    checkPostExist.title = createPostDto.title;
+    checkPostExist.shortDescription = createPostDto.shortDescription;
+    checkPostExist.imageSrc = createPostDto.imageSrc;
+    checkPostExist.content = createPostDto.content;
+    checkPostExist.category = checkCategoryExist;
+    checkPostExist.fileType = createPostDto.fileType;
+    // checkPostExist.language = createPostDto.language;
+    // checkPostExist.refUuid = createPostDto.refUuid;
+
+ 
+    try {
+      await transactionManager.save(checkPostExist);
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình 
+       update
+         post, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Cập nhật bài viết thành công.`,
+    };
+  }
   async deletePost(transactionManager: EntityManager, uuid: string) {
     const checkPostExist = await transactionManager
       .getRepository(Post)
@@ -283,15 +295,12 @@ export class PostRepository extends Repository<Post> {
       throw new ConflictException(
         `Bài viết chưa tồn tại trong hệ thống. Vui lòng tạo mới!`,
       );
-    }
-
-    const post = transactionManager.create(Post, {
-      id: checkPostExist?.id,
-      isDeleted: true,
-    });
+    } 
+    checkPostExist.isDeleted = true;
+   
 
     try {
-      await transactionManager.save(post);
+      await transactionManager.save(checkPostExist);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
