@@ -201,6 +201,7 @@ export class UserRepository extends Repository<User> {
       .getRepository(User)
       .createQueryBuilder('user')
       .leftJoin('user.userInformation', 'userInformation')
+      .leftJoin('userInformation.team','team')
       .select([
         'user.id',
         'user.uuid',
@@ -211,6 +212,7 @@ export class UserRepository extends Repository<User> {
         'user.createdAt',
         'user.updatedAt',
         'userInformation',
+        'team.name',
       ])
       .where({ isDeleted: false })
       .take(perPage || 25)

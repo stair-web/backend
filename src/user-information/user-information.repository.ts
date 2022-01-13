@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { isNullOrUndefined } from 'src/lib/utils/util';
+import { User } from 'src/user/user.entity';
 import { Repository, EntityRepository, EntityManager } from 'typeorm';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { GetAllUserInformationDto } from './dto/get-all-user-information.dto';
@@ -46,9 +47,10 @@ export class UserInformationRepository extends Repository<UserInformation> {
         `${table}.createdAt`,
         `${table}.updatedAt`,
       ])
+      .where( `${table}.userInformation.isDeleted is FALSE`)
       .take(perPage)
       .skip((page - 1) * perPage || 0)
-      .orderBy(`${table}.createdAt`, 'ASC');
+      .orderBy(`${table}.updatedAt`, 'DESC');
 
     // Full text search
     if (!isNullOrUndefined(fullTextSearch) && fullTextSearch !== '') {
@@ -65,6 +67,22 @@ export class UserInformationRepository extends Repository<UserInformation> {
 
     try {
       return await query.getMany();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllUserInformationCompanyWeb(
+    transactionManager: EntityManager,
+    getAllUserInformationDto: GetAllUserInformationDto,
+  ) {
+
+  const listUser = await  transactionManager.getRepository(User).find({where:{isDeleted:false},relations:["userInformation"],order:{updatedAt:"DESC"}});
+    const data = listUser.map(ele=>ele.userInformation)
+    
+
+    try {
+      return data;
     } catch (error) {
       console.log(error);
     }

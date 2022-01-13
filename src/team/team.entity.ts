@@ -1,6 +1,6 @@
 import { DBSchema } from "src/common/enum/db-schemas.enum";
 import { UserInformation } from "src/user-information/user-information.entity";
-import { BaseEntity, Column, Entity, OneToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
 
 @Entity({ name: 'team', schema: DBSchema.SCM_ARI_PUBLIC })
 export class Team extends BaseEntity {
@@ -26,5 +26,6 @@ export class Team extends BaseEntity {
     updatedAt: Date;
 
     @OneToOne(type => UserInformation, user => user.team)
-    user: UserInformation;
+    @JoinColumn({ name: 'leader_id', referencedColumnName: 'userId' })
+    leader: UserInformation;
 }

@@ -20,7 +20,7 @@ export class UserInformationService {
     transactionManager: EntityManager,
     getAllUserInformationDto: GetAllUserInformationDto,
   ) {
-    return this.userInformationRepository.getAllUserInformation(
+    return this.userInformationRepository.getAllUserInformationCompanyWeb(
       transactionManager,
       getAllUserInformationDto,
     );
