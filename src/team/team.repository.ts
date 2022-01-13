@@ -40,7 +40,7 @@ export class TeamRepository extends Repository<Team> {
     }
     const findDup = await transactionManager
       .getRepository(Team)
-      .findOne({ name: createTeamDto.name, uuid: Not(createTeamDto.uuid) });
+      .findOne({ name: createTeamDto.name, uuid: Not(createTeamDto.uuid) , isDeleted:false});
     if (!isNullOrUndefined(findDup)) {
       throw new ConflictException('Team này đã tồn tại.!');
     }
@@ -51,9 +51,9 @@ export class TeamRepository extends Repository<Team> {
       if (isNullOrUndefined(findLeader)) {
         throw new ConflictException('Leader này không tồn tại.!');
       }
-      if (findLeader.userInformation.teamId != team.id) {
-        throw new ConflictException('Leader này không thuộc về team này.!');
-      }
+      // if (findLeader.userInformation.teamId != team.id) {
+      //   throw new ConflictException('Leader này không thuộc về team này.!');
+      // }
 
       team.leaderId = createTeamDto.leaderId;
     }else{
@@ -78,8 +78,8 @@ export class TeamRepository extends Repository<Team> {
     if (createTeamDto.leaderId) {
       const findLeader = await transactionManager
         .getRepository(User)
-        .findOne({ id: createTeamDto.leaderId });
-      if (!isNullOrUndefined(findLeader)) {
+        .findOne({ id: createTeamDto.leaderId, isDeleted:false });
+      if (isNullOrUndefined(findLeader)) {
         throw new ConflictException('Leader không tồn tại.!');
       }
       leaderId = createTeamDto.leaderId;

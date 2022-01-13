@@ -22,6 +22,8 @@ export class EmailService {
   private FROM_NAME: string;
   private STANDARD_MSG;
   private HEADER_LOGO_ATTACHMENT;
+  private domain = process.env.DOMAIN;
+
   constructor(private configService: ConfigService) {
     this.SENDGRID_API_KEY = configService.get<string>('SENDGRID_API_KEY');
     sgMail.setApiKey(this.SENDGRID_API_KEY);
@@ -107,7 +109,6 @@ export class EmailService {
       this.LAYOUT_FILE_PATH,
       data,
     );
-    console.log(this.STANDARD_MSG);
 
     const msg = {
       ...this.STANDARD_MSG,
@@ -189,7 +190,8 @@ export class EmailService {
     const { subjectPath, textPath, htmlPath } = this.getPathForEmail(
       'USER_ACTIVE_ACCOUNT',
     );
-
+      console.log(this.domain);
+      
     hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
     const data = {
       title: EmailMapping.USER_ACTIVE_ACCOUNT.title,
@@ -197,7 +199,7 @@ export class EmailService {
       username: emailInfoDto.username,
       password: emailInfoDto.password,
       styles: [EmailMapping.USER_ACTIVE_ACCOUNT.templateFolder],
-      activeLink: `${originName}/#/auth/confirm-password?token=${emailInfoDto.token}`,
+      activeLink: `${this.domain}/login`,
     };
     const subject: string = await this.renderEmailTemplate(subjectPath, data);
     const text: string = await this.renderEmailTemplate(textPath, data);
