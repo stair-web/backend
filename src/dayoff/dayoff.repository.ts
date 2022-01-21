@@ -37,7 +37,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
       .leftJoin('staff.team', 't')
-      .select(['dayoff', 'staff'])
+      .select(['dayoff', 'staff','t.name'])
       .where('dayoff.isDeleted = :isDeleted', { isDeleted: 'false' })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
@@ -247,7 +247,6 @@ export class DayoffRepository extends Repository<DayOff> {
         throw new ConflictException();
       } else {
         await transactionManager.save(userInfo);
-        console.log(userInfo);
         
         return {
           statusCode: 201,

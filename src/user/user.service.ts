@@ -69,7 +69,6 @@ export class UserService {
         { email, isDeleted: false },
       ],
     });
-    console.log(user);
 
     if (!isNullOrUndefined(user)) {
       throw new ConflictException(`Username này đã tồn tại trong hệ thống.`);
@@ -223,6 +222,8 @@ export class UserService {
           (key) => (user.userInformation[key] = userInformation[key]),
         );
       }
+      console.log(user.userInformation);
+      
       await transactionManager.save(user.userInformation);
       // console.log(user);
     } catch (error) {
@@ -243,7 +244,7 @@ export class UserService {
    * @returns
    */
   async getUserByUuid(transactionManager: EntityManager, uuid: string) {
-    const user = await this.usersRepository.getUserByUuid(
+    const user = await this.usersRepository.getUserByUuidProfile(
       transactionManager,
       uuid,
     );

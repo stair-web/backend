@@ -12,7 +12,7 @@ export class GetAllUserDto {
 
     email?: string;
   };
-
+  filterEmail;
   sorts?: {
     name?: SortValue;
 

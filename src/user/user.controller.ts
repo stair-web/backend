@@ -62,6 +62,8 @@ export class UserController {
   @ApiOperation({ summary: 'Danh sách người dùng' })
   async getAllUser(@Query() getAllUserDto: GetAllUserDto) {
     return await this.connection.transaction((transactionManager) => {
+      
+      
       return this.userService.getAllUser(transactionManager, getAllUserDto);
     });
   }

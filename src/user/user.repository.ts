@@ -45,9 +45,9 @@ export class UserRepository extends Repository<User> {
       })
       .orWhere('(user.username = :email and  user.isDeleted = FALSE)', {
         email,
-      })
+      });
     const existsUser = await query.getOne();
-    
+
     if (existsUser) {
       throw new ConflictException(
         `Người dùng đã tồn tại trong hệ thống, vui lòng sử dụng email khác để đăng kí.`,
@@ -113,6 +113,60 @@ export class UserRepository extends Repository<User> {
     }
     return { statusCode: 201, message: `Xóa người dùng thành công.` };
   }
+  async getUserByUuidProfile(
+    transactionManager: EntityManager,
+    uuid: string,
+    isGetDetail = true,
+  ) {
+    let user;
+    if (isGetDetail) {
+      user = await transactionManager.findOne(User, {
+        join: {
+          alias: 'user',
+          leftJoinAndSelect: {
+            userInformation: 'user.userInformation',
+            team: 'userInformation.team',
+          },
+        },
+        relations: ['userInformation'],
+        where: (qb) => {
+          qb.select([
+            'user.id',
+            'user.uuid',
+            'user.username',
+            'user.email',
+            'user.isDeleted',
+            'user.isActive',
+            'user.isFirstLogin',
+            'user.createdAt',
+            'user.updatedAt',
+            'userInformation.id',
+            'userInformation.uuid',
+            'userInformation.firstName',
+            'userInformation.lastName',
+            'userInformation.profilePhotoKey',
+            'userInformation.phoneNumber',
+            'userInformation.dob',
+            'userInformation.shortDescription',
+            'userInformation.position',
+            'userInformation.staffId',
+            'userInformation.createdAt',
+            'userInformation.updatedAt',
+            'userInformation.remain',
+            'userInformation.startDate',
+            'userInformation.dateOffNextYear',
+            'userInformation.teamId',
+            'team',
+          ])
+            .where('user.isDeleted = :isDeleted', { isDeleted: false })
+            .andWhere('user.uuid = :uuid', { uuid });
+        },
+      });
+    } else {
+      user = await transactionManager.findOne(User, { uuid });
+    }
+    return user;
+  }
 
   /**
    *
@@ -135,7 +189,7 @@ export class UserRepository extends Repository<User> {
             userInformation: 'user.userInformation',
           },
         },
-        relations: ['userInformation',],
+        relations: ['userInformation'],
         where: (qb) => {
           qb.select([
             'user.id',
@@ -164,8 +218,8 @@ export class UserRepository extends Repository<User> {
             'userInformation.dateOffNextYear',
             'userInformation.teamId',
           ])
-          .where('user.isDeleted = :isDeleted', { isDeleted: false })
-          .andWhere('user.uuid = :uuid', { uuid })
+            .where('user.isDeleted = :isDeleted', { isDeleted: false })
+            .andWhere('user.uuid = :uuid', { uuid });
         },
       });
     } else {
@@ -201,7 +255,7 @@ export class UserRepository extends Repository<User> {
       .getRepository(User)
       .createQueryBuilder('user')
       .leftJoin('user.userInformation', 'userInformation')
-      .leftJoin('userInformation.team','team')
+      .leftJoin('userInformation.team', 'team')
       .select([
         'user.id',
         'user.uuid',
@@ -273,9 +327,9 @@ export class UserRepository extends Repository<User> {
 
   /**
    * @Description activate or deactivate a user
-   * @param uuid 
-   * @param transactionManager 
-   * @param active 
+   * @param uuid
+   * @param transactionManager
+   * @param active
    */
   async activation(
     uuid,
@@ -303,5 +357,4 @@ export class UserRepository extends Repository<User> {
       throw new InternalServerErrorException(error.message);
     }
   }
-
 }

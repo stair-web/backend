@@ -44,7 +44,6 @@ export class UserRoleService {
         ]);
       },
     });
-    console.log(user);
     if (user) {
       userRole.userId = user.id;
       userRole.roleCode = roleCode;

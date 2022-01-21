@@ -14,7 +14,6 @@ import { Partner } from './partner.entity';
 @EntityRepository(Partner)
 export class PartnerRepository extends Repository<Partner> {
   async getDetailPartnerByUuid(transactionManager: EntityManager, uuid: string) {
-    console.log(uuid);
       return await transactionManager.getRepository(Partner).createQueryBuilder('partner')
     .leftJoin("partner.partnerSectionItemList", "partnerSectionItem",'partnerSectionItem.isDeleted = :isDeleted', { isDeleted: 'false' })
     .leftJoin("partner.partnerInstroductionList", "partnerInstroduction",'partnerInstroduction.isDeleted = :isDeleted', { isDeleted: 'false' })
