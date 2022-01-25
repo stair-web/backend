@@ -111,6 +111,7 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
     section: StaticSection,
     item: StaticItem,
   ) {
+    try {
     await this.checkRelationExists(transactionManager, null, section, item);
 
     const staticRelation = transactionManager.create(StaticRelation, {
@@ -119,9 +120,11 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
       item,
       uuid: uuidv4(),
     });
-    try {
+   
       await transactionManager.save(staticRelation);
     } catch (error) {
+      console.log(error);
+      
       throw new InternalServerErrorException(error);
     }
   }
@@ -148,7 +151,7 @@ export class StaticRelationRepository extends Repository<StaticRelation> {
         item,
         isDeleted: false,
       });
-
+      
     if (!isNullOrUndefined(checkRelationExist) && enableExceptions) {
       throw new ConflictException(
         `Relation đã tồn tại trong hệ thống. Không thể tạo thêm relation!`,

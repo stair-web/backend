@@ -93,12 +93,15 @@ export class UserService {
     );
     if (teamId) {
       const team = await transactionManager.getRepository(Team).findOne({ id: teamId, isDeleted: false });
-
+      
       if (isNullOrUndefined(team)) {
         throw new ConflictException(`Team này không tồn tại trong hệ thống.`);
       }
-      userCreated.userInformation.teamId = teamId;
-      await userCreated.userInformation.team.save();
+     const userInfo = await transactionManager.getRepository(User).findOne({where:{id:userCreated.id},relations:["userInformation"]})
+     
+     userInfo.userInformation.teamId = teamId;
+     
+      // await userInfo.save();
 
     }
 

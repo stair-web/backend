@@ -353,12 +353,13 @@ export class StaticPageService {
                   )
                 ).uuid;
               }
-
+              
               const updateItemInfo = await this.itemRepository.saveStaticItem(
                 transactionManager,
                 item,
                 true,
               ); // dont use isCreate in this save
+              
 
               const checkExitsRelation = !isNullOrUndefined(
                 this.relationRepository.checkRelationExists(
@@ -369,14 +370,17 @@ export class StaticPageService {
                   false,
                 ),
               );
-
+                  
+                  
               if (isCreate || !checkExitsRelation) {
                 this.relationRepository.addSectionItem(
                   transactionManager,
                   updateSectionInfo,
                   updateItemInfo,
                 );
+
               }
+              
             }
           }
         }
