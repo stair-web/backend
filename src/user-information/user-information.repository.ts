@@ -47,7 +47,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
         `${table}.createdAt`,
         `${table}.updatedAt`,
       ])
-      .where( `${table}.userInformation.isDeleted is FALSE`)
+      .where(`${table}.userInformation.isDeleted is FALSE`)
       .take(perPage)
       .skip((page - 1) * perPage || 0)
       .orderBy(`${table}.updatedAt`, 'DESC');
@@ -77,9 +77,13 @@ export class UserInformationRepository extends Repository<UserInformation> {
     getAllUserInformationDto: GetAllUserInformationDto,
   ) {
 
-  const listUser = await  transactionManager.getRepository(User).find({where:{isDeleted:false},relations:["userInformation"],order:{updatedAt:"DESC"}});
-    const data = listUser.map(ele=>ele.userInformation)
-    
+    const listUser = await transactionManager.getRepository(User).find({ where: { isDeleted: false }, relations: ["userInformation"], order: { updatedAt: "DESC" } });
+    const data = listUser.map(ele => ele.userInformation)
+
+    // sort by value
+    data.sort(function (a, b) {
+      return a.priority - b.priority;
+    });
 
     try {
       return data;
@@ -96,7 +100,7 @@ export class UserInformationRepository extends Repository<UserInformation> {
       .getRepository(UserInformation)
       .findOne({
         where: { uuid },
-        select: ['uuid', 'staffId','firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
+        select: ['uuid', 'staffId', 'firstName', 'lastName', 'phoneNumber', 'profilePhotoKey', 'shortDescription', 'dob', 'createdAt'],
       });
 
     if (isNullOrUndefined(checkUserInformationExist)) {
@@ -157,16 +161,14 @@ export class UserInformationRepository extends Repository<UserInformation> {
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
-        `Lỗi hệ thống trong quá trình ${
-          isCreate ? 'tạo' : 'update'
+        `Lỗi hệ thống trong quá trình ${isCreate ? 'tạo' : 'update'
         } User Information, vui lòng thử lại sau.`,
       );
     }
     return {
       statusCode: 201,
-      message: `${
-        isCreate ? 'Create' : 'Update'
-      } User Information successfully.`,
+      message: `${isCreate ? 'Create' : 'Update'
+        } User Information successfully.`,
     };
   }
 }

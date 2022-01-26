@@ -77,13 +77,14 @@ export class DayoffRepository extends Repository<DayOff> {
       .getRepository(DayOff)
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
-      .select(['dayoff', 'staff'])
+      .leftJoin('staff.team', 't')
+      .select(['dayoff', 'staff','t'])
       .where({ isDeleted: false })
       .andWhere({ staffId: user.id })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
-
+    
     // Full text search
     if (!isNullOrUndefined(status) && status !== '') {
       query.andWhere('LOWER(dayoff.status) LIKE LOWER(:status)', {

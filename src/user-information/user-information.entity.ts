@@ -44,6 +44,9 @@ export class UserInformation extends BaseEntity {
     staffId: string;
 
     @Column()
+    priority: number;
+
+    @Column()
     createdAt: Date;
 
     @Column()
@@ -71,6 +74,7 @@ export class UserInformation extends BaseEntity {
 
     @OneToOne(type => DayOff, dayoff => dayoff.staff)
     dayoff: DayOff;
+  userInformation: any;
 
 
 }

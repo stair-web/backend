@@ -156,6 +156,7 @@ export class UserRepository extends Repository<User> {
             'userInformation.startDate',
             'userInformation.dateOffNextYear',
             'userInformation.teamId',
+            'userInformation.priority',
             'team',
           ])
             .where('user.isDeleted = :isDeleted', { isDeleted: false })
