@@ -151,7 +151,6 @@ export class EmailService {
         subject,
         text,
         html,
-        attachments: [this.HEADER_LOGO_ATTACHMENT],
       };
       return await this.sendMail(msg);
     } catch (error) {
