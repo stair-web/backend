@@ -167,7 +167,7 @@ export class UserService {
     emailInfoDto.password = password;
     emailInfoDto.username = user.username;
     // console.log(emailInfoDto);
-
+    await user.save();
     return this.emailService.sendResetPasswordUser(emailInfoDto, '');
   }
   async changePassword(transactionManager: EntityManager, changePasswordDto: ChangePasswordDto, user: User) {
