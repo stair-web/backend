@@ -34,7 +34,7 @@ export class CronJobService {
       // }
 
     }
-    @Cron(CronExpression.EVERY_DAY_AT_11PM, { timeZone: 'Singapore' })
+    @Cron(CronExpression.EVERY_DAY_AT_NOON, { timeZone: 'Singapore' })
     async CronExampleDay() {
       this.logger.debug('CronExampleDay run every 10:00 AM');
       // if (!this.checkCronJobProcess()) { return; }
