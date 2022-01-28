@@ -25,9 +25,36 @@ export class CronJobService {
         .getMany();
 
         listUserUpdate.forEach(userInformation => {
-          let dayPlus = this.dateDiff(new Date(userInformation.startingDate));
-          userInformation.remain = 12 + dayPlus;
-          this.userInformationRepository.save(userInformation);
+          if(userInformation.startDate){
+            let dayPlus = this.dateDiff(new Date(userInformation.startDate));
+            userInformation.remain = 12 + dayPlus -1;
+            this.userInformationRepository.save(userInformation);
+          }
+        });
+      // }
+
+    }
+    @Cron(CronExpression.EVERY_DAY_AT_11PM, { timeZone: 'Singapore' })
+    async CronExampleDay() {
+      this.logger.debug('CronExampleDay run every 10:00 AM');
+      // if (!this.checkCronJobProcess()) { return; }
+      // else {
+        const listUserUpdate = await this.userInformationRepository.
+        createQueryBuilder("userInformation")
+        .leftJoin('userInformation.user', 'user')
+        .select(['userInformation', 'user'])
+        .where('user.isDeleted =false')
+        .getMany();
+        const today = new Date();
+        listUserUpdate.forEach(userInformation => {
+          if(userInformation.startDate){
+            const startDate = new Date(userInformation.startDate)
+            if(today.getMonth() == startDate.getMonth() && today.getDate()== startDate.getDate()){
+              userInformation.remain =  userInformation.remain + 1;
+            }
+            this.userInformationRepository.save(userInformation);
+          }
+          
         });
       // }
 
