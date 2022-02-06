@@ -67,7 +67,7 @@ export class DayoffService {
           'staff.position',
           'staff.profilePhotoKey',
           'staff.remain',
-        ]).where(`dayoff.uuid = :uuid`, { uuid });
+        ]).where(`dayoff.uuid = :uuid and staff.isDeleted = false`, { uuid });
       },
     });
 
