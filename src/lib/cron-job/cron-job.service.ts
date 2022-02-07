@@ -12,7 +12,7 @@ export class CronJobService {
 
   private readonly logger = new Logger(CronJobService.name);
 
-  @Cron(CronExpression.EVERY_YEAR, { timeZone: 'Singapore' })
+  @Cron(CronExpression.EVERY_DAY_AT_NOON, { timeZone: 'Singapore' })
   async CronExample() {
     this.logger.debug('CronExample run every Year');
     // if (!this.checkCronJobProcess()) { return; }
