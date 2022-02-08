@@ -150,7 +150,7 @@ export class DayoffRepository extends Repository<DayOff> {
           listDate: listDateOff.map((ele) => new Date(ele.date)),
         })
         .andWhere(
-          `dateOff.isDeleted is FALSE  and dateOff.staff_id = :staffId  `,
+          `dateOff.isDeleted is FALSE  and dateOff.staff_id = :staffId and dateOff.status != 'CANCEL' `,
           { status: 'CANCEL', staffId: staffId },
         );
         //and dateOff.status  <> :status
@@ -239,7 +239,7 @@ export class DayoffRepository extends Repository<DayOff> {
           // if (userInfo.dateOffNextYear > 12) {
           //   throw new ConflictException('Remain Date cant be smaller than 0!');
           // }
-          await transactionManager.save(dayOff);
+          // await transactionManager.save(dayOff);
           listSave.push(dayOff);
         }
       });
@@ -248,7 +248,7 @@ export class DayoffRepository extends Repository<DayOff> {
         throw new ConflictException();
       } else {
         await transactionManager.save(userInfo);
-        
+        transactionManager.getRepository(DayOff).save(listSave);
         return {
           statusCode: 201,
           message: 'Create Success!',
