@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { TokenEmailType } from 'src/common/enum/token-email-type.enum';
 import { isNullOrUndefined } from 'src/lib/utils/util';
-import { EntityManager, In, Repository } from 'typeorm';
+import { EntityManager, In, Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
@@ -208,7 +208,13 @@ export class UserService {
     if (isNullOrUndefined(user)) {
       throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
-
+    console.log(updateUserDto);
+    //check duplicate email:
+    const checkDupEmail: User = await this.usersRepository.findOne({isDeleted:false,email:updateUserDto.email, uuid: Not(uuid)});
+    if(!isNullOrUndefined(checkDupEmail)){
+        throw new ConflictException(`Email này đã tồn tại !`);
+    }
+    user.email = updateUserDto.email;
     if (userInformation.teamId) {
       const team = await transactionManager
         .getRepository(Team)
@@ -225,7 +231,8 @@ export class UserService {
           (key) => (user.userInformation[key] = userInformation[key]),
         );
       }
-      console.log(user.userInformation);
+      // console.log(user.userInformation);
+      await transactionManager.save(user);
       
       await transactionManager.save(user.userInformation);
       // console.log(user);

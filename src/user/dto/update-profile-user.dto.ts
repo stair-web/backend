@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserInformationDto } from 'src/user-information/dto/user-information.dto';
 
 export class UpdateProfileUserDto {
-  // @ApiProperty({ default: `email_${Date.now()}@ari.com.vn` })
-  // email: string;
+  @ApiProperty({ default: `email_${Date.now()}@ari.com.vn` })
+  email: string;
 
   // @ApiProperty({ default: `123123` })
   // password: string;
