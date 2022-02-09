@@ -1,10 +1,13 @@
-import { BaseEntity, Entity, PrimaryColumn, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { BaseEntity, Entity, PrimaryColumn, Column, OneToOne, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "src/user/user.entity";
 import { Role } from "src/role/role.entity";
 import { DBSchema } from "src/common/enum/db-schemas.enum";
 
 @Entity({ name: 'user_role', schema: DBSchema.SCM_ARI_PUBLIC })
 export class UserRole extends BaseEntity {
+
+  @PrimaryGeneratedColumn()
+  id: number;
 
     @PrimaryColumn()
     userId: number;

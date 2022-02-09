@@ -76,11 +76,15 @@ export class UserRoleService {
 
   async deactiveUserRole(transactionManager: EntityManager, userId: number, roleCode: string) {
 
-    let data = await transactionManager.getRepository(UserRole).findOne({
+    let data = await transactionManager.getRepository(UserRole).find({
       where: { userId, isActive: true, roleCode: roleCode },
     });
-    data.isActive = false;
-    await data.save();
+    data.forEach(async ele=>{
+      ele.isActive = false;
+    })
+    
+    await transactionManager.getRepository(UserRole).save(data);
+
     return {message:'Deactive success!'};
   }
 }
