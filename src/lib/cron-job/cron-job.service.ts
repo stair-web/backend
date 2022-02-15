@@ -12,7 +12,7 @@ export class CronJobService {
 
   private readonly logger = new Logger(CronJobService.name);
 
-  @Cron(CronExpression.EVERY_DAY_AT_NOON, { timeZone: 'Singapore' })
+  @Cron(CronExpression.EVERY_YEAR, { timeZone: 'Singapore' })
   async CronExample() {
     this.logger.debug('CronExample run every Year');
     // if (!this.checkCronJobProcess()) { return; }
@@ -30,13 +30,13 @@ export class CronJobService {
         userInformation.remain = 12 + dayPlus;
         this.userInformationRepository.save(userInformation);
       }
-      if (userInformation.startDate) {
-        console.log('----');
-        console.log(userInformation.id);
-        console.log(userInformation.startDate);
-        console.log(userInformation.remain);
-        console.log('----');
-      }
+      // if (userInformation.startDate) {
+      //   console.log('----');
+      //   console.log(userInformation.id);
+      //   console.log(userInformation.startDate);
+      //   console.log(userInformation.remain);
+      //   console.log('----');
+      // }
 
 
 
