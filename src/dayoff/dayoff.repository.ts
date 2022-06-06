@@ -384,6 +384,8 @@ export class DayoffRepository extends Repository<DayOff> {
         },
       );
       // // Giảm số ngày phép
+      // Giảm số ngày phép
+
       // if (dayOff.type == 1) {
       //   if (dayOff.time == 0 && userInfo.remain >= 1) {
       //     userInfo.remain = userInfo.remain - 1;
@@ -394,6 +396,8 @@ export class DayoffRepository extends Repository<DayOff> {
       //     userInfo.remain = userInfo.remain - 0.5;
       //   }
       // }
+      
+      
       await transactionManager.getRepository(UserInformation).save(userInfo);
     } catch (error) {
       Logger.error(error);
@@ -432,7 +436,7 @@ export class DayoffRepository extends Repository<DayOff> {
           approvedById: user.id,
         },
       );
-
+        
       // Tăng số ngày phép
       if (dayOff.type == 1) {
         const isCurrentYear =
@@ -454,6 +458,7 @@ export class DayoffRepository extends Repository<DayOff> {
           }
         }
       }
+      
       await transactionManager.getRepository(UserInformation).save(userInfo);
     } catch (error) {
       Logger.error(error);
