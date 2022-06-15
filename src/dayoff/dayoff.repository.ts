@@ -23,6 +23,7 @@ import { uuidv4 } from 'src/common/utils/common.util';
 import { DayOffStatus } from 'src/common/enum/dayoff-status';
 import { User } from 'src/user/user.entity';
 import { UserInformation } from 'src/user-information/user-information.entity';
+import { parse } from 'path';
 
 @EntityRepository(DayOff)
 export class DayoffRepository extends Repository<DayOff> {
@@ -150,7 +151,7 @@ export class DayoffRepository extends Repository<DayOff> {
           listDate: listDateOff.map((ele) => new Date(ele.date)),
         })
         .andWhere(
-          `dateOff.isDeleted is FALSE  and dateOff.staff_id = :staffId and dateOff.status != 'CANCEL' `,
+          `dateOff.isDeleted is FALSE and dateOff.staff_id = :staffId and dateOff.status != 'CANCEL' `,
           { status: 'CANCEL', staffId: staffId },
         );
         //and dateOff.status  <> :status
@@ -201,7 +202,8 @@ export class DayoffRepository extends Repository<DayOff> {
             reason,
             createdAt: new Date(),
             updatedAt: new Date(),
-            timeNumber: ele.time == 0 ? 1 : 0.5,
+            timeNumber: type != 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
+            remoteNumber: type == 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
           });
           
           if (type == 1) {
@@ -215,7 +217,7 @@ export class DayoffRepository extends Repository<DayOff> {
                 
               }
             } else if (
-              (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) 
+              (parseInt(ele.time) == 1 || parseInt(ele.time) == 2)
             ) {
               if (isCurrentYear) {
                 userInfo.remain = userInfo.remain - 0.5;
@@ -236,10 +238,10 @@ export class DayoffRepository extends Repository<DayOff> {
               }
             }
           }
-          // if (userInfo.dateOffNextYear > 12) {
-          //   throw new ConflictException('Remain Date cant be smaller than 0!');
-          // }
-          // await transactionManager.save(dayOff);
+          if (userInfo.dateOffNextYear > 12) {
+            throw new ConflictException('Remain Date cant be smaller than 0!');
+          }
+          await transactionManager.save(dayOff);
           listSave.push(dayOff);
         }
       });

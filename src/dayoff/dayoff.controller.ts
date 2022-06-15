@@ -28,7 +28,7 @@ export class DayoffController {
   constructor(
     private connection: Connection,
     private readonly dayoffService: DayoffService,
-  ) { }
+  ) {}
   @Get()
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
@@ -93,7 +93,6 @@ export class DayoffController {
     @Body() dayOffSearch: DayOffSearch,
     @GetUser() user: User,
   ) {
-
     dayOffSearch.staffId = user.id;
     return await this.connection.transaction((transactionManager) => {
       return this.dayoffService.createDayOff(transactionManager, dayOffSearch);
@@ -175,7 +174,11 @@ export class DayoffController {
   @ApiOperation({ summary: 'Reprort lịch nghỉ phép' })
   async report(@Body('dateOffReport') dateOffReport: ReportDayOffSearch) {
     return await this.connection.transaction((transactionManager) => {
-      return this.dayoffService.report(transactionManager, dateOffReport.fromDate, dateOffReport.toDate);
+      return this.dayoffService.report(
+        transactionManager,
+        dateOffReport.fromDate,
+        dateOffReport.toDate,
+      );
     });
   }
 }
