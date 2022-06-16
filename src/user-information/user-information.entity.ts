@@ -59,6 +59,12 @@ export class UserInformation extends BaseEntity {
     remain: number;
 
     @Column()
+    remote_remain_in_month: number;
+
+    @Column()
+    remote_day_in_year: number;
+
+    @Column()
     dateOffNextYear: number;
 
     @Column()

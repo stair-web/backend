@@ -38,7 +38,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
       .leftJoin('staff.team', 't')
-      .select(['dayoff', 'staff','t.name'])
+      .select(['dayoff', 'staff', 't.name'])
       .where('dayoff.isDeleted = :isDeleted', { isDeleted: 'false' })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
@@ -79,13 +79,13 @@ export class DayoffRepository extends Repository<DayOff> {
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
       .leftJoin('staff.team', 't')
-      .select(['dayoff', 'staff','t'])
+      .select(['dayoff', 'staff', 't'])
       .where({ isDeleted: false })
       .andWhere({ staffId: user.id })
       .take(perPage || 25)
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
-    
+
     // Full text search
     if (!isNullOrUndefined(status) && status !== '') {
       query.andWhere('LOWER(dayoff.status) LIKE LOWER(:status)', {
@@ -154,7 +154,7 @@ export class DayoffRepository extends Repository<DayOff> {
           `dateOff.isDeleted is FALSE and dateOff.staff_id = :staffId and dateOff.status != 'CANCEL' `,
           { status: 'CANCEL', staffId: staffId },
         );
-        //and dateOff.status  <> :status
+      //and dateOff.status  <> :status
       const listQueryDup = await query.getMany();
 
       listDateOff.forEach(async (ele) => {
@@ -181,7 +181,7 @@ export class DayoffRepository extends Repository<DayOff> {
                       new Date(ele.date).toDateString(),
                   ) == -1
                 ) {
-                  listDup.push(ele);                  
+                  listDup.push(ele);
                   canCreate = false;
                 }
               }
@@ -190,7 +190,6 @@ export class DayoffRepository extends Repository<DayOff> {
         }
 
         if (canCreate) {
-          
           let uuid = uuidv4();
           let dayOff = await transactionManager.create(DayOff, {
             uuid,
@@ -205,39 +204,66 @@ export class DayoffRepository extends Repository<DayOff> {
             timeNumber: type != 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
             remoteNumber: type == 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
           });
-          
+
           if (type == 1) {
             const isCurrentYear =
               new Date().getFullYear() == new Date(ele.date).getFullYear();
-            if (parseInt(ele.time) == 0 ) {
+            if (parseInt(ele.time) == 0) {
               if (isCurrentYear) {
                 userInfo.remain = userInfo.remain - 1;
               } else {
                 userInfo.dateOffNextYear = userInfo.dateOffNextYear + 1;
-                
               }
-            } else if (
-              (parseInt(ele.time) == 1 || parseInt(ele.time) == 2)
-            ) {
+            } else if (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) {
               if (isCurrentYear) {
                 userInfo.remain = userInfo.remain - 0.5;
               } else {
                 userInfo.dateOffNextYear = userInfo.dateOffNextYear + 0.5;
               }
             }
-            
-            if(isCurrentYear){
-              if (userInfo.remain < 0 && type == 1 ) {
 
-                throw new ConflictException('Remain Date cant be smaller than 0!');
+            if (isCurrentYear) {
+              if (userInfo.remain < 0 && type == 1) {
+                throw new ConflictException(
+                  'Remain Date cant be smaller than 0!',
+                );
               }
-            } else{
-              if (userInfo.dateOffNextYear > 12 && type == 1 ) {
-
-                throw new ConflictException('Remain Date cant be smaller than 0!');
+            } else {
+              if (userInfo.dateOffNextYear > 12 && type == 1) {
+                throw new ConflictException(
+                  'Remain Date cant be smaller than 0!',
+                );
               }
             }
           }
+
+          if (type == 3) {
+            const isCurrentMonth =
+              new Date().getMonth() == new Date(ele.date).getMonth();
+
+            if (parseInt(ele.time) == 0) {
+              if (isCurrentMonth) {
+                userInfo.remote_remain_in_month =
+                  userInfo.remote_remain_in_month - 1;
+                userInfo.remote_day_in_year += 1;
+              }
+            } else if (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) {
+              if (isCurrentMonth) {
+                userInfo.remote_remain_in_month =
+                  userInfo.remote_remain_in_month - 0.5;
+                userInfo.remote_day_in_year += 0.5;
+              }
+            }
+
+            if (isCurrentMonth) {
+              if (userInfo.remote_remain_in_month < 0) {
+                throw new ConflictException(
+                  'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
+                );
+              }
+            }
+          }
+
           if (userInfo.dateOffNextYear > 12) {
             throw new ConflictException('Remain Date cant be smaller than 0!');
           }
@@ -279,13 +305,15 @@ export class DayoffRepository extends Repository<DayOff> {
   ) {
     try {
       const { staffId, type, reason, listDateOff } = dayOffSearch;
-      const updateDate = new Date(listDateOff[0].date)
+      const updateDate = new Date(listDateOff[0].date);
       const dayOffList = await transactionManager.getRepository(DayOff).find({
         staffId: staffId,
         dateLeave: updateDate,
         isDeleted: false,
       });
-      const findDayOff = await transactionManager.getRepository(DayOff).findOne({ uuid });
+      const findDayOff = await transactionManager
+        .getRepository(DayOff)
+        .findOne({ uuid });
       if (isNullOrUndefined(findDayOff)) {
         throw new NotFoundException('Request not exist !');
       }
@@ -304,25 +332,45 @@ export class DayoffRepository extends Repository<DayOff> {
           throw new ConflictException('Duplicate Date !');
         }
       });
-      const currYear = (new Date()).getFullYear();
+      const currYear = new Date().getFullYear();
+      const currMonth = new Date().getMonth();
 
-      if (findDayOff.time == 0 && (listDateOff[0].time == 1 || listDateOff[0].time == 2)) {
+      if (
+        findDayOff.time == 0 &&
+        (listDateOff[0].time == 1 || listDateOff[0].time == 2)
+      ) {
         //tăng remain
         if (updateDate.getFullYear() == currYear) {
-          userInfo.remain += 0.5
+          userInfo.remain += 0.5;
         } else {
-          userInfo.remain -= 0.5
-
+          userInfo.remain -= 0.5;
         }
-      } else if (listDateOff[0].time == 0 && (findDayOff.time != 0)) {
+        if (updateDate.getMonth() == currMonth) {
+          userInfo.remote_remain_in_month += 0.5;
+          userInfo.remote_day_in_year -= 0.5;
+        } else {
+          userInfo.remote_remain_in_month -= 0.5;
+          userInfo.remote_day_in_year += 0.5;
+        }
+      } else if (listDateOff[0].time == 0 && findDayOff.time != 0) {
         //Giảm remain
         if (updateDate.getFullYear() == currYear) {
-          userInfo.remain -= 0.5
+          userInfo.remain -= 0.5;
         } else {
-          userInfo.remain += 0.5
+          userInfo.remain += 0.5;
+        }
+        if (updateDate.getMonth() == currMonth) {
+          userInfo.remote_remain_in_month -= 0.5;
+          userInfo.remote_day_in_year += 0.5;
+        } else {
+          userInfo.remote_remain_in_month += 0.5;
+          userInfo.remote_day_in_year -= 0.5;
         }
       }
-      if ( (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) && findDayOff.type == 1) {
+      if (
+        (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) &&
+        findDayOff.type == 1
+      ) {
         throw new InternalServerErrorException(
           'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
         );
@@ -337,11 +385,12 @@ export class DayoffRepository extends Repository<DayOff> {
             type: type,
             reason: reason,
             updatedAt: new Date(),
+            timeNumber: type != 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
+            remoteNumber: type == 3 ? (ele.time == 0 ? 1 : 0.5) : 0,
           },
         );
       });
       await userInfo.save();
-
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Request not exist !');
@@ -398,8 +447,7 @@ export class DayoffRepository extends Repository<DayOff> {
       //     userInfo.remain = userInfo.remain - 0.5;
       //   }
       // }
-      
-      
+
       await transactionManager.getRepository(UserInformation).save(userInfo);
     } catch (error) {
       Logger.error(error);
@@ -438,11 +486,12 @@ export class DayoffRepository extends Repository<DayOff> {
           approvedById: user.id,
         },
       );
-        
+
       // Tăng số ngày phép
       if (dayOff.type == 1) {
         const isCurrentYear =
           new Date().getFullYear() == new Date(dayOff.dateLeave).getFullYear();
+        // console.log(new Date().getFullYear());
         if (dayOff.time == 0) {
           if (isCurrentYear) {
             userInfo.remain = userInfo.remain + 1;
@@ -460,7 +509,25 @@ export class DayoffRepository extends Repository<DayOff> {
           }
         }
       }
-      
+
+      if (dayOff.type == 3) {
+        const isCurrentMonth =
+          new Date().getMonth() == new Date(dayOff.dateLeave).getMonth();
+
+        if (dayOff.time == 0) {
+          if (isCurrentMonth) {
+            userInfo.remote_remain_in_month =
+              userInfo.remote_remain_in_month + 1;
+            userInfo.remote_day_in_year -= 1;
+          }
+        } else {
+          if (isCurrentMonth) {
+            userInfo.remote_remain_in_month += 0.5;
+            userInfo.remote_day_in_year -= 0.5;
+          }
+        }
+      }
+
       await transactionManager.getRepository(UserInformation).save(userInfo);
     } catch (error) {
       Logger.error(error);
