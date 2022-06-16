@@ -304,7 +304,7 @@ export class DayoffRepository extends Repository<DayOff> {
     uuid: string,
   ) {
     try {
-      const { staffId, type, reason, listDateOff } = dayOffSearch;
+      const { staffId, type, reason, listDateOff, dateLeave } = dayOffSearch;
       const updateDate = new Date(listDateOff[0].date);
       const dayOffList = await transactionManager.getRepository(DayOff).find({
         staffId: staffId,
@@ -345,7 +345,7 @@ export class DayoffRepository extends Repository<DayOff> {
         } else {
           userInfo.remain -= 0.5;
         }
-        if (updateDate.getMonth() == currMonth) {
+        if (updateDate.getMonth() == currMonth && currMonth == dateLeave.getMonth()) {
           userInfo.remote_remain_in_month += 0.5;
           userInfo.remote_day_in_year -= 0.5;
         } else {
@@ -354,7 +354,7 @@ export class DayoffRepository extends Repository<DayOff> {
         }
       } else if (listDateOff[0].time == 0 && findDayOff.time != 0) {
         //Giảm remain
-        if (updateDate.getFullYear() == currYear) {
+        if (updateDate.getFullYear() == currYear && currMonth == dateLeave.getMonth()) {
           userInfo.remain -= 0.5;
         } else {
           userInfo.remain += 0.5;
@@ -371,6 +371,11 @@ export class DayoffRepository extends Repository<DayOff> {
         (userInfo.remain < 0 || userInfo.dateOffNextYear > 12) &&
         findDayOff.type == 1
       ) {
+        throw new InternalServerErrorException(
+          'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
+        );
+      }
+      if (userInfo.remote_remain_in_month < 0 && findDayOff.type == 3) {
         throw new InternalServerErrorException(
           'Lỗi hệ thống trong quá tình tạo ngày nghỉ',
         );
@@ -575,6 +580,23 @@ export class DayoffRepository extends Repository<DayOff> {
             userInfo.remain = userInfo.remain + 0.5;
           } else {
             userInfo.dateOffNextYear = userInfo.dateOffNextYear - 0.5;
+          }
+        }
+      }
+      if(dayOff.type == 3){
+        const isCurrentMonth =
+          new Date().getMonth() == new Date(dayOff.dateLeave).getMonth();
+
+        if (dayOff.time == 0) {
+          if (isCurrentMonth) {
+            userInfo.remote_remain_in_month =
+              userInfo.remote_remain_in_month + 1;
+            userInfo.remote_day_in_year -= 1;
+          }
+        } else {
+          if (isCurrentMonth) {
+            userInfo.remote_remain_in_month += 0.5;
+            userInfo.remote_day_in_year -= 0.5;
           }
         }
       }
