@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { DayOff } from './dayoff.entity';
 import { DayOffSearch } from './dto/dayoff-search.dto';
+import { UpdateRemoteDay } from './dto/update-remote-day.dto';
 import {
   InternalServerErrorException,
   Logger,
@@ -64,6 +65,156 @@ export class DayoffRepository extends Repository<DayOff> {
       return { statusCode: 201, data: { dayOffList: data, total } };
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async updateRemoteDayAdminAll(
+    transactionManager: EntityManager,
+    updateRemoteDay: UpdateRemoteDay,
+    // dayOffSearch: DayOffSearch,
+    // user: User,
+    // amount: number,
+    // userInformation: UserInformation,
+  ) {
+    // const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
+    // const { remote_remain_in_month } = userInformation;
+
+    // const query = transactionManager
+    //   .getRepository(UserInformation)
+    //   .createQueryBuilder('updateRemote')
+    //   .leftJoin('updateRemote.staff', 'staff')
+    //   .select(['updateRemote','staff'])
+    //   .where({isDeleted: false})
+    //   .take(perPage || 25)
+    //   .skip((page - 1) * perPage || 0)
+    //   .orderBy('updateRemote.createdAt','DESC');
+
+    // const findEmail = await transactionManager
+    //   .getRepository(User)
+    //   .findOne({ email });
+    // if (isNullOrUndefined(findEmail)) {
+    //   throw new NotFoundException('Request not exist!');
+    // }
+    try {
+      // const { amount } = updateRemoteDay;
+      
+      // const userInfo = await transactionManager
+      //     .getRepository(UserInformation)
+      //     .find({
+      //       where: {isDeleted: false }
+      //     });
+
+      // let listUpdate = [];
+
+      // const query = transactionManager
+      //   .getRepository(UserInformation)
+      //   .createQueryBuilder('updateRemote')
+      //   .select([
+      //     'updateRemote.remote_remain_in_month',
+      //   ])
+      //   .where(
+      //     `updateRemote.isDeleted is FALSE and updateRemote.status != 'CANCEL'`,
+      //     { status: 'CANCEL',}
+      //   );
+      // const listQuery = await query.getMany();
+
+      
+      // userInfo.forEach(
+      //   query.update()
+      // );
+
+      const findAll = await transactionManager
+      .getRepository(UserInformation)
+      .createQueryBuilder('userInformation')
+      .getMany();
+      // console.log(findAll);
+      findAll.forEach(async (ele) => {
+        ele.remote_remain_in_month = updateRemoteDay.amount;
+        ele.save();
+      });
+
+      return {
+        statusCode: 200,
+        message: 'Update success',
+        data: findAll,
+      };
+
+      // await transactionManager.update(
+      //   UserInformation,
+      //   {},
+      //   {
+      //     remote_remain_in_month: updateRemoteDay.amount,
+      //   }
+      // );
+
+      // return;
+
+
+
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình cập nhật!',
+      );
+    }
+  }
+
+  async updateRemoteDayAdminOne(
+    transactionManager: EntityManager,
+    // dayOffSearch: DayOffSearch,
+    // userInformation: UserInformation,
+    // user: User,
+    // email: string,
+    // amount: number,
+    // userInformation: UserInformation,
+    updateRemoteDay: UpdateRemoteDay,
+  ) {
+    // const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
+    // const { userId }  = userInformation;
+    // const { email } = user;
+    // const { remote_remain_in_month } = userInformation;
+
+    // const query = transactionManager
+    //   .getRepository(UserInformation)
+    //   .createQueryBuilder('updateRemote')
+    //   .leftJoin('updateRemote.staff', 'staff')
+    //   .select(['updateRemote','staff'])
+    //   .where({isDeleted: false})
+    //   .take(perPage || 25)
+    //   .skip((page - 1) * perPage || 0)
+    //   .orderBy('updateRemote.createdAt','DESC');
+
+    // const findEmail = await transactionManager
+    //   .getRepository(User)
+    //   .findOne({ email });
+    // if (isNullOrUndefined(findEmail)) {
+    //   throw new NotFoundException('Request not exist!');
+    // }
+    // const userInfo = await transactionManager
+    //   .getRepository(UserInformation)
+    //   .findOne({
+    //     where: { userId: findEmail.id },
+    //   });
+    // userInfo.remote_remain_in_month = amount;
+
+    const findEmail = await transactionManager
+        .findOne(User, {email: updateRemoteDay.email});
+    // console.log(findEmail);
+    const findUserId = await transactionManager
+        .findOne(UserInformation, {userId: findEmail.id});
+    // console.log(findUserId);
+    // const remoteDayBefore = findUserId.remote_remain_in_month;
+    findUserId.remote_remain_in_month = (updateRemoteDay.amount);
+
+    try{
+      const res = await findUserId.save();
+      return res;
+    }
+    catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình update!',
+      );
     }
   }
 
@@ -345,7 +496,10 @@ export class DayoffRepository extends Repository<DayOff> {
         } else {
           userInfo.remain -= 0.5;
         }
-        if (updateDate.getMonth() == currMonth && currMonth == dateLeave.getMonth()) {
+        if (
+          updateDate.getMonth() == currMonth &&
+          currMonth == dateLeave.getMonth()
+        ) {
           userInfo.remote_remain_in_month += 0.5;
           userInfo.remote_day_in_year -= 0.5;
         } else {
@@ -354,7 +508,10 @@ export class DayoffRepository extends Repository<DayOff> {
         }
       } else if (listDateOff[0].time == 0 && findDayOff.time != 0) {
         //Giảm remain
-        if (updateDate.getFullYear() == currYear && currMonth == dateLeave.getMonth()) {
+        if (
+          updateDate.getFullYear() == currYear &&
+          currMonth == dateLeave.getMonth()
+        ) {
           userInfo.remain -= 0.5;
         } else {
           userInfo.remain += 0.5;
@@ -583,7 +740,7 @@ export class DayoffRepository extends Repository<DayOff> {
           }
         }
       }
-      if(dayOff.type == 3){
+      if (dayOff.type == 3) {
         const isCurrentMonth =
           new Date().getMonth() == new Date(dayOff.dateLeave).getMonth();
 

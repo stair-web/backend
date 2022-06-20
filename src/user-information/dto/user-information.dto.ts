@@ -37,6 +37,8 @@ export class UserInformationDto {
 
     teamId?:number;
 
+    // isDeleted?: boolean;
+
     constructor() {
         this.uuid = "";
         this.userId = 0;
