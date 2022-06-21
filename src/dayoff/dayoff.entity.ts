@@ -45,6 +45,9 @@ export class DayOff  extends BaseEntity {
     timeNumber: number;
 
     @Column()
+    remoteNumber: number;
+
+    @Column()
     createdAt: Date;
 
     @Column()

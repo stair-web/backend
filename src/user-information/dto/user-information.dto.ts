@@ -13,6 +13,10 @@ export class UserInformationDto {
 
     remain?: number;
 
+    remmote_remain_in_month?: number;
+
+    remote_day_in_year?: number;
+
     dateOffNextYear?: number;
 
     profilePhotoKey?: string;
@@ -32,6 +36,8 @@ export class UserInformationDto {
     updatedAt?: Date;
 
     teamId?:number;
+
+    // isDeleted?: boolean;
 
     constructor() {
         this.uuid = "";
