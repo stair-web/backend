@@ -392,6 +392,8 @@ export class DayoffRepository extends Repository<DayOff> {
             const isCurrentMonth =
               new Date().getMonth() == new Date(ele.date).getMonth();
 
+            // let checkRemain = userInfo.remote_remain_in_month;
+
             if (parseInt(ele.time) == 0) {
               if (isCurrentMonth) {
                 userInfo.remote_remain_in_month =
@@ -411,6 +413,10 @@ export class DayoffRepository extends Repository<DayOff> {
                 throw new ConflictException(
                   'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
                 );
+                // return {
+                //   statusCode: '400',
+                //   messages: "Remaining Remote Day In Month Cannot Be Smaller Than 0!",
+                // }
               }
             }
           }
