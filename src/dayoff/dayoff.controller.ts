@@ -12,8 +12,9 @@ import {
   Param,
   Put,
   Delete,
+  ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Update } from 'aws-sdk/clients/dynamodb';
 import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
@@ -26,7 +27,9 @@ import { DayOffSearch } from './dto/dayoff-search.dto';
 import { ReportDayOffSearch } from './dto/report-day-off-search.dto';
 import { UpdateRemoteDay } from './dto/update-remote-day.dto';
 
-@Controller('dayoff')
+
+@Controller('day-off')
+@ApiTags('Day-off')
 export class DayoffController {
   constructor(
     private connection: Connection,
@@ -58,7 +61,7 @@ export class DayoffController {
   })
   @ApiOperation({summary: 'Update Remote Day For All'})
   async updateRemoteDayAdminAll(
-    @Body() updateRemoteDay: UpdateRemoteDay,
+    @Body(ValidationPipe) updateRemoteDay: UpdateRemoteDay,
     // @GetUser() user: User,
     // @Param('uuid') uuid: string,
     // @Param('amount') amount: number,
@@ -87,7 +90,7 @@ export class DayoffController {
     // },
     // @Param('email') email: string,
     // @Param('amout') amount: number,
-    @Body() updateRemoteDay: UpdateRemoteDay,
+    @Body(ValidationPipe) updateRemoteDay: UpdateRemoteDay,
   ){
     // dayOffSearch.staffId = user.id;
     return await this.connection.transaction((transactionManager) => {

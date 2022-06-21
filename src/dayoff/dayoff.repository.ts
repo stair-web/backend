@@ -8,6 +8,7 @@ import {
   Brackets,
   EntityManager,
   EntityRepository,
+  getRepository,
   Not,
   Repository,
 } from 'typeorm';
@@ -71,60 +72,10 @@ export class DayoffRepository extends Repository<DayOff> {
   async updateRemoteDayAdminAll(
     transactionManager: EntityManager,
     updateRemoteDay: UpdateRemoteDay,
-    // dayOffSearch: DayOffSearch,
-    // user: User,
-    // amount: number,
     // userInformation: UserInformation,
   ) {
-    // const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
-    // const { remote_remain_in_month } = userInformation;
-
-    // const query = transactionManager
-    //   .getRepository(UserInformation)
-    //   .createQueryBuilder('updateRemote')
-    //   .leftJoin('updateRemote.staff', 'staff')
-    //   .select(['updateRemote','staff'])
-    //   .where({isDeleted: false})
-    //   .take(perPage || 25)
-    //   .skip((page - 1) * perPage || 0)
-    //   .orderBy('updateRemote.createdAt','DESC');
-
-    // const findEmail = await transactionManager
-    //   .getRepository(User)
-    //   .findOne({ email });
-    // if (isNullOrUndefined(findEmail)) {
-    //   throw new NotFoundException('Request not exist!');
-    // }
     try {
-      // const { amount } = updateRemoteDay;
-      
-      // const userInfo = await transactionManager
-      //     .getRepository(UserInformation)
-      //     .find({
-      //       where: {isDeleted: false }
-      //     });
-
-      // let listUpdate = [];
-
-      // const query = transactionManager
-      //   .getRepository(UserInformation)
-      //   .createQueryBuilder('updateRemote')
-      //   .select([
-      //     'updateRemote.remote_remain_in_month',
-      //   ])
-      //   .where(
-      //     `updateRemote.isDeleted is FALSE and updateRemote.status != 'CANCEL'`,
-      //     { status: 'CANCEL',}
-      //   );
-      // const listQuery = await query.getMany();
-
-      
-      // userInfo.forEach(
-      //   query.update()
-      // );
-
-      const findAll = await transactionManager
-      .getRepository(UserInformation)
+      const findAll = await getRepository(UserInformation)
       .createQueryBuilder('userInformation')
       .getMany();
       // console.log(findAll);
@@ -139,17 +90,6 @@ export class DayoffRepository extends Repository<DayOff> {
         data: findAll,
       };
 
-      // await transactionManager.update(
-      //   UserInformation,
-      //   {},
-      //   {
-      //     remote_remain_in_month: updateRemoteDay.amount,
-      //   }
-      // );
-
-      // return;
-
-
 
     } catch (error) {
       Logger.error(error);
@@ -161,47 +101,14 @@ export class DayoffRepository extends Repository<DayOff> {
 
   async updateRemoteDayAdminOne(
     transactionManager: EntityManager,
-    // dayOffSearch: DayOffSearch,
     // userInformation: UserInformation,
     // user: User,
-    // email: string,
-    // amount: number,
-    // userInformation: UserInformation,
     updateRemoteDay: UpdateRemoteDay,
   ) {
-    // const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
-    // const { userId }  = userInformation;
-    // const { email } = user;
-    // const { remote_remain_in_month } = userInformation;
 
-    // const query = transactionManager
-    //   .getRepository(UserInformation)
-    //   .createQueryBuilder('updateRemote')
-    //   .leftJoin('updateRemote.staff', 'staff')
-    //   .select(['updateRemote','staff'])
-    //   .where({isDeleted: false})
-    //   .take(perPage || 25)
-    //   .skip((page - 1) * perPage || 0)
-    //   .orderBy('updateRemote.createdAt','DESC');
-
-    // const findEmail = await transactionManager
-    //   .getRepository(User)
-    //   .findOne({ email });
-    // if (isNullOrUndefined(findEmail)) {
-    //   throw new NotFoundException('Request not exist!');
-    // }
-    // const userInfo = await transactionManager
-    //   .getRepository(UserInformation)
-    //   .findOne({
-    //     where: { userId: findEmail.id },
-    //   });
-    // userInfo.remote_remain_in_month = amount;
-
-    const findEmail = await transactionManager
-        .findOne(User, {email: updateRemoteDay.email});
+    const findEmail = await getRepository(User).findOne({email: updateRemoteDay.email});
     // console.log(findEmail);
-    const findUserId = await transactionManager
-        .findOne(UserInformation, {userId: findEmail.id});
+    const findUserId = await getRepository(UserInformation).findOne({userId: findEmail.id});
     // console.log(findUserId);
     // const remoteDayBefore = findUserId.remote_remain_in_month;
     findUserId.remote_remain_in_month = (updateRemoteDay.amount);
