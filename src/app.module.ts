@@ -32,6 +32,8 @@ import { PartnerPartnershipModule } from './partner-partnership/partner-partners
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
 import { TeamModule } from './team/team.module';
+import { RoomModule } from './room/room.module';
+import { BookingRoomModule } from './booking-room/booking-room.module';
 @Module({
   imports: [
         DayoffModule, 
@@ -81,7 +83,9 @@ import { TeamModule } from './team/team.module';
     PartnerSectionItemModule,
     PartnerIntroductionModule,
     PartnerPartnershipModule,
-    TeamModule
+    TeamModule,
+    RoomModule,
+    BookingRoomModule
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway,
