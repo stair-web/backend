@@ -76,8 +76,8 @@ export class DayoffRepository extends Repository<DayOff> {
   ) {
     try {
       const findAll = await getRepository(UserInformation)
-      .createQueryBuilder('userInformation')
-      .getMany();
+        .createQueryBuilder('userInformation')
+        .getMany();
       // console.log(findAll);
       findAll.forEach(async (ele) => {
         ele.remote_remain_in_month = updateRemoteDay.amount;
@@ -90,8 +90,6 @@ export class DayoffRepository extends Repository<DayOff> {
         message: 'Update success',
         data: findAll,
       };
-
-
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
@@ -106,19 +104,21 @@ export class DayoffRepository extends Repository<DayOff> {
     // user: User,
     updateRemoteDay: UpdateRemoteDay,
   ) {
-
-    const findEmail = await getRepository(User).findOne({email: updateRemoteDay.email});
+    const findEmail = await getRepository(User).findOne({
+      email: updateRemoteDay.email,
+    });
     // console.log(findEmail);
-    const findUserId = await getRepository(UserInformation).findOne({userId: findEmail.id});
+    const findUserId = await getRepository(UserInformation).findOne({
+      userId: findEmail.id,
+    });
     // console.log(findUserId);
     // const remoteDayBefore = findUserId.remote_remain_in_month;
-    findUserId.remote_remain_in_month = (updateRemoteDay.amount);
+    findUserId.remote_remain_in_month = updateRemoteDay.amount;
 
-    try{
+    try {
       const res = await findUserId.save();
       return res;
-    }
-    catch (error) {
+    } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình update!',
@@ -297,36 +297,79 @@ export class DayoffRepository extends Repository<DayOff> {
           }
 
           if (type == 3) {
-            const isCurrentMonth =
-              new Date().getMonth() == new Date(ele.date).getMonth();
+            try {
+              const isCurrentMonth =
+                new Date().getMonth() == new Date(ele.date).getMonth();
 
-            // let checkRemain = userInfo.remote_remain_in_month;
+              // let checkRemain = userInfo.remote_remain_in_month;
 
-            if (parseInt(ele.time) == 0) {
-              if (isCurrentMonth) {
-                userInfo.remote_remain_in_month =
-                  userInfo.remote_remain_in_month - 1;
-                userInfo.remote_day_in_year += 1;
+              if (parseInt(ele.time) == 0) {
+                if (isCurrentMonth) {
+                  userInfo.remote_remain_in_month =
+                    userInfo.remote_remain_in_month - 1;
+                  userInfo.remote_day_in_year += 1;
+                }
+              } else if (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) {
+                if (isCurrentMonth) {
+                  userInfo.remote_remain_in_month =
+                    userInfo.remote_remain_in_month - 0.5;
+                  userInfo.remote_day_in_year += 0.5;
+                }
               }
-            } else if (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) {
+
               if (isCurrentMonth) {
-                userInfo.remote_remain_in_month =
-                  userInfo.remote_remain_in_month - 0.5;
-                userInfo.remote_day_in_year += 0.5;
+                if (userInfo.remote_remain_in_month < 0) {
+                  throw Error(
+                    'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
+                  );
+                }
               }
+
+            } catch (error) {
+              if (error.status == 500) {
+                throw new ConflictException({
+                  data: {
+                    remoteRemainInMonth: userInfo.remote_remain_in_month,
+                  },
+                  message: 'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
+                });
+              }
+              Logger.error(error);
+              throw new InternalServerErrorException(
+                'Lỗi hệ thống trong quá tình tạo ngày remote',
+              );
             }
 
-            if (isCurrentMonth) {
-              if (userInfo.remote_remain_in_month < 0) {
-                throw new ConflictException(
-                  'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
-                );
-                // return {
-                //   statusCode: '400',
-                //   messages: "Remaining Remote Day In Month Cannot Be Smaller Than 0!",
-                // }
-              }
-            }
+            // const isCurrentMonth =
+            //   new Date().getMonth() == new Date(ele.date).getMonth();
+
+            // // let checkRemain = userInfo.remote_remain_in_month;
+
+            // if (parseInt(ele.time) == 0) {
+            //   if (isCurrentMonth) {
+            //     userInfo.remote_remain_in_month =
+            //       userInfo.remote_remain_in_month - 1;
+            //     userInfo.remote_day_in_year += 1;
+            //   }
+            // } else if (parseInt(ele.time) == 1 || parseInt(ele.time) == 2) {
+            //   if (isCurrentMonth) {
+            //     userInfo.remote_remain_in_month =
+            //       userInfo.remote_remain_in_month - 0.5;
+            //     userInfo.remote_day_in_year += 0.5;
+            //   }
+            // }
+
+            // if (isCurrentMonth) {
+            //   if (userInfo.remote_remain_in_month < 0) {
+            //     throw new InternalServerErrorException(
+            //       'Remaining Remote Day In Month Cannot Be Smaller Than 0!',
+            //     );
+            //     // return {
+            //     //   statusCode: '400',
+            //     //   messages: "Remaining Remote Day In Month Cannot Be Smaller Than 0!",
+            //     // }
+            //   }
+            // }
           }
 
           if (userInfo.dateOffNextYear > 12) {
@@ -757,7 +800,9 @@ export class DayoffRepository extends Repository<DayOff> {
         .select(
           'd.staff_id, ui.last_name, t.name as team, ui.remain, ui.remote_remain_in_month, ui.remote_day_in_year, sum(CASE WHEN type = 1 THEN time_number ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time_number ELSE 0 END) as type_2',
         )
-        .groupBy('d.staff_id, ui.last_name, t.name, ui.remain, ui.remote_remain_in_month, ui.remote_day_in_year')
+        .groupBy(
+          'd.staff_id, ui.last_name, t.name, ui.remain, ui.remote_remain_in_month, ui.remote_day_in_year',
+        )
         .andWhere('d.isDeleted = false and d.status = :status', {
           status: 'APPROVED',
         });
