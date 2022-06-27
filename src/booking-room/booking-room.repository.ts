@@ -65,6 +65,25 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
     };
   }
 
+  async getBookingRoomList(user: User) {
+    const query = await this.createQueryBuilder('booking')
+      // .leftJoin('booking.room', 'room')
+      .leftJoin('booking.user', 'user')
+      .select(['booking', 'user'])
+      .where('booking.userId = :id', {id: user.id})
+      .orderBy('booking.createdAt', 'DESC');
+
+    const data = await query.getMany();
+    console.log(data);
+    // const total = await query.getCount();
+    return {
+      statusCode: 200,
+      message: 'Lấy danh sách đặt phòng của tài khoản',
+      data: data,
+    };
+  }
+
+
   async bookingRoomListByRoom(user: User, getListDto: GetListDto, room: number) {
     const { perPage, page, fullTextSearch } = getListDto;
     const query = await this.createQueryBuilder('booking')
@@ -100,6 +119,26 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
 
   async bookingRoomDelete(transactionManager: EntityManager, user: User, id: number){
     return await transactionManager.delete(BookingRoom, {id});
+  }
+
+  async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number){
+    
+    let delBooking = await transactionManager
+      .getRepository(BookingRoom)
+      .delete({id});
+
+    try {
+      return delBooking;
+    }
+    catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình delete!',
+      );
+    }
+    
+    
+    // return await transactionManager.delete(BookingRoom, {id});
   }
 
   async bookingRoomDetail(user: User, id: number) {
