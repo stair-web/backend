@@ -21,6 +21,10 @@ export class BookingRoomService {
         return await this.bookingRoomRepository.bookingRoomListByUser(user, getListDto);
     }
 
+    async getBookingRoomList(user: User){
+        return await this.bookingRoomRepository.getBookingRoomList(user);
+    }
+
     async bookingRoomListByRoom(user: User, getListDto: GetListDto, room: number) {
         return await this.bookingRoomRepository.bookingRoomListByRoom(user, getListDto, room);
     }
@@ -31,6 +35,14 @@ export class BookingRoomService {
             throw new InternalServerErrorException('Không tìm thấy lịch đặt phòng do bạn tạo.')
         }
         return await this.bookingRoomRepository.bookingRoomDelete(transactionManager, user, id);
+    }
+
+    async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number) {
+        // const exitt = await transactionManager.getRepository(BookingRoom).findOne({id, userId: user.id});
+        // if(isNullOrUndefined(exitt)){
+        //     throw new InternalServerErrorException('Không tìm thấy lịch đặt phòng do bạn tạo.')
+        // }
+        return this.bookingRoomRepository.bookingRoomDelete(transactionManager, user, id);
     }
 
     async bookingRoomDetail(user: User, id: number) {
