@@ -22,5 +22,10 @@ export class UpdateCustomerDto {
   phoneNumber: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  message: string;
+
+  @ApiProperty()
   sendTime: Date;
 }

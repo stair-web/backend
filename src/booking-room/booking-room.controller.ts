@@ -6,6 +6,7 @@ import { GetUser } from 'src/user/get-user.decorator';
 import { User } from 'src/user/user.entity';
 import { Connection, TransactionManager } from 'typeorm';
 import { BookingRoomService } from './booking-room.service';
+import { UpdateBookingRoomDto } from './dto/update-booking-room.dto';
 import { BookingRoomDto } from './dto/booking-room.dto';
 
 @Controller('booking-room')
@@ -91,9 +92,9 @@ export class BookingRoomController {
     @ApiBearerAuth()
     @UseGuards(RolesGuard)
     @ApiOperation({ summary: 'Chỉnh sửa chi tiết lịch đặt phòng.' })
-    async bookingRoomEdit(@GetUser() user: User, @Param('id') id: number, @Body() bookingRoomDto: BookingRoomDto,) {
+    async bookingRoomEdit(@GetUser() user: User, @Param('id') id: number, @Body() updateBookingRoomDto: UpdateBookingRoomDto,) {
         return await this.connection.transaction((transactionManager) => {
-            return this.bookingRoomService.bookingRoomEdit(transactionManager,user, id, bookingRoomDto);
+            return this.bookingRoomService.bookingRoomEdit(transactionManager, user, id, updateBookingRoomDto);
         });
     }
 }

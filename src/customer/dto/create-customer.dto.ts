@@ -16,5 +16,9 @@ export class CreateCustomerDto {
   @IsPhoneNumber('VN')
   phoneNumber: string;
 
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
   sendTime: Date;
 }

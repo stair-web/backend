@@ -6,6 +6,7 @@ import { EntityManager } from 'typeorm';
 import { BookingRoom } from './booking-room.entity';
 import { BookingRoomRepository } from './booking-room.repository';
 import { BookingRoomDto } from './dto/booking-room.dto';
+import { UpdateBookingRoomDto } from './dto/update-booking-room.dto';
 
 @Injectable()
 export class BookingRoomService {
@@ -49,7 +50,7 @@ export class BookingRoomService {
         return await this.bookingRoomRepository.bookingRoomDetail(user, id);
     }
 
-    async bookingRoomEdit(transactionManager: EntityManager, user: User, id: number, bookingRoomDto: BookingRoomDto) {
-        return await this.bookingRoomRepository.bookingRoomEdit(transactionManager, user, id);
+    async bookingRoomEdit(transactionManager: EntityManager, user: User, id: number, updateBookingRoomDto: UpdateBookingRoomDto) {
+        return await this.bookingRoomRepository.bookingRoomEdit(transactionManager, user, id, updateBookingRoomDto);
     }
 }

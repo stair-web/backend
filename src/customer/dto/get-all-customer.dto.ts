@@ -20,6 +20,8 @@ export class GetAllCustomerDto {
   @ApiProperty({required: false})
   filterNote:string;
   @ApiProperty({required: false})
+  filterMessage:string;
+  @ApiProperty({required: false})
   filterFullName:string;
   @ApiProperty({required: false})
   filterEmail:string;
@@ -30,6 +32,8 @@ export class GetAllCustomerDto {
 
   @ApiProperty({required: false, enum: SortValue,})
   sortNote: SortValue;
+  @ApiProperty({required: false, enum: SortValue,})
+  sortMessage: SortValue;
   @ApiProperty({required: false,enum: SortValue, })
   sortFullName: SortValue;
   @ApiProperty({required: false,enum: SortValue, })
