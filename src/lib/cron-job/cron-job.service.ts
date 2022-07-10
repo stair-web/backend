@@ -36,6 +36,10 @@ export class CronJobService {
       //   console.log(userInformation.remain);
       //   console.log('----');
       // }
+
+      userInformation.remote_day_in_year = 0;
+      userInformation.remote_remaining = `{"m01":2,"m02":2,"m03":2,"m04":2,"m05":2,"m06":2,"m07":2,"m08":2,"m09":2,"m10":2,"m11":2,"m12":2}`;
+
     });
     // }
     console.log('cron end');
@@ -76,7 +80,7 @@ export class CronJobService {
     // const today = new Date();
 
     this.logger.debug(
-      'CronExampleMonth run every Month in the first day at midnight!',
+      'CronExampleMonth run every Month in the first day at noon!',
     );
 
     const listUserUpdate = await this.userInformationRepository
@@ -86,8 +90,58 @@ export class CronJobService {
       // .select('*', 'user')
       // .where('user.isDeleted =false')
       .getMany();
+
+    interface AllRemoteInMonth {
+      m01: number;
+      m02: number;
+      m03: number;
+      m04: number;
+      m05: number;
+      m06: number;
+      m07: number;
+      m08: number;
+      m09: number;
+      m10: number;
+      m11: number;
+      m12: number;
+    }
+
     listUserUpdate.forEach((userInformation) => {
-      userInformation.remote_remain_in_month = 2;
+      let tempRemoteRemainInMonth = userInformation.remote_remaining;
+      const remoteInAllMonth: AllRemoteInMonth = JSON.parse(
+        JSON.stringify(tempRemoteRemainInMonth),
+      );
+
+      if (new Date().getMonth() + 1 === 1) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m01;
+      } else if (new Date().getMonth() + 1 === 2) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m02;
+      } else if (new Date().getMonth() + 1 === 3) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m03;
+      } else if (new Date().getMonth() + 1 === 4) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m04;
+      } else if (new Date().getMonth() + 1 === 5) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m05;
+      } else if (new Date().getMonth() + 1 === 6) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m06;
+      } else if (new Date().getMonth() + 1 === 7) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m07;
+      } else if (new Date().getMonth() + 1 === 8) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m08;
+      } else if (new Date().getMonth() + 1 === 9) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m09;
+      } else if (new Date().getMonth() + 1 === 10) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m10;
+      } else if (new Date().getMonth() + 1 === 11) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m11;
+      } else if (new Date().getMonth() + 1 === 12) {
+        userInformation.remote_remain_in_month = remoteInAllMonth.m12;
+      }
+
+      userInformation.remote_remaining = JSON.stringify(remoteInAllMonth);
+
+      // userInformation.remote_remain_in_month = 2;
+
       this.userInformationRepository.save(userInformation);
     });
   }
