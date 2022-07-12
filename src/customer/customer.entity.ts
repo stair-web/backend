@@ -28,6 +28,9 @@ export class Customer  {
   note: string;
 
   @Column()
+  message: string;
+
+  @Column()
   phoneNumber: string;
 
   @Column()

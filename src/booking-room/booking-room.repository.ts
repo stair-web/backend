@@ -10,6 +10,7 @@ import { User } from 'src/user/user.entity';
 import { Brackets, EntityManager, EntityRepository, Repository } from 'typeorm';
 import { BookingRoom } from './booking-room.entity';
 import { BookingRoomDto } from './dto/booking-room.dto';
+import { UpdateBookingRoomDto } from './dto/update-booking-room.dto';
 
 @EntityRepository(BookingRoom)
 export class BookingRoomRepository extends Repository<BookingRoom> {
@@ -55,7 +56,7 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
       );
     }
     const data = await query.getMany();
-    console.log(data);
+    // console.log(data);
     const total = await query.getCount();
     return {
       statusCode: 200,
@@ -74,7 +75,7 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
       .orderBy('booking.createdAt', 'DESC');
 
     const data = await query.getMany();
-    console.log(data);
+    // console.log(data);
     // const total = await query.getCount();
     return {
       statusCode: 200,
@@ -155,7 +156,35 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
     return { statusCode: 200, message: 'Lấy chi tiết thành công.', data: data}
   }
 
-  async bookingRoomEdit(transactionManager: EntityManager, user: User, id: number){
-    await transactionManager.update(BookingRoom, {id}, {})
+  async bookingRoomEdit(transactionManager: EntityManager, user: User, id: number, updateBookingRoomDto: UpdateBookingRoomDto){
+    // await transactionManager.update(BookingRoom, {id}, {})
+    const { bookDate, startTime, endTime, description, meetingName } = updateBookingRoomDto;
+
+    const bookingRoom = await transactionManager.getRepository(BookingRoom).findOne({id});
+
+    if (isNullOrUndefined(bookingRoom)) {
+      throw new InternalServerErrorException('Lịch đặt phòng không tồn tại.');
+    }
+
+    try {
+      await transactionManager.update(
+        BookingRoom,
+        { id: bookingRoom.id },
+        {
+          bookDate: bookDate,
+          startTime: startTime,
+          endTime: endTime,
+          description: description,
+          meetingName: meetingName,
+        },
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi trong quá trình chỉnh sửa lịch đặt phòng.',
+      );
+    }
+    return { statusCode: 200, message: 'Chỉnh sửa lịch đặt phòng thành công.' };
+
   }
 }
