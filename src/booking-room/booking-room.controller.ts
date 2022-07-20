@@ -8,6 +8,7 @@ import { Connection, TransactionManager } from 'typeorm';
 import { BookingRoomService } from './booking-room.service';
 import { UpdateBookingRoomDto } from './dto/update-booking-room.dto';
 import { BookingRoomDto } from './dto/booking-room.dto';
+import { FilterMeetingRoomBooking } from './dto/filter-meeting-room-booking.dto';
 
 @Controller('booking-room')
 @ApiTags('Booking-room')
@@ -65,19 +66,19 @@ export class BookingRoomController {
         });
     }
 
-    @Delete('/delete/:id')
-    @UseGuards(RolesGuard)
-    @ApiBearerAuth()
-    @ApiResponse({
-        status: 201,
-        description: 'Delete thành công.',
-    })
-    @ApiOperation({ summary: 'Delete booking' })
-    async deleteBookingRoom(@Param('id') id: number, @GetUser() user: User) {
-        return await this.connection.transaction((transactionManager) => {
-            return this.bookingRoomService.deleteBookingRoom(transactionManager, user, id);
-        });
-    }
+    // @Delete('/delete/:id')
+    // @UseGuards(RolesGuard)
+    // @ApiBearerAuth()
+    // @ApiResponse({
+    //     status: 201,
+    //     description: 'Delete thành công.',
+    // })
+    // @ApiOperation({ summary: 'Delete booking' })
+    // async deleteBookingRoom(@Param('id') id: number, @GetUser() user: User) {
+    //     return await this.connection.transaction((transactionManager) => {
+    //         return this.bookingRoomService.deleteBookingRoom(transactionManager, user, id);
+    //     });
+    // }
 
 
     @Get('detail/:id')
@@ -96,5 +97,19 @@ export class BookingRoomController {
         return await this.connection.transaction((transactionManager) => {
             return this.bookingRoomService.bookingRoomEdit(transactionManager, user, id, updateBookingRoomDto);
         });
+    }
+
+    @Post('filter')
+    @ApiBearerAuth()
+    @UseGuards(RolesGuard)
+    @ApiOperation({ summary: 'Filter Meeting Room Booking.'})
+    async filterMeetingRoomBooking(@Body('meetingRoomBookingFilter') meetingRoomBookingFilter: FilterMeetingRoomBooking){
+        return await this.connection.transaction((transactionManager) => {
+            return this.bookingRoomService.filterMeetingRoomBooking(
+                transactionManager,
+                meetingRoomBookingFilter.fromDate,
+                meetingRoomBookingFilter.toDate
+            )
+        })
     }
 }

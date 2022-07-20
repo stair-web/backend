@@ -119,28 +119,32 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
   }
 
   async bookingRoomDelete(transactionManager: EntityManager, user: User, id: number){
-    return await transactionManager.delete(BookingRoom, {id});
-  }
-
-  async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number){
-    
-    let delBooking = await transactionManager
-      .getRepository(BookingRoom)
-      .delete({id});
-
     try {
-      return delBooking;
-    }
-    catch (error) {
+      await transactionManager.delete(BookingRoom, {id});
+    } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException(
         'Lỗi hệ thống trong quá tình delete!',
       );
     }
-    
-    
-    // return await transactionManager.delete(BookingRoom, {id});
+    return { statusCode: 200, message: 'Xoá thành công.'};
   }
+
+  // async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number){
+  //   try {
+  //     // return delBooking;
+  //     let delBooking = await transactionManager.delete(BookingRoom,{id});
+  //   }
+  //   catch (error) {
+  //     Logger.error(error);
+  //     throw new InternalServerErrorException(
+  //       'Lỗi hệ thống trong quá tình delete!',
+  //     );
+  //   }
+    
+  //   return { statusCode: 200, message: 'Xoá thành công.'};
+  //   // return await transactionManager.delete(BookingRoom, {id});
+  // }
 
   async bookingRoomDetail(user: User, id: number) {
     const query = await this.createQueryBuilder('booking')
@@ -186,5 +190,45 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
     }
     return { statusCode: 200, message: 'Chỉnh sửa lịch đặt phòng thành công.' };
 
+  }
+
+  async filterMeetingRoomBooking(
+    transactionManager: EntityManager,
+    fromDate: Date,
+    toDate: Date
+  ) {
+    try {
+      const query = transactionManager
+        .getRepository(BookingRoom)
+        .createQueryBuilder('b')
+        .select(
+          'b.id, b.room_id, b.user_id, b.book_date, b.start_time, b.end_time, b.meeting_name, b.description',
+        );
+
+      if (fromDate) {
+        let from = new Date(fromDate);
+        query.andWhere('b.bookDate >= :from', {
+          from: new Date(from),
+        });
+      }
+      // to.getFullYear() + '-' + (to.getMonth() + 1) + '-' + to.getDate(),
+      if (toDate) {
+        let to = new Date(toDate);
+        query.andWhere('b.bookDate <= :to', {
+          to: new Date(to),
+        });
+      }
+
+      const data = await query.execute();
+
+      return data;
+    } catch (error) {
+      console.log(error);
+
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        'Lỗi hệ thống trong quá tình lọc ngày',
+      );
+    }
   }
 }
