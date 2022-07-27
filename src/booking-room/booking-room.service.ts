@@ -38,13 +38,13 @@ export class BookingRoomService {
         return await this.bookingRoomRepository.bookingRoomDelete(transactionManager, user, id);
     }
 
-    async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number) {
-        // const exitt = await transactionManager.getRepository(BookingRoom).findOne({id, userId: user.id});
-        // if(isNullOrUndefined(exitt)){
-        //     throw new InternalServerErrorException('Không tìm thấy lịch đặt phòng do bạn tạo.')
-        // }
-        return this.bookingRoomRepository.bookingRoomDelete(transactionManager, user, id);
-    }
+    // async deleteBookingRoom(transactionManager: EntityManager, user: User, id: number) {
+    //     // const exitt = await transactionManager.getRepository(BookingRoom).findOne({id, userId: user.id});
+    //     // if(isNullOrUndefined(exitt)){
+    //     //     throw new InternalServerErrorException('Không tìm thấy lịch đặt phòng do bạn tạo.')
+    //     // }
+    //     return this.bookingRoomRepository.bookingRoomDelete(transactionManager, user, id);
+    // }
 
     async bookingRoomDetail(user: User, id: number) {
         return await this.bookingRoomRepository.bookingRoomDetail(user, id);
@@ -52,5 +52,9 @@ export class BookingRoomService {
 
     async bookingRoomEdit(transactionManager: EntityManager, user: User, id: number, updateBookingRoomDto: UpdateBookingRoomDto) {
         return await this.bookingRoomRepository.bookingRoomEdit(transactionManager, user, id, updateBookingRoomDto);
+    }
+
+    async filterMeetingRoomBooking(transactionManager: EntityManager, fromDate: Date, toDate: Date){
+        return await this.bookingRoomRepository.filterMeetingRoomBooking(transactionManager, fromDate, toDate);
     }
 }
