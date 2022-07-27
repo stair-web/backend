@@ -26,6 +26,10 @@ export class BookingRoomService {
         return await this.bookingRoomRepository.getBookingRoomList(user);
     }
 
+    async getBookingRoom(){
+        return await this.bookingRoomRepository.getBookingRoom();
+    }
+
     async bookingRoomListByRoom(user: User, getListDto: GetListDto, room: number) {
         return await this.bookingRoomRepository.bookingRoomListByRoom(user, getListDto, room);
     }
