@@ -44,6 +44,14 @@ export class BookingRoomController {
         return this.bookingRoomService.getBookingRoomList(user);
     }
 
+    @Get('/list-all')
+    @ApiBearerAuth()
+    @UseGuards(RolesGuard)
+    @ApiOperation({ summary: 'Lấy danh sách đặt phòng.' })
+    async getBookingRoom() {
+        return this.bookingRoomService.getBookingRoom();
+    }
+
     @Get(':roomId')
     @ApiBearerAuth()
     @UseGuards(RolesGuard)

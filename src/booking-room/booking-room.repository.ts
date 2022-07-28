@@ -84,6 +84,22 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
     };
   }
 
+  async getBookingRoom(){
+    const query = await this.createQueryBuilder('booking')
+        .leftJoin('booking.user', 'user')
+        .select(['booking', 'user'])
+        // .select(['booking'])
+        .orderBy('booking.createdAt', 'DESC');
+      
+    const data = await query.getMany();
+
+    return {
+      statusCode: 200,
+      message: 'Lấy danh sách đặt phòng',
+      data: data,
+    };
+  }
+
 
   async bookingRoomListByRoom(user: User, getListDto: GetListDto, room: number) {
     const { perPage, page, fullTextSearch } = getListDto;
@@ -201,9 +217,11 @@ export class BookingRoomRepository extends Repository<BookingRoom> {
       const query = transactionManager
         .getRepository(BookingRoom)
         .createQueryBuilder('b')
+        .leftJoin('b.user', 'user')
         .select(
-          'b.id, b.room_id, b.user_id, b.book_date, b.start_time, b.end_time, b.meeting_name, b.description',
+          'b.id, b.room_id, b.user_id, b.book_date, b.start_time, b.end_time, b.meeting_name, b.description, user.username',
         );
+        // .select(['b', 'user']);
 
       if (fromDate) {
         let from = new Date(fromDate);
