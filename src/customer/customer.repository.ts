@@ -20,7 +20,7 @@ export class CustomerRepository extends Repository<Customer> {
     updateCustomerDto: UpdateCustomerDto,
     uuid: string,
   ): Promise<unknown> {
-    const { email, fullName, phoneNumber, note, sendTime } = updateCustomerDto;
+    const { email, fullName, phoneNumber, note, message, sendTime } = updateCustomerDto;
 
     const customer = await transactionManager.getRepository(Customer).findOne({uuid,isDeleted:false});
 
@@ -37,6 +37,7 @@ export class CustomerRepository extends Repository<Customer> {
           fullName: fullName,
           phoneNumber: phoneNumber,
           note: note,
+          message: message,
           sendTime: sendTime,
           updatedAt: new Date(),
         },
@@ -95,6 +96,7 @@ export class CustomerRepository extends Repository<Customer> {
       'customer.uuid',
       'customer.fullName',
       'customer.note',
+      'customer.message',
       'customer.phoneNumber',
       'customer.sendTime',
     ]).where('customer.isDeleted is false')
@@ -120,6 +122,12 @@ export class CustomerRepository extends Repository<Customer> {
       'LOWER(customer.note) LIKE LOWER(:note) ',
       {
         note: `%${fullTextSearch}%`,
+      },
+    );
+    query.orWhere(
+      'LOWER(customer.message) LIKE LOWER(:message) ',
+      {
+        message: `%${fullTextSearch}%`,
       },
     );
     query.orWhere(
@@ -155,6 +163,11 @@ export class CustomerRepository extends Repository<Customer> {
         note: `%${getAllCustomerDto.filterNote}%`,
       });
     }
+    if (!isNullOrUndefined(getAllCustomerDto.filterMessage)) {
+      query.andWhere('LOWER(customer.message) LIKE LOWER(:message)', {
+        message: `%${getAllCustomerDto.filterMessage}%`,
+      });
+    }
     if (!isNullOrUndefined(getAllCustomerDto.filterPhoneNumber)) {
       query.andWhere('LOWER(customer.phoneNumber) LIKE LOWER(:phoneNumber)', {
         phoneNumber: `%${getAllCustomerDto.filterPhoneNumber}%`,
@@ -176,6 +189,9 @@ export class CustomerRepository extends Repository<Customer> {
     }
     if (!isNullOrUndefined(getAllCustomerDto.sortNote)) {
       query.orderBy('customer.note', getAllCustomerDto.sortNote);
+    }
+    if (!isNullOrUndefined(getAllCustomerDto.sortMessage)) {
+      query.orderBy('customer.message', getAllCustomerDto.sortMessage);
     }
     if (!isNullOrUndefined(getAllCustomerDto.sortPhoneNumber)) {
       query.orderBy('customer.phoneNumber', getAllCustomerDto.sortPhoneNumber);
@@ -209,6 +225,7 @@ export class CustomerRepository extends Repository<Customer> {
       'customer.email',
       'customer.fullName',
       'customer.note',
+      'customer.message',
       'customer.phoneNumber',
       'customer.sendTime',
     
@@ -229,6 +246,7 @@ export class CustomerRepository extends Repository<Customer> {
     email,
     fullName,
     note,
+    message,
     phoneNumber,
     sendTime,
   } = createCustomerDto
@@ -240,6 +258,7 @@ export class CustomerRepository extends Repository<Customer> {
     fullName: fullName,
     email: email,
     note: note,
+    message: message,
     phoneNumber: phoneNumber,
     sendTime: sendTime,
     createdAt: new Date(),

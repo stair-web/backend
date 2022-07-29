@@ -12,23 +12,29 @@ import {
   Param,
   Put,
   Delete,
+  ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Update } from 'aws-sdk/clients/dynamodb';
 import { Roles } from 'src/guards/roles.decorator';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { UserInformation } from 'src/user-information/user-information.entity';
 import { GetUser } from 'src/user/get-user.decorator';
 import { User } from 'src/user/user.entity';
-import { Connection } from 'typeorm';
+import { Connection, TransactionManager } from 'typeorm';
 import { DayoffService } from './dayoff.service';
 import { DayOffSearch } from './dto/dayoff-search.dto';
 import { ReportDayOffSearch } from './dto/report-day-off-search.dto';
+import { UpdateRemoteDay } from './dto/update-remote-day.dto';
 
-@Controller('dayoff')
+
+@Controller('day-off')
+@ApiTags('Day-off')
 export class DayoffController {
   constructor(
     private connection: Connection,
     private readonly dayoffService: DayoffService,
-  ) { }
+  ) {}
   @Get()
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
@@ -42,6 +48,55 @@ export class DayoffController {
       return this.dayoffService.getAllDayOffAdmin(
         transactionManager,
         dayOffSearch,
+      );
+    });
+  }
+
+  @Put('all')
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 201,
+    description: 'Update Remote Day thành công!',
+  })
+  @ApiOperation({summary: 'Update Remote Day For All'})
+  async updateRemoteDayAdminAll(
+    @Body(ValidationPipe) updateRemoteDay: UpdateRemoteDay,
+    // @GetUser() user: User,
+    // @Param('uuid') uuid: string,
+    // @Param('amount') amount: number,
+  ){
+    return await this.connection.transaction((transactionManager) => {
+      return this.dayoffService.updateRemoteDayAdminAll(
+        transactionManager,
+        updateRemoteDay,
+      );
+    });
+  }
+
+  @Put('one')
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 201,
+    description: 'Update Remote Day thành công!',
+  })
+  @ApiOperation({summary: 'Update Remote Day For One'})
+  async updateRemoteDayAdminOne(
+    // @Body() dayOffSearch: DayOffSearch,
+    // @GetUser() user: User,
+    // @Body() {
+    //   number: amount, 
+    // },
+    // @Param('email') email: string,
+    // @Param('amout') amount: number,
+    @Body(ValidationPipe) updateRemoteDay: UpdateRemoteDay,
+  ){
+    // dayOffSearch.staffId = user.id;
+    return await this.connection.transaction((transactionManager) => {
+      return this.dayoffService.updateRemoteDayAdminOne(
+        transactionManager,
+        updateRemoteDay,
       );
     });
   }
@@ -93,7 +148,6 @@ export class DayoffController {
     @Body() dayOffSearch: DayOffSearch,
     @GetUser() user: User,
   ) {
-
     dayOffSearch.staffId = user.id;
     return await this.connection.transaction((transactionManager) => {
       return this.dayoffService.createDayOff(transactionManager, dayOffSearch);
@@ -175,7 +229,11 @@ export class DayoffController {
   @ApiOperation({ summary: 'Reprort lịch nghỉ phép' })
   async report(@Body('dateOffReport') dateOffReport: ReportDayOffSearch) {
     return await this.connection.transaction((transactionManager) => {
-      return this.dayoffService.report(transactionManager, dateOffReport.fromDate, dateOffReport.toDate);
+      return this.dayoffService.report(
+        transactionManager,
+        dateOffReport.fromDate,
+        dateOffReport.toDate,
+      );
     });
   }
 }

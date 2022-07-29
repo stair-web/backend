@@ -3,6 +3,8 @@ import { User } from "src/user/user.entity";
 import { DBSchema } from "src/common/enum/db-schemas.enum";
 import { DayOff } from "src/dayoff/dayoff.entity";
 import { Team } from "src/team/team.entity";
+import { ConflictException } from "@nestjs/common";
+import { JSONType } from "aws-sdk/clients/s3";
 
 @Entity({ name: 'user_information', schema: DBSchema.SCM_ARI_PUBLIC })
 export class UserInformation extends BaseEntity {
@@ -57,6 +59,15 @@ export class UserInformation extends BaseEntity {
 
     @Column()
     remain: number;
+
+    @Column()
+    remote_remain_in_month: number;
+
+    @Column()
+    remote_day_in_year: number;
+
+    @Column()
+    remote_remaining: string;
 
     @Column()
     dateOffNextYear: number;
