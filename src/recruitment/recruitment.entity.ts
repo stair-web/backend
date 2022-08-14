@@ -8,8 +8,8 @@ import {
   } from 'typeorm';
 
 
-@Entity({ name: 'candidate', schema: DBSchema.SCM_ARI_PUBLIC })
-export class Candidate {
+@Entity({ name: 'recruitment', schema: DBSchema.SCM_ARI_PUBLIC })
+export class Recruitment {
   
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,46 +24,22 @@ export class Candidate {
   lastName: string;
 
   @Column()
-  position: string;
-
-  @Column()
-  privateEmail: string;
-
+  email: string;
+  
   @Column()
   phoneNumber: string;
-
+  
   @Column()
-  address: string;
-
-  // @Column()
-  // experience:string;
-
-  // @Column()
-  // highestEducation:string;
-
-  // @Column()
-  // university:string;
-
-  // @Column()
-  // courseOfStudy:string;
-
-  // @Column()
-  // websiteUrl:string;
-
-  // @Column()
-  // informationChannel:string;
-
-  // @Column()
-  // note:string;
-
+  position: string;
+  
   @Column()
   resumeFile:string;
-
+  
+  @Column()
+  address: string;
+  
   @Column()
   isDeleted:boolean;
-
-  // @Column()
-  // coverLetterFile:string;
 
   @Column({
     type: 'timestamp without time zone',

@@ -16,11 +16,17 @@ export class GetAllCandidateDto {
 
   
   //Filter
-  @ApiProperty({required: false})
-  filterNote:string;
+  // @ApiProperty({required: false})
+  // filterNote:string;
 
   @ApiProperty({required: false})
-  filterFullName:string;
+  filterFirstName:string;
+
+  @ApiProperty({required: false})
+  filterLastName:string;
+
+  @ApiProperty({required: false})
+  filterPosition:string;
 
   @ApiProperty({required: false})
   filterPrivateEmail:string;
@@ -29,30 +35,39 @@ export class GetAllCandidateDto {
   filterPhoneNumber:string;
 
   @ApiProperty({required: false})
-  filterExperience:string;
+  filterAddress:string;
 
-  @ApiProperty({required: false})
-  filterHighestEducation:string;
+  // @ApiProperty({required: false})
+  // filterExperience:string;
 
-  @ApiProperty({required: false})
-  filterUniversity:string;
+  // @ApiProperty({required: false})
+  // filterHighestEducation:string;
 
-  @ApiProperty({required: false})
-  filterCourseOfStudy:string;
+  // @ApiProperty({required: false})
+  // filterUniversity:string;
 
-  @ApiProperty({required: false})
-  filterWebsiteUrl:string;
+  // @ApiProperty({required: false})
+  // filterCourseOfStudy:string;
 
-  @ApiProperty({required: false})
-  filterInformationChannel:string;
+  // @ApiProperty({required: false})
+  // filterWebsiteUrl:string;
+
+  // @ApiProperty({required: false})
+  // filterInformationChannel:string;
  
 
   //Sort
-  @ApiProperty({required: false, enum: SortValue,})
-  sortNote: SortValue;
+  // @ApiProperty({required: false, enum: SortValue,})
+  // sortNote: SortValue;
 
   @ApiProperty({required: false,enum: SortValue, })
-  sortFullName: SortValue;
+  sortFirstName: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortLastName: SortValue;
+
+  @ApiProperty({required: false,enum: SortValue, })
+  sortPosition: SortValue;
 
   @ApiProperty({required: false,enum: SortValue, })
   sortPrivateEmail: SortValue;
@@ -61,22 +76,25 @@ export class GetAllCandidateDto {
   sortPhoneNumber: SortValue;
 
   @ApiProperty({required: false,enum: SortValue, })
-  sortExperience: SortValue;
+  sortAddress: SortValue;
 
-  @ApiProperty({required: false,enum: SortValue, })
-  sortHighestEducation:SortValue;
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortExperience: SortValue;
 
-  @ApiProperty({required: false,enum: SortValue, })
-  sortUniversity:SortValue;
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortHighestEducation:SortValue;
 
-  @ApiProperty({required: false,enum: SortValue, })
-  sortCourseOfStudy:SortValue;
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortUniversity:SortValue;
+
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortCourseOfStudy:SortValue;
   
-  @ApiProperty({required: false,enum: SortValue, })
-  sortWebsiteUrl:SortValue;
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortWebsiteUrl:SortValue;
   
-  @ApiProperty({required: false,enum: SortValue, })
-  sortInformationChannel:SortValue;
+  // @ApiProperty({required: false,enum: SortValue, })
+  // sortInformationChannel:SortValue;
 
   fullTextSearch?: string;
 }

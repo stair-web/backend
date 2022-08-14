@@ -31,18 +31,21 @@ export class CandidateRepository extends Repository<Candidate> {
         .createQueryBuilder('candidate')
         .select([
           'candidate.uuid',
-          'candidate.fullName',
+          'candidate.firstName',
+          'candidate.lastName',
+          'candidate.position',
           'candidate.privateEmail',
           'candidate.phoneNumber',
-          'candidate.experience',
-          'candidate.highestEducation',
-          'candidate.university',
-          'candidate.courseOfStudy',
-          'candidate.websiteUrl',
-          'candidate.informationChannel',
-          'candidate.note',
+          'candidate.address',
+          // 'candidate.experience',
+          // 'candidate.highestEducation',
+          // 'candidate.university',
+          // 'candidate.courseOfStudy',
+          // 'candidate.websiteUrl',
+          // 'candidate.informationChannel',
+          // 'candidate.note',
           'candidate.resumeFile',
-          'candidate.coverLetterFile',
+          // 'candidate.coverLetterFile',
           'candidate.createdAt',
           'candidate.updatedAt',
         ])
@@ -52,10 +55,25 @@ export class CandidateRepository extends Repository<Candidate> {
         .orderBy('candidate.createdAt', 'DESC');
 
       // Filter list
-        if (!isNullOrUndefined(getAllCandidateDto.filterFullName)) {
-          query.andWhere('LOWER(candidate.fullName) LIKE LOWER(:fullName)', {
-            fullName: `%${getAllCandidateDto.filterFullName}%`,
+        if (!isNullOrUndefined(getAllCandidateDto.filterFirstName)) {
+          query.andWhere('LOWER(candidate.firstName) LIKE LOWER(:firstName)', {
+            firstName: `%${getAllCandidateDto.filterFirstName}%`,
           });
+        }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterLastName)) {
+          query.andWhere('LOWER(candidate.lastName) LIKE LOWER(:lastName)', {
+            lastName: `%${getAllCandidateDto.filterLastName}%`,
+          });
+        }
+
+        if (!isNullOrUndefined(getAllCandidateDto.filterPosition)) {
+          query.andWhere(
+            'LOWER(candidate.position) LIKE LOWER(:position)',
+            {
+              position: `%${getAllCandidateDto.filterPosition}%`,
+            },
+          );
         }
 
         if (!isNullOrUndefined(getAllCandidateDto.filterPrivateEmail)) {
@@ -76,69 +94,86 @@ export class CandidateRepository extends Repository<Candidate> {
           );
         }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterExperience)) {
+        if (!isNullOrUndefined(getAllCandidateDto.filterAddress)) {
           query.andWhere(
-            'LOWER(candidate.experience) LIKE LOWER(:experience)',
+            'LOWER(candidate.address) LIKE LOWER(:address)',
             {
-              experience: `%${getAllCandidateDto.filterExperience}%`,
+              address: `%${getAllCandidateDto.filterAddress}%`,
             },
           );
         }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterUniversity)) {
-          query.andWhere(
-            'LOWER(candidate.university) LIKE LOWER(:university)',
-            {
-              university: `%${getAllCandidateDto.filterUniversity}%`,
-            },
-          );
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterExperience)) {
+        //   query.andWhere(
+        //     'LOWER(candidate.experience) LIKE LOWER(:experience)',
+        //     {
+        //       experience: `%${getAllCandidateDto.filterExperience}%`,
+        //     },
+        //   );
+        // }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterHighestEducation)) {
-          query.andWhere(
-            'LOWER(candidate.university) LIKE LOWER(:highestEducation)',
-            {
-              highestEducation: `%${getAllCandidateDto.filterHighestEducation}%`,
-            },
-          );
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterUniversity)) {
+        //   query.andWhere(
+        //     'LOWER(candidate.university) LIKE LOWER(:university)',
+        //     {
+        //       university: `%${getAllCandidateDto.filterUniversity}%`,
+        //     },
+        //   );
+        // }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterInformationChannel)) {
-          query.andWhere(
-            'LOWER(candidate.university) LIKE LOWER(:informationChannel)',
-            {
-              informationChannel: `%${getAllCandidateDto.filterInformationChannel}%`,
-            },
-          );
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterHighestEducation)) {
+        //   query.andWhere(
+        //     'LOWER(candidate.university) LIKE LOWER(:highestEducation)',
+        //     {
+        //       highestEducation: `%${getAllCandidateDto.filterHighestEducation}%`,
+        //     },
+        //   );
+        // }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterCourseOfStudy)) {
-          query.andWhere(
-            'LOWER(candidate.courseOfStudy) LIKE LOWER(:courseOfStudy)',
-            {
-              courseOfStudy: `%${getAllCandidateDto.filterCourseOfStudy}%`,
-            },
-          );
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterInformationChannel)) {
+        //   query.andWhere(
+        //     'LOWER(candidate.university) LIKE LOWER(:informationChannel)',
+        //     {
+        //       informationChannel: `%${getAllCandidateDto.filterInformationChannel}%`,
+        //     },
+        //   );
+        // }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterWebsiteUrl)) {
-          query.andWhere('LOWER(candidate.note) LIKE LOWER(:websiteUrl)', {
-            websiteUrl: `%${getAllCandidateDto.filterWebsiteUrl}%`,
-          });
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterCourseOfStudy)) {
+        //   query.andWhere(
+        //     'LOWER(candidate.courseOfStudy) LIKE LOWER(:courseOfStudy)',
+        //     {
+        //       courseOfStudy: `%${getAllCandidateDto.filterCourseOfStudy}%`,
+        //     },
+        //   );
+        // }
 
-        if (!isNullOrUndefined(getAllCandidateDto.filterNote)) {
-          query.andWhere('LOWER(candidate.note) LIKE LOWER(:note)', {
-            note: `%${getAllCandidateDto.filterNote}%`,
-          });
-        }
+        // if (!isNullOrUndefined(getAllCandidateDto.filterWebsiteUrl)) {
+        //   query.andWhere('LOWER(candidate.note) LIKE LOWER(:websiteUrl)', {
+        //     websiteUrl: `%${getAllCandidateDto.filterWebsiteUrl}%`,
+        //   });
+        // }
+
+        // if (!isNullOrUndefined(getAllCandidateDto.filterNote)) {
+        //   query.andWhere('LOWER(candidate.note) LIKE LOWER(:note)', {
+        //     note: `%${getAllCandidateDto.filterNote}%`,
+        //   });
+        // }
       
 
       // Sort list
-      if (!isNullOrUndefined(getAllCandidateDto.sortFullName)) {
-        query.orderBy('candidate.fullName', getAllCandidateDto.sortFullName);
+      if (!isNullOrUndefined(getAllCandidateDto.sortFirstName)) {
+        query.orderBy('candidate.firstName', getAllCandidateDto.sortFirstName);
       }
       
+      if (!isNullOrUndefined(getAllCandidateDto.sortLastName)) {
+        query.orderBy('candidate.lastName', getAllCandidateDto.sortLastName);
+      }
+
+      if (!isNullOrUndefined(getAllCandidateDto.sortPosition)) {
+        query.orderBy('candidate.position', getAllCandidateDto.sortPosition);
+      }
+
       if (!isNullOrUndefined(getAllCandidateDto.sortPrivateEmail)) {
         query.orderBy('candidate.privateEmail', getAllCandidateDto.sortPrivateEmail);
       }
@@ -147,33 +182,37 @@ export class CandidateRepository extends Repository<Candidate> {
         query.orderBy('candidate.phoneNumber', getAllCandidateDto.sortPhoneNumber);
       }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
-        query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
+      if (!isNullOrUndefined(getAllCandidateDto.sortAddress)) {
+        query.orderBy('candidate.address', getAllCandidateDto.sortAddress);
       }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
-        query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
+      //   query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
+      // }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortHighestEducation)) {
-        query.orderBy('candidate.highestEducation', getAllCandidateDto.sortHighestEducation);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortExperience)) {
+      //   query.orderBy('candidate.experience', getAllCandidateDto.sortExperience);
+      // }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortCourseOfStudy)) {
-        query.orderBy('candidate.courseOfStudy', getAllCandidateDto.sortCourseOfStudy);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortHighestEducation)) {
+      //   query.orderBy('candidate.highestEducation', getAllCandidateDto.sortHighestEducation);
+      // }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortWebsiteUrl)) {
-        query.orderBy('candidate.websiteUrl', getAllCandidateDto.sortWebsiteUrl);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortCourseOfStudy)) {
+      //   query.orderBy('candidate.courseOfStudy', getAllCandidateDto.sortCourseOfStudy);
+      // }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortInformationChannel)) {
-        query.orderBy('candidate.informationChannel', getAllCandidateDto.sortInformationChannel);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortWebsiteUrl)) {
+      //   query.orderBy('candidate.websiteUrl', getAllCandidateDto.sortWebsiteUrl);
+      // }
 
-      if (!isNullOrUndefined(getAllCandidateDto.sortNote)) {
-        query.orderBy('candidate.note', getAllCandidateDto.sortNote);
-      }
+      // if (!isNullOrUndefined(getAllCandidateDto.sortInformationChannel)) {
+      //   query.orderBy('candidate.informationChannel', getAllCandidateDto.sortInformationChannel);
+      // }
+
+      // if (!isNullOrUndefined(getAllCandidateDto.sortNote)) {
+      //   query.orderBy('candidate.note', getAllCandidateDto.sortNote);
+      // }
       const data = await query.getMany();
       const total = await query.getCount();
       return { statusCode: 201, data: { data, total } };
@@ -190,30 +229,39 @@ export class CandidateRepository extends Repository<Candidate> {
     createCandidateDto: CreateCandidateDto,
   ) {
     const {
-      fullName,
+      uuid,
+      firstName,
+      lastName,
+      position,
       privateEmail,
       phoneNumber,
-      experience,
-      highestEducation,
-      university,
-      courseOfStudy,
-      websiteUrl,
-      informationChannel,
-      note,
+      address,
+      // experience,
+      // highestEducation,
+      // university,
+      // courseOfStudy,
+      // websiteUrl,
+      // informationChannel,
+      // note,
     } = createCandidateDto;
 
+    
+
     const candidate = transactionManager.create(Candidate, {
-      uuid: uuidv4(),
-      fullName,
+      uuid,
+      firstName,
+      lastName,
+      position,
       privateEmail,
       phoneNumber,
-      experience,
-      highestEducation,
-      university,
-      courseOfStudy,
-      websiteUrl,
-      informationChannel,
-      note,
+      address,
+      // experience,
+      // highestEducation,
+      // university,
+      // courseOfStudy,
+      // websiteUrl,
+      // informationChannel,
+      // note,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
