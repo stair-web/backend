@@ -20,18 +20,21 @@ export class CandidateService {
         .createQueryBuilder('candidate')
         .select([
           'candidate.uuid',
+          'candidate.firstName',
+          'candidate.lastName',
+          'candidate.position',
           'candidate.privateEmail',
-          'candidate.fullName',
-          'candidate.note',
           'candidate.phoneNumber',
-          'candidate.experience',
-          'candidate.highestEducation',
-          'candidate.university',
-          'candidate.courseOfStudy',
-          'candidate.websiteUrl',
-          'candidate.informationChannel',
+          'candidate.address',
+          // 'candidate.note',
+          // 'candidate.experience',
+          // 'candidate.highestEducation',
+          // 'candidate.university',
+          // 'candidate.courseOfStudy',
+          // 'candidate.websiteUrl',
+          // 'candidate.informationChannel',
           'candidate.resumeFile',
-          'candidate.coverLetterFile',
+          // 'candidate.coverLetterFile',
           'candidate.createdAt',
           'candidate.updatedAt',
         ])
@@ -55,9 +58,9 @@ export class CandidateService {
       throw new ConflictException('Ứng viên không tồn tại!');
     }
     let filename;
-    if(downloadFileCandidateDto.type === DownloadFileTypeCandidateEnum.CoverLetter){
-      filename = candidate.coverLetterFile;
-    }
+    // if(downloadFileCandidateDto.type === DownloadFileTypeCandidateEnum.CoverLetter){
+    //   filename = candidate.coverLetterFile;
+    // }
     if(downloadFileCandidateDto.type === DownloadFileTypeCandidateEnum.Resume){
       filename = candidate.resumeFile;
     }
@@ -98,17 +101,20 @@ export class CandidateService {
       if(isNullOrUndefined(candidate)){
         throw new ConflictException('Ứng viên không tồn tại!');
       }
-      const {fullName, privateEmail, phoneNumber, experience, highestEducation, university, courseOfStudy, websiteUrl, informationChannel, note} = updateCandidateDto;
-    candidate.fullName = fullName;
+      const {firstName, lastName, position, privateEmail, phoneNumber, address} = updateCandidateDto;
+    candidate.firstName = firstName;
+    candidate.lastName = lastName;
+    candidate.position = position;
     candidate.privateEmail = privateEmail;
     candidate.phoneNumber = phoneNumber;
-    candidate.experience = experience;
-    candidate.highestEducation = highestEducation;
-    candidate.university = university;
-    candidate.courseOfStudy = courseOfStudy;
-    candidate.websiteUrl = websiteUrl;
-    candidate.informationChannel = informationChannel;
-    candidate.note = note;
+    candidate.address = address;
+    // candidate.experience = experience;
+    // candidate.highestEducation = highestEducation;
+    // candidate.university = university;
+    // candidate.courseOfStudy = courseOfStudy;
+    // candidate.websiteUrl = websiteUrl;
+    // candidate.informationChannel = informationChannel;
+    // candidate.note = note;
     candidate.updatedAt = new Date();
     try {
       await transactionManager.save(candidate);
@@ -124,7 +130,8 @@ export class CandidateService {
   async uploadCandidateFile(
     transactionManager: EntityManager,
     uploadedFileCandidateDto: UploadedFileCandidateDto,
-    files: { coverletter?: Express.Multer.File; resume?: Express.Multer.File },
+    // files: { coverletter?: Express.Multer.File; resume?: Express.Multer.File },
+    files: { resume?: Express.Multer.File },
   ) {
     const { uuid } = uploadedFileCandidateDto;
     const candidate = await transactionManager
@@ -134,9 +141,9 @@ export class CandidateService {
       throw new ConflictException('Candidate không tồn tại!');
     }
 
-    if (files.coverletter) {
-      candidate.coverLetterFile = files.coverletter[0].filename;
-    }
+    // if (files.coverletter) {
+    //   candidate.coverLetterFile = files.coverletter[0].filename;
+    // }
     if (files.resume) {
       candidate.resumeFile = files.resume[0].filename;
     }

@@ -9,8 +9,8 @@ export const editCandidateFileName = (req, file, callback) => {
 };
 
 export const filterCandidateFile = (req, file, callback) => {
-  if (!file.originalname.match(/\.(doc|docx|pdf)$/)) {
-    return callback(new Error('Only doc/docx/pdf files are allowed!'), false);
+  if (!file.originalname.match(/\.(doc|docx|pdf|png|jpeg|jpg)$/)) {
+    return callback(new Error('Only doc/docx/pdf/png/jpeg/jpg files are allowed!'), false);
   }
   callback(null, true);
 };

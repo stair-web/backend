@@ -2,49 +2,65 @@ import { IsString, IsPhoneNumber } from 'class-validator';
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCandidateDto {
-    @ApiProperty()
+    // @ApiProperty()
     @IsString()
-    fullName: string;
+    uuid: string;
 
-    @ApiProperty()
+    // @ApiProperty()
+    @IsString()
+    firstName: string;
+
+    // @ApiProperty()
+    @IsString()
+    lastName: string;
+
+    // @ApiProperty()
+    @IsString()
+    position: string;
+
+    // @ApiProperty()
     @IsString()
     privateEmail: string;
 
-    @ApiProperty()
+    // @ApiProperty()
     @IsPhoneNumber('VN')
     phoneNumber: string;
 
-    @ApiProperty()
+    // @ApiProperty()
     @IsString()
-    experience: string;
-
-    @ApiProperty()
-    @IsString()
-    highestEducation: string;
-
-    @ApiProperty()
-    @IsString()
-    university: string;
-
-    @ApiProperty()
-    @IsString()
-    courseOfStudy: string;
-
-    @ApiProperty()
-    @IsString()
-    websiteUrl: string;
-
-    @ApiProperty()
-    @IsString()
-    informationChannel: string;
-
-    @ApiProperty()
-    @IsString()
-    note: string;
+    address: string;
 
     // @ApiProperty()
     // @IsString()
-    // resumeFile: string;
+    // experience: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // highestEducation: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // university: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // courseOfStudy: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // websiteUrl: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // informationChannel: string;
+
+    // @ApiProperty()
+    // @IsString()
+    // note: string;
+
+    // @ApiProperty()
+    @IsString()
+    resumeFile: string;
 
     // @ApiProperty()
     // @IsString()
