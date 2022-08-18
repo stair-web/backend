@@ -77,6 +77,9 @@ export class Post extends BaseEntity {
   content: string;
 
   @Column()
+  otherLanguageContent: string;
+
+  @Column()
   uuid: string;
 
   @Column()
