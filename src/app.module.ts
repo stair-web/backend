@@ -34,6 +34,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { TeamModule } from './team/team.module';
 import { RoomModule } from './room/room.module';
 import { BookingRoomModule } from './booking-room/booking-room.module';
+import { RecruitmentModule } from './recruitment/recruitment.module';
 @Module({
   imports: [
         DayoffModule, 
@@ -85,7 +86,8 @@ import { BookingRoomModule } from './booking-room/booking-room.module';
     PartnerPartnershipModule,
     TeamModule,
     RoomModule,
-    BookingRoomModule
+    BookingRoomModule,
+    RecruitmentModule
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway,

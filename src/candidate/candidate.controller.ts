@@ -72,9 +72,9 @@ export class CandidateController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [
-        {
-          name: 'coverletter',
-        },
+        // {
+        //   name: 'coverletter',
+        // },
         {
           name: 'resume',
         },
@@ -100,17 +100,17 @@ export class CandidateController {
           type: 'string',
           format: 'binary',
         },
-        coverletter: {
-          type: 'string',
-          format: 'binary',
-        },
+        // coverletter: {
+        //   type: 'string',
+        //   format: 'binary',
+        // },
       },
     },
   })
   async uploadCandidateFile(
     @UploadedFiles()
     files: {
-      coverletter?: Express.Multer.File;
+      // coverletter?: Express.Multer.File;
       resume?: Express.Multer.File;
     },
     @Body() uploadedFileCandidateDto: UploadedFileCandidateDto,
