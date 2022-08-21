@@ -29,7 +29,7 @@ export class CustomerService {
     );
 
     let emailContactDto = new EmailContactDto();
-    emailContactDto.email = 'thuan.hothuanho036@hcmut.edu.vn';
+    emailContactDto.email = 'contact@ari.com.vn';
     emailContactDto.username = createCustomerDto.fullName;
     emailContactDto.privateEmail = createCustomerDto.email;
     emailContactDto.phoneNumber = createCustomerDto.phoneNumber;

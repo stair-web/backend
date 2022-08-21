@@ -176,7 +176,7 @@ export class RecruitmentService {
     );
 
     let emailRecruitmentDto = new EmailRecruitmentDto();
-    emailRecruitmentDto.email = 'thuan.hothuanho036@hcmut.edu.vn';
+    emailRecruitmentDto.email = 'contact@ari.com.vn';
     emailRecruitmentDto.username = createRecruitmentDto.lastName + ' ' + createRecruitmentDto.firstName;
     emailRecruitmentDto.privateEmail = createRecruitmentDto.email;
     emailRecruitmentDto.phoneNumber = createRecruitmentDto.phoneNumber;
