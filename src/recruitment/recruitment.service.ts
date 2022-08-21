@@ -182,13 +182,13 @@ export class RecruitmentService {
     emailRecruitmentDto.phoneNumber = createRecruitmentDto.phoneNumber;
     emailRecruitmentDto.position = createRecruitmentDto.position;
     emailRecruitmentDto.address = createRecruitmentDto.address;
-    emailRecruitmentDto.resume = createRecruitmentDto.resumeFile;
+    // emailRecruitmentDto.resume = createRecruitmentDto.resumeFile;
     
     // let downloadFileRecruitmentDto = new DownloadFileRecruitmentDto();
     // downloadFileRecruitmentDto.type = DownloadFileTypeRecruitmentEnum.Resume;
     // let res: any;
     // emailRecruitmentDto.activeLink = this.downloadRecruitmentFile(transactionManager, downloadFileRecruitmentDto, createRecruitmentDto.uuid, res)
-    emailRecruitmentDto.activeLink = `recruitment/download/${createRecruitmentDto.uuid}?type=resume`;
+    // emailRecruitmentDto.activeLink = `recruitment/download/${createRecruitmentDto.uuid}?type=resume`;
 
     await this.emailService.sendRecruitmentEmail(emailRecruitmentDto, '');
 

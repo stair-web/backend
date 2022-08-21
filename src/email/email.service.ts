@@ -236,9 +236,9 @@ export class EmailService {
       phoneNumber: emailRecruitmentDto.phoneNumber,
       position: emailRecruitmentDto.position,
       address: emailRecruitmentDto.address,
-      resume: emailRecruitmentDto.resume,
+      // resume: emailRecruitmentDto.resume,
       styles: [EmailMapping.USER_RECRUITMENT.templateFolder],
-      activeLink: `${this.domain}/${emailRecruitmentDto.activeLink}`,
+      // activeLink: `${this.domain}/${emailRecruitmentDto.activeLink}`,
       // activeLink: `${this.domain}`
     };
     const subject: string = await this.renderEmailTemplate(subjectPath, data);
