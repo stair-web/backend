@@ -7,9 +7,11 @@ import * as hbs from 'handlebars';
 import * as sgMail from '@sendgrid/mail';
 
 import { EmailInfoDto } from './dto/email-info.dto';
-
 import { ContentType, EmailMapping } from './enum/content-type.enum';
 import { ConfigService } from '@nestjs/config';
+import e from 'express';
+import { EmailRecruitmentDto } from './dto/email-recruitment.dto';
+import { EmailContactDto } from './dto/email-contact.dto';
 
 @Injectable()
 export class EmailService {
@@ -24,7 +26,9 @@ export class EmailService {
   private HEADER_LOGO_ATTACHMENT;
   private domain = process.env.DOMAIN;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+  ) {
     this.SENDGRID_API_KEY = configService.get<string>('SENDGRID_API_KEY');
     sgMail.setApiKey(this.SENDGRID_API_KEY);
     this.TEMPLATES_PATH = path.join(__dirname, 'templates');
@@ -189,7 +193,8 @@ export class EmailService {
     const { subjectPath, textPath, htmlPath } = this.getPathForEmail(
       'USER_ACTIVE_ACCOUNT',
     );
-      console.log(this.domain);
+    
+    console.log(this.domain);
       
     hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
     const data = {
@@ -215,5 +220,74 @@ export class EmailService {
       // attachments: [this.HEADER_LOGO_ATTACHMENT],
     };
     return await this.sendMail(msg);
+  }
+
+  async sendRecruitmentEmail(emailRecruitmentDto: EmailRecruitmentDto, originName: string) {
+    const { subjectPath, textPath, htmlPath } = this.getPathForEmail(
+      'USER_RECRUITMENT',
+    );
+
+    hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
+    const data = {
+      title: EmailMapping.USER_RECRUITMENT.title,
+      name: emailRecruitmentDto.username,
+      username: emailRecruitmentDto.username,
+      privateEmail: emailRecruitmentDto.privateEmail,
+      phoneNumber: emailRecruitmentDto.phoneNumber,
+      position: emailRecruitmentDto.position,
+      address: emailRecruitmentDto.address,
+      resume: emailRecruitmentDto.resume,
+      styles: [EmailMapping.USER_RECRUITMENT.templateFolder],
+      activeLink: `${this.domain}/${emailRecruitmentDto.activeLink}`,
+      // activeLink: `${this.domain}`
+    };
+    const subject: string = await this.renderEmailTemplate(subjectPath, data);
+    const text: string = await this.renderEmailTemplate(textPath, data);
+    const html: string = await this.renderEmailTemplate(
+      this.LAYOUT_FILE_PATH,
+      data,
+    );
+    const msg = {
+      ...this.STANDARD_MSG,
+      to: emailRecruitmentDto.email,
+      subject,
+      text,
+      html,
+    };
+    return await this.sendMail(msg);
+
+  }
+
+  async sendContactEmail(emailContactDto: EmailContactDto, originName: string) {
+    const { subjectPath, textPath, htmlPath } = this.getPathForEmail(
+      'USER_CONTACT',
+    );
+
+    hbs.registerPartial('emailContent', this.readFileSync(htmlPath, 'utf8'));
+    const data = {
+      title: EmailMapping.USER_CONTACT.title,
+      name: emailContactDto.username,
+      username: emailContactDto.username,
+      privateEmail: emailContactDto.privateEmail,
+      phoneNumber: emailContactDto.phoneNumber,
+      message: emailContactDto.message,
+      styles: [EmailMapping.USER_RECRUITMENT.templateFolder],
+      // activeLink: `${this.domain}`
+    };
+    const subject: string = await this.renderEmailTemplate(subjectPath, data);
+    const text: string = await this.renderEmailTemplate(textPath, data);
+    const html: string = await this.renderEmailTemplate(
+      this.LAYOUT_FILE_PATH,
+      data,
+    );
+    const msg = {
+      ...this.STANDARD_MSG,
+      to: emailContactDto.email,
+      subject,
+      text,
+      html,
+    };
+    return await this.sendMail(msg);
+
   }
 }

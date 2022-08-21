@@ -10,10 +10,15 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { GetAllCustomerDto } from './dto/get-all-customer.dto';
 import { Customer } from './customer.entity';
+import { EmailContactDto } from 'src/email/dto/email-contact.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class CustomerService {
-  constructor(private customerRepository: CustomerRepository) {}
+  constructor(
+    private customerRepository: CustomerRepository,
+    private emailService: EmailService,
+  ) {}
   async createCustomer(
     transactionManager: EntityManager,
     createCustomerDto: CreateCustomerDto,
@@ -23,6 +28,20 @@ export class CustomerService {
       createCustomerDto,
     );
 
+    let emailContactDto = new EmailContactDto();
+    emailContactDto.email = 'thuan.hothuanho036@hcmut.edu.vn';
+    emailContactDto.username = createCustomerDto.fullName;
+    emailContactDto.privateEmail = createCustomerDto.email;
+    emailContactDto.phoneNumber = createCustomerDto.phoneNumber;
+    emailContactDto.message = createCustomerDto.message;
+    
+
+    await this.emailService.sendContactEmail(emailContactDto, '');
+
+    return {
+      statusCode: 201,
+      message: 'Ứng tuyển thành công!',
+    };
   }
   getAll(
     transactionManager: EntityManager,

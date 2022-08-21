@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { RecruitmentRepository } from './recruitment.repository';
 import { RecruitmentController } from './recruitment.controller';
 import { RecruitmentService } from './recruitment.service';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { RecruitmentService } from './recruitment.service';
         ConfigModule.forRoot({
           envFilePath: `env/${process.env.NODE_ENV || 'local'}.env`,
         }),
+        EmailModule,
       ],
       controllers: [RecruitmentController],
       providers: [RecruitmentService]
