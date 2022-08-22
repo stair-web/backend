@@ -1,0 +1,253 @@
+{{! Template modified from
+    https://github.com/sendgrid/email-templates/blob/master/paste-templates/email-confirmation.html }}
+
+
+<html lang='en'>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='x-ua-compatible' content='ie=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <meta name='x-apple-disable-message-reformatting' />
+
+    <!-- Dynamic Title -->
+    <title>{{title}}</title>
+
+    <link
+      rel='stylesheet'
+      href='/_layout/styles.css'
+      data-inline='data-inline'
+    />
+  </head>
+
+  <body>
+    .text-cell-style {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 24px;
+        padding-left: 24px;
+      }    
+    </style> 
+    <table border='0' cellpadding='0' cellspacing='0' width='100%'>
+      <!-- START EMPTY PADDING -->
+      <tr>
+        <td align='center' bgcolor='#e9ecef' style='padding: 24px;'>
+        </td>
+      </tr>
+      <!-- END EMPTY PADDING -->
+
+      <!-- START LOGO -->
+      <tr>
+        <td align='center' bgcolor='#e9ecef'>
+          <!--[if (gte mso 9)|(IE)]>
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+                            <tr>
+                            <td align="center" valign="top" width="600">
+                            <![endif]-->
+          <table
+            border='0'
+            cellpadding='0'
+            cellspacing='0'
+            width='100%'
+            style='max-width: 600px;'
+          >
+            {{! <tr>
+                            <td align="center" bgcolor="#ffffff" valign="top" style="padding: 36px 24px;">
+                                <img src="cid:tmmLogo" alt="Thermomix" border="0" width="150" class="tmm-logo">
+                            </td>
+                        </tr> }}
+          </table>
+          <!--[if (gte mso 9)|(IE)]>
+                            </td>
+                            </tr>
+                            </table>
+                            <![endif]-->
+        </td>
+      </tr>
+      <!-- END LOGO -->
+
+      <!-- START CONTENT -->
+      <tr>
+        <td align='center' bgcolor='#e9ecef'>
+          <!--[if (gte mso 9)|(IE)]>
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+                    <tr>
+                    <td align="center" valign="top" width="600">
+                    <![endif]-->
+          <table
+            border='0'
+            cellpadding='0'
+            cellspacing='0'
+            width='100%'
+            style='max-width: 600px;'
+          >
+            <!-- START GREETING -->
+            <tr>
+              <td align='left' bgcolor='#ffffff'>
+                <!--[if (gte mso 9)|(IE)]>
+                                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+                                    <tr>
+                                    <td align="center" valign="top" width="600">
+                                    <![endif]-->
+                <table
+                  border='0'
+                  cellpadding='0'
+                  cellspacing='0'
+                  width='100%'
+                  style='max-width: 600px;'
+                >
+                  <tr>
+                    <td
+                      align='center'
+                      bgcolor='#ffffff'
+                      style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;"
+                    >
+                      <p
+                        style='margin: 0; font-size: 16px; line-height: 24px;'
+                      ><b>Hello Ari,</b></p>
+                      <br />
+                    </td>
+                  </tr>
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+                                    </td>
+                                    </tr>
+                                    </table>
+                                    <![endif]-->
+              </td>
+            </tr>
+            <!-- END GREETING -->
+
+            <!-- START INTRO -->
+            <tr>
+              <td align='left' bgcolor='#ffffff' class='text-cell-style'>
+                <p style='margin: 0;'>
+                  Có 1 ứng viên mới đã gửi thông tin ứng tuyển thông qua trang
+                  web ari.com.vn:
+                </p>
+                <p>
+                  Họ và tên:
+                  <b>{{{username}}}</b>
+                </p>
+                <p>
+                  Email:
+                  <b>{{{privateEmail}}}</b>
+                </p>
+                <p>
+                  Số điện thoại:
+                  <b>{{{phoneNumber}}}</b>
+                </p>
+                <p>
+                  Vị trí:
+                  <b>{{{position}}}</b>
+                </p>
+                <p>
+                  Địa chỉ:
+                  <b>{{{address}}}</b>
+                </p>
+              </td>
+            </tr>
+            <!-- END INTRO -->
+            <tr>
+              <td align='left' bgcolor='#ffffff' class='text-cell-style'>
+                <p> </p>
+              </td>
+            </tr>
+
+            {{! <tr>
+        <td align="center" bgcolor="#ffffff" class="text-cell-style">
+            <p style="margin: 0;">
+                Vui lòng nhấp vào nút bên dưới để đặt lại mật khẩu của bạn
+            </p>
+        </td>
+    </tr> }}
+
+            <!-- START BUTTON -->
+            
+            <!-- END BUTTON -->
+
+            <!-- START CLOSING -->
+            {{! <tr>
+        <td align="left" bgcolor="#ffffff" class="text-cell-style">
+            <br>
+            <p style="margin: 0;">
+                This link will expire in 24 hours.
+            </p>
+        </td>
+    </tr> }}
+            <!-- END CLOSING -->
+
+            <!-- START HORIZONTAL LINE -->
+            <tr>
+              <td align='left' bgcolor='#ffffff' class='text-cell-style'>
+                <p> </p>
+              </td>
+            </tr>
+            <!-- END HORIZONTAL LINE -->
+
+            <!-- START SIGN OFF -->
+            <tr>
+              <td align='left' bgcolor='#ffffff' class='text-cell-style'>
+                {{! <p style="margin: 0;">
+                Happy Thermomixing!
+                <br>
+                Thermomix® Team
+                <br>
+                [This is an automated response. Please do not reply to this message]
+            </p> }}
+              </td>
+            </tr>
+            <!-- END SIGN OFF -->
+          </table>
+          <!--[if (gte mso 9)|(IE)]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+        </td>
+      </tr>
+      <!-- END CONTENT -->
+
+      <!-- START FOOTER -->
+      <tr>
+        <td align='center' bgcolor='#e9ecef'>
+          <!--[if (gte mso 9)|(IE)]>
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+                    <tr>
+                    <td align="center" valign="top" width="600">
+                    <![endif]-->
+          <table
+            border='0'
+            cellpadding='0'
+            cellspacing='0'
+            width='100%'
+            style='max-width: 600px;'
+          >
+            <!-- START DOXA WEB LINK -->
+            {{! <tr>
+                            <td align="center" bgcolor="#ffffff" class="doxa-web-link">
+                                <a href="https://doxa-holdings.com/">Powered by Doxa</a>
+                            </td>
+                        </tr> }}
+            <!-- END DOXA WEB LINK -->
+          </table>
+          <!--[if (gte mso 9)|(IE)]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+        </td>
+      </tr>
+      <!-- END FOOTER -->
+
+      <!-- START EMPTY PADDING -->
+      <tr>
+        <td align='center' bgcolor='#e9ecef' style='padding: 24px;'>
+        </td>
+      </tr>
+      <!-- END EMPTY PADDING -->
+
+    </table>
+  </body>
+
+</html>
