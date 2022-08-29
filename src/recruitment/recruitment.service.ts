@@ -10,6 +10,7 @@ import { DownloadFileTypeRecruitmentEnum } from './enum/download-file-type-recru
 import { DownloadFileRecruitmentDto } from './dto/download-file-recruitment.dto';
 import { EmailRecruitmentDto } from 'src/email/dto/email-recruitment.dto';
 import { EmailService } from 'src/email/email.service';
+import { GetAllRecruitmentDto } from './dto/get-all-recruitment.dto';
 
 @Injectable()
 export class RecruitmentService {
@@ -63,7 +64,7 @@ export class RecruitmentService {
     if(isNullOrUndefined(recruitment)){
       throw new ConflictException('Ứng viên không tồn tại!');
     }
-    let filename;
+    let filename: string;
     // if(downloadFileCandidateDto.type === DownloadFileTypeCandidateEnum.CoverLetter){
     //   filename = candidate.coverLetterFile;
     // }
@@ -198,14 +199,14 @@ export class RecruitmentService {
     };
   }
 
-//   async getAll(
-//     transactionManager: EntityManager,
-//     getAllCandidateDto: GetAllCandidateDto,
-//   ): Promise<unknown> {
-//     return await this.candidateRepository.getAll(
-//       transactionManager,
-//       getAllCandidateDto,
-//     );
-//   }
+  async getAll(
+    transactionManager: EntityManager,
+    getAllRecruitmentDto: GetAllRecruitmentDto,
+  ): Promise<unknown> {
+    return await this.recruitmentRepository.getAll(
+      transactionManager,
+      getAllRecruitmentDto,
+    );
+  }
 
 }

@@ -279,6 +279,8 @@ export class UserController {
   @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
   async getLoginUser(@GetUser() user: User) {
     return await this.connection.transaction((transactionManager) => {
+      console.log(user);
+      
       return this.userService.getUserByUuid(transactionManager, user.uuid);
     });
   }

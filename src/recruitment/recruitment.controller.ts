@@ -35,6 +35,8 @@ import { CreateRecruitmentDto } from './dto/create-recruitment.dto';
 import { diskStorage } from 'multer';
 import { Express } from 'express';
 import { DownloadFileRecruitmentDto } from './dto/download-file-recruitment.dto';
+import { GetAllRecruitmentDto } from './dto/get-all-recruitment.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Recruitment')
 @Controller('recruitment')
@@ -78,7 +80,7 @@ export class RecruitmentController {
         firstName: {
           type: 'string',
         },
-        lastNamw: {
+        lastName: {
           type: 'string',
         },
         email: {
@@ -139,6 +141,15 @@ export class RecruitmentController {
       },
     ),
   )
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     storage: diskStorage({
+  //       destination: process.env.UPLOAD_FILE_FOLDER,
+  //       filename: editCandidateFileName,
+  //     }),
+  //     fileFilter: filterCandidateFile,
+  //   }),
+  // )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -171,34 +182,41 @@ export class RecruitmentController {
     });
   }
 
-    @Get('download/:uuid')
-    @ApiOperation({ summary: 'Tải file của ứng viên.' })
-    @ApiResponse({
-      status: 500,
-      description: 'Lỗi hệ thống trong quá trình lấy thông tin ứng viên.',
-    })
-    async seeUploadedFile(@Param('uuid') uuid:string, @Query()downloadFileRecruitmentDto: DownloadFileRecruitmentDto, @Res() res) {
-      return await this.connection.transaction((transactionManager) => {
-        return this.recruitmentService.downloadRecruitmentFile(
-          transactionManager,
-          downloadFileRecruitmentDto,
-          uuid,
-          res
-        );
-      });
-    }
+  @Get('download/:uuid')
+  @ApiOperation({ summary: 'Tải file của ứng viên.' })
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình lấy thông tin ứng viên.',
+  })
+  async seeUploadedFile(
+    @Param('uuid') uuid: string,
+    @Query() downloadFileRecruitmentDto: DownloadFileRecruitmentDto,
+    @Res() res,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.recruitmentService.downloadRecruitmentFile(
+        transactionManager,
+        downloadFileRecruitmentDto,
+        uuid,
+        res,
+      );
+    });
+  }
 
-  //   @Get()
-  //   @ApiResponse({
-  //     status: 200,
-  //     description: 'Lấy danh sách ứng viên thành công.',
-  //   })
-  //   @ApiOperation({ summary: 'Danh sách Candidate' })
-  //   async getAll(@Query() getAllCandidateDto: GetAllCandidateDto) {
-  //     return await this.connection.transaction((transactionManager) => {
-  //       return this.candidateService.getAll(transactionManager, getAllCandidateDto);
-  //     });
-  //   }
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách ứng tuyển thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách Recruitment' })
+  async getAll(@Query() getAllRecruitmentDto: GetAllRecruitmentDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.recruitmentService.getAll(
+        transactionManager,
+        getAllRecruitmentDto,
+      );
+    });
+  }
 
   //   @Get('/:uuid')
   //   @ApiResponse({
