@@ -256,7 +256,8 @@ export class UserRepository extends Repository<User> {
     transactionManager: EntityManager,
     getAllUserDto: GetAllUserDto,
   ) {
-    const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
+    // const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
+    const { page, fullTextSearch, perPage } = getAllUserDto;
 
     const query = transactionManager
       .getRepository(User)
@@ -294,35 +295,97 @@ export class UserRepository extends Repository<User> {
     }
 
     // Filter list
-    if (!isNullOrUndefined(filter)) {
-      const object = paramStringToJson(filter);
-      // if (!isNullOrUndefined(object.name)) {
-      //   query.andWhere('LOWER(user.name) LIKE LOWER(:name)', {
-      //     name: `%${object.name}%`,
-      //   });
-      // }
 
-      if (!isNullOrUndefined(object.username)) {
-        query.andWhere('LOWER(user.username) LIKE LOWER(:username)', {
-          username: `%${object.username}%`,
-        });
-      }
+    // if (!isNullOrUndefined(filter)) {
+    //   const object = paramStringToJson(filter);
+    //   // if (!isNullOrUndefined(object.name)) {
+    //   //   query.andWhere('LOWER(user.name) LIKE LOWER(:name)', {
+    //   //     name: `%${object.name}%`,
+    //   //   });
+    //   // }
 
-      if (!isNullOrUndefined(object.email)) {
-        query.andWhere('LOWER(user.email) LIKE LOWER(:email)', {
-          email: `%${object.email}%`,
-        });
-      }
+    //   if (!isNullOrUndefined(object.username)) {
+    //     query.andWhere('LOWER(user.username) LIKE LOWER(:username)', {
+    //       username: `%${object.username}%`,
+    //     });
+    //   }
+
+    //   if (!isNullOrUndefined(object.email)) {
+    //     query.andWhere('LOWER(user.email) LIKE LOWER(:email)', {
+    //       email: `%${object.email}%`,
+    //     });
+    //   }
+    // }
+
+    console.log(getAllUserDto);
+    
+    if (!isNullOrUndefined(getAllUserDto.filterUserInformationlastName)) {
+      query.andWhere('LOWER(userInformation.lastName) LIKE LOWER(:lastName)', {
+        lastName: `%${getAllUserDto.filterUserInformationlastName}%`,
+      });
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.filterUserInformationposition)) {
+      query.andWhere('LOWER(userInformation.position) LIKE LOWER(:position)', {
+        position: `%${getAllUserDto.filterUserInformationposition}%`,
+      });
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.filterEmail)) {
+      query.andWhere('LOWER(user.email) LIKE LOWER(:email)', {
+        email: `%${getAllUserDto.filterEmail}%`,
+      });
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.filterUserInformationphoneNumber)) {
+      query.andWhere(
+        'LOWER(userInformation.phoneNumber) LIKE LOWER(:phoneNumber)',
+        {
+          phoneNumber: `%${getAllUserDto.filterUserInformationphoneNumber}%`,
+        },
+      );
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.filter0)) {
+      query.andWhere(
+        'LOWER(team.name) LIKE LOWER(:name)',
+        {
+          name: `%${getAllUserDto.filter0}%`,
+        },
+      );
     }
 
     // Sort list
-    if (!isNullOrUndefined(sorts)) {
-      const object = paramStringToJson(sorts);
+    // if (!isNullOrUndefined(sorts)) {
+    //   const object = paramStringToJson(sorts);
 
-      if (!isNullOrUndefined(object.email)) {
-        query.orderBy('user.email', object.email);
-      }
+    //   if (!isNullOrUndefined(object.email)) {
+    //     query.orderBy('user.email', object.email);
+    //   }
+    // }
+
+
+    if (!isNullOrUndefined(getAllUserDto.sortName)) {
+      query.orderBy('userInformation.lastName', getAllUserDto.sortName);
     }
+
+    if (!isNullOrUndefined(getAllUserDto.sortPosition)) {
+      query.orderBy('userInformation.position', getAllUserDto.sortPosition);
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.sortEmail)) {
+      query.orderBy('user.email', getAllUserDto.sortEmail);
+    }
+    
+    if (!isNullOrUndefined(getAllUserDto.sortPhoneNumber)) {
+      query.orderBy('userInformation.phoneNumber', getAllUserDto.sortPhoneNumber);
+    }
+
+    if (!isNullOrUndefined(getAllUserDto.sortIsActive)) {
+      query.orderBy('user.isActive', getAllUserDto.sortIsActive);
+    }
+
+
     try {
       const data = await query.getMany();
       const total = await query.getCount();
