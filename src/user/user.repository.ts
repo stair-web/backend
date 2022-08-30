@@ -316,8 +316,6 @@ export class UserRepository extends Repository<User> {
     //     });
     //   }
     // }
-
-    console.log(getAllUserDto);
     
     if (!isNullOrUndefined(getAllUserDto.filterUserInformationlastName)) {
       query.andWhere('LOWER(userInformation.lastName) LIKE LOWER(:lastName)', {
