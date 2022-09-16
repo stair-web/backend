@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { TokenEmailType } from 'src/common/enum/token-email-type.enum';
 import { isNullOrUndefined } from 'src/lib/utils/util';
-import { EntityManager, In, Not, Repository } from 'typeorm';
+import { EntityManager, getRepository, In, Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetAllUserDto } from './dto/get-all-user.dto';
 import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
@@ -136,11 +136,50 @@ export class UserService {
           'user.id',
           'user.username',
           'userInformation.lastName'
-         ]
-          ).where( 'role.roleCode = :roleCode',{roleCode:'LEADER'})
+         ]).where( 'role.roleCode = :roleCode',{roleCode:'LEADER'})
         }
       }
     )
+  }
+
+  // Get Operator List
+  async getOperator(transactionManager: EntityManager) {
+    return await transactionManager.getRepository(User).find(
+      {
+        join:{
+          alias:'user',
+          leftJoinAndSelect:{
+            // role:'user.role',
+            userInformation:"user.userInformation"
+          }
+        },
+        relations:['userInformation'],
+        where: (qb) => {
+          qb.select([
+            'user.uuid',
+            'user.id',
+            'user.username',
+            'userInformation.id',
+            'userInformation.lastName',
+            'userInformation.position',
+            'userInformation.shortDescription',
+            'userInformation.shortDetail',
+            'userInformation.isOperator',
+            // 'user',
+          ]).where('userInformation.isOperator = :isOperator', { isOperator: true })
+        }
+      }
+    )
+
+    // const user = await getRepository(User)
+    // .createQueryBuilder('user')
+    // .leftJoin('user.userInformation', 'userInformation')
+    // .select(['user'])
+    // .where('user.id = 359')
+    // .andWhere(`userInformation.isOperator = '${true}'`)
+    // .getMany()
+    // console.log(user);
+    
   }
 
 
