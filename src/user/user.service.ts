@@ -161,12 +161,12 @@ export class UserService {
             'user.username',
             'userInformation.id',
             'userInformation.lastName',
+            'userInformation.profilePhotoKey',
             'userInformation.position',
             'userInformation.shortDescription',
             'userInformation.shortDetail',
             'userInformation.isOperator',
-            // 'user',
-          ]).where('userInformation.isOperator = :isOperator', { isOperator: true })
+          ]).where('userInformation.isOperator = :isOperator', { isOperator: true }).andWhere('user.isDeleted = :isDeleted', { isDeleted: false })
         }
       }
     )
