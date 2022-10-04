@@ -75,6 +75,12 @@ export class UserInformation extends BaseEntity {
     @Column()
     teamId: number;
 
+    @Column()
+    shortDetail: string;
+
+    @Column()
+    isOperator: boolean;
+
     @OneToOne(type => Team, team => team.id)
     @JoinColumn({ name: 'team_id', referencedColumnName: 'id' })
     team: Team;

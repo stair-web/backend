@@ -9,6 +9,7 @@ import { User } from 'src/user/user.entity';
 import { Repository, EntityRepository, EntityManager } from 'typeorm';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { GetAllUserInformationDto } from './dto/get-all-user-information.dto';
+import { UpdateImageDto } from './dto/update-image.dto';
 import { UserInformationDto } from './dto/user-information.dto';
 import { UserInformation } from './user-information.entity';
 
@@ -169,6 +170,52 @@ export class UserInformationRepository extends Repository<UserInformation> {
       statusCode: 201,
       message: `${isCreate ? 'Create' : 'Update'
         } User Information successfully.`,
+    };
+  }
+
+  async saveUserInformationImage(
+    transactionManager: EntityManager,
+    updateImageDto: UpdateImageDto,
+    uuid: string,
+  ) {
+
+    // const  userInformationUpdate  = profilePhotoKey;
+
+    const userInfo = await transactionManager
+      .getRepository(UserInformation)
+      .findOne({
+        uuid,
+      });
+
+    userInfo.profilePhotoKey = updateImageDto.profilePhotoKey;
+
+    
+
+    // const userInformation = transactionManager.save(UserInformation, {
+    //   // id: checkUserInformationExist?.id,
+    //   uuid,
+    //   firstName: userInformationUpdate.firstName,
+    //   lastName: userInformationUpdate.lastName,
+    //   profilePhotoKey: userInformationUpdate.profilePhotoKey,
+    //   phoneNumber: userInformationUpdate.phoneNumber,
+    //   shortDescription: userInformationUpdate.shortDescription,
+    //   position: userInformationUpdate.position,
+    //   dob: userInformationUpdate.dob,
+    // });
+
+    try {
+      // await transactionManager.save(userInformation);
+      await userInfo.save();
+      // return res;
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException(
+        `Lỗi hệ thống trong quá trình update User Information Image, vui lòng thử lại sau.`,
+      );
+    }
+    return {
+      statusCode: 201,
+      message: `Update User Information Image successfully.`,
     };
   }
 }

@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'typeorm';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { GetAllUserInformationDto } from './dto/get-all-user-information.dto';
+import { UpdateImageDto } from './dto/update-image.dto';
 import { UserInformationDto } from './dto/user-information.dto';
 import { UserInformationService } from './user-information.service';
 
@@ -73,6 +74,19 @@ export class UserInformationController {
    async update(@Body() createUserInformationDto: CreateUserInformationDto) {
      return await this.connection.transaction((transactionManager) => {
        return this.userInformationService.updateUserInformation(transactionManager, createUserInformationDto);
+     });
+   }
+
+   @Put('image/:uuid')
+   @ApiResponse({
+     status: 500,
+     description: 'Lỗi hệ thống trong quá trình update người dùng.',
+   })
+   @ApiOperation({ summary: 'Update người dùng.' })
+   @ApiResponse({ status: 201, description: 'Tạo người dùng thành công' })
+   async updateImage(@Body() updateImageDto: UpdateImageDto, @Param('uuid') uuid: string) {
+     return await this.connection.transaction((transactionManager) => {
+       return this.userInformationService.updateUserInformationImage(transactionManager, updateImageDto, uuid);
      });
    }
 

@@ -8,10 +8,16 @@ import { throws } from 'assert';
 import { Recruitment } from './recruitment.entity';
 import { DownloadFileTypeRecruitmentEnum } from './enum/download-file-type-recruitment.enum';
 import { DownloadFileRecruitmentDto } from './dto/download-file-recruitment.dto';
+import { EmailRecruitmentDto } from 'src/email/dto/email-recruitment.dto';
+import { EmailService } from 'src/email/email.service';
+import { GetAllRecruitmentDto } from './dto/get-all-recruitment.dto';
 
 @Injectable()
 export class RecruitmentService {
-    constructor(private recruitmentRepository: RecruitmentRepository) {}
+    constructor(
+      private recruitmentRepository: RecruitmentRepository,
+      private emailService: EmailService,
+    ) {}
   
 //   async getDetailCandidate(transactionManager: EntityManager, uuid: string): Promise<unknown> {
 
@@ -58,7 +64,7 @@ export class RecruitmentService {
     if(isNullOrUndefined(recruitment)){
       throw new ConflictException('Ứng viên không tồn tại!');
     }
-    let filename;
+    let filename: string;
     // if(downloadFileCandidateDto.type === DownloadFileTypeCandidateEnum.CoverLetter){
     //   filename = candidate.coverLetterFile;
     // }
@@ -68,7 +74,10 @@ export class RecruitmentService {
     if(isNullOrUndefined(filename)){
       throw new ConflictException('Ứng viên chưa có file này!');
     }
+
     return res.sendFile(filename, { root: process.env.UPLOAD_FILE_FOLDER });
+    // return res;
+    
   }
 
   async deleteRecruitment(transactionManager: EntityManager, uuid: string) {
@@ -161,21 +170,43 @@ export class RecruitmentService {
     createRecruitmentDto: CreateRecruitmentDto,
     files: { resume?: Express.Multer.File },
   ): Promise<unknown> {
-    return await this.recruitmentRepository.saveRecruitment(
+    await this.recruitmentRepository.saveRecruitment(
       transactionManager,
       createRecruitmentDto,
       files,
     );
+
+    let emailRecruitmentDto = new EmailRecruitmentDto();
+    emailRecruitmentDto.email = 'contact@ari.com.vn';
+    emailRecruitmentDto.username = createRecruitmentDto.lastName + ' ' + createRecruitmentDto.firstName;
+    emailRecruitmentDto.privateEmail = createRecruitmentDto.email;
+    emailRecruitmentDto.phoneNumber = createRecruitmentDto.phoneNumber;
+    emailRecruitmentDto.position = createRecruitmentDto.position;
+    emailRecruitmentDto.address = createRecruitmentDto.address;
+    // emailRecruitmentDto.resume = createRecruitmentDto.resumeFile;
+    
+    // let downloadFileRecruitmentDto = new DownloadFileRecruitmentDto();
+    // downloadFileRecruitmentDto.type = DownloadFileTypeRecruitmentEnum.Resume;
+    // let res: any;
+    // emailRecruitmentDto.activeLink = this.downloadRecruitmentFile(transactionManager, downloadFileRecruitmentDto, createRecruitmentDto.uuid, res)
+    // emailRecruitmentDto.activeLink = `recruitment/download/${createRecruitmentDto.uuid}?type=resume`;
+
+    await this.emailService.sendRecruitmentEmail(emailRecruitmentDto, '');
+
+    return {
+      statusCode: 201,
+      message: 'Ứng tuyển thành công!',
+    };
   }
 
-//   async getAll(
-//     transactionManager: EntityManager,
-//     getAllCandidateDto: GetAllCandidateDto,
-//   ): Promise<unknown> {
-//     return await this.candidateRepository.getAll(
-//       transactionManager,
-//       getAllCandidateDto,
-//     );
-//   }
+  async getAll(
+    transactionManager: EntityManager,
+    getAllRecruitmentDto: GetAllRecruitmentDto,
+  ): Promise<unknown> {
+    return await this.recruitmentRepository.getAll(
+      transactionManager,
+      getAllRecruitmentDto,
+    );
+  }
 
 }

@@ -16,7 +16,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Connection } from 'typeorm';
+import { Connection, TransactionManager } from 'typeorm';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -62,8 +62,6 @@ export class UserController {
   @ApiOperation({ summary: 'Danh sách người dùng' })
   async getAllUser(@Query() getAllUserDto: GetAllUserDto) {
     return await this.connection.transaction((transactionManager) => {
-      
-      
       return this.userService.getAllUser(transactionManager, getAllUserDto);
     });
   }
@@ -279,6 +277,7 @@ export class UserController {
   @ApiOperation({ summary: 'Xem chi tiết người dùng.' })
   async getLoginUser(@GetUser() user: User) {
     return await this.connection.transaction((transactionManager) => {
+      // console.log(user);
       return this.userService.getUserByUuid(transactionManager, user.uuid);
     });
   }
@@ -315,42 +314,47 @@ export class UserController {
     });
   }
 
-
-
   //Reset Password
-   @Post('reset-password-user')
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình reset password.',
-   })
-   @ApiOperation({ summary: 'Reset Password.' })
-   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
-   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.userService.resetPassword(transactionManager, resetPasswordDto);
-     });
-   }
+  @Post('reset-password-user')
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình reset password.',
+  })
+  @ApiOperation({ summary: 'Reset Password.' })
+  @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.resetPassword(
+        transactionManager,
+        resetPasswordDto,
+      );
+    });
+  }
 
-   //Change Password
-   @Post('change-password')
+  //Change Password
+  @Post('change-password')
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
-   @ApiResponse({
-     status: 500,
-     description: 'Lỗi hệ thống trong quá trình reset password.',
-   })
-   @ApiOperation({ summary: 'Change Password.' })
-   @ApiResponse({ status: 201, description: 'Reset Password thành công' })
-   async changePassword(@Body() changePasswordDto: ChangePasswordDto,
-   @GetUser() user: User,
-   ) {
-     return await this.connection.transaction((transactionManager) => {
-       return this.userService.changePassword(transactionManager, changePasswordDto,user);
-     });
-   }
+  @ApiResponse({
+    status: 500,
+    description: 'Lỗi hệ thống trong quá trình reset password.',
+  })
+  @ApiOperation({ summary: 'Change Password.' })
+  @ApiResponse({ status: 201, description: 'Reset Password thành công' })
+  async changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @GetUser() user: User,
+  ) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.changePassword(
+        transactionManager,
+        changePasswordDto,
+        user,
+      );
+    });
+  }
 
-
-   @Get('leader')
+  @Get('leader')
   // @UseGuards(RolesGuard)
   // @Roles(Role.ADMIN)
   @ApiResponse({
@@ -361,7 +365,20 @@ export class UserController {
   async getLeader() {
     return await this.connection.transaction(async (transactionManager) => {
       const data = await this.userService.getLeader(transactionManager);
-       return{ data:data}
+      return { data: data };
+    });
+  }
+
+  @Get('operator')
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách ban điều hành thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách ban điều hành' })
+  async getOperator() {
+    return await this.connection.transaction(async (transactionManager) => {
+      const data = await this.userService.getOperator(transactionManager);
+      return { data: data };
     });
   }
 }
