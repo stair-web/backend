@@ -39,7 +39,9 @@ import { User } from 'src/user/user.entity';
     @Column()
     isDeleted: boolean;
   
-
+    @Column()
+    shortDescription: string;
+  
     @Column({
       type: 'timestamp without time zone',
       default: () => 'CURRENT_TIMESTAMP',
