@@ -263,7 +263,7 @@ export class UserRepository extends Repository<User> {
       .getRepository(User)
       .createQueryBuilder('user')
       .leftJoin('user.userInformation', 'userInformation')
-      .leftJoinAndSelect('user.userLanguage', 'userLanguage', 'userLanguage.isDeleted = false')
+      .leftJoin('user.userLanguage', 'userLanguage', 'userLanguage.isDeleted = false')
       .leftJoin('userInformation.team', 'team')
       .select([
         'user.id',
@@ -275,6 +275,7 @@ export class UserRepository extends Repository<User> {
         'user.createdAt',
         'user.updatedAt',
         'userInformation',
+        'userLanguage',
         'team.name',
       ])
       .where({ isDeleted: false })
