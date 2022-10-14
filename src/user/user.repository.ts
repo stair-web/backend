@@ -395,6 +395,42 @@ export class UserRepository extends Repository<User> {
     }
   }
 
+  async getAllUserWithoutPerPage(
+    transactionManager: EntityManager,
+    getAllUserDto: GetAllUserDto,
+  ) {
+    // const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
+    const { page, fullTextSearch, perPage } = getAllUserDto;
+
+    const query = transactionManager
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoin('user.userInformation', 'userInformation')
+      .leftJoin('userInformation.team', 'team')
+      .select([
+        'user.id',
+        'user.uuid',
+        'user.email',
+        'user.username',
+        'user.isDeleted',
+        'user.isActive',
+        'user.createdAt',
+        'user.updatedAt',
+        'userInformation',
+        'team.name',
+      ])
+      .where({ isDeleted: false });
+
+
+    try {
+      const data = await query.getMany();
+      const total = await query.getCount();
+      return { statusCode: 201, data: { userList: data, total } };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   /**
    * @Description activate or deactivate a user
    * @param uuid
