@@ -316,6 +316,13 @@ export class UserService {
     return this.usersRepository.getAllUser(transactionManager, getAllUserDto);
   }
 
+  async getAllUserWithoutPerPage(
+    transactionManager: EntityManager,
+    getAllUserDto: GetAllUserDto,
+  ) {
+    return this.usersRepository.getAllUserWithoutPerPage(transactionManager, getAllUserDto);
+  }
+
   /**
    *
    * @param transactionManager
