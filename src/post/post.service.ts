@@ -131,6 +131,7 @@ export class PostService {
           'post.imageSrc',
           'post.content',
           'post.otherLanguageContent',
+          'post.otherLanguageTitle',
           'post.createdAt',
           'post.updatedAt',
           'post.isDeleted',
