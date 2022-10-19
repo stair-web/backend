@@ -263,6 +263,7 @@ export class UserRepository extends Repository<User> {
       .getRepository(User)
       .createQueryBuilder('user')
       .leftJoin('user.userInformation', 'userInformation')
+      .leftJoin('user.userLanguage', 'userLanguage', 'userLanguage.isDeleted = false')
       .leftJoin('userInformation.team', 'team')
       .select([
         'user.id',
@@ -274,6 +275,7 @@ export class UserRepository extends Repository<User> {
         'user.createdAt',
         'user.updatedAt',
         'userInformation',
+        'userLanguage',
         'team.name',
       ])
       .where({ isDeleted: false })
@@ -382,6 +384,42 @@ export class UserRepository extends Repository<User> {
     if (!isNullOrUndefined(getAllUserDto.sortIsActive)) {
       query.orderBy('user.isActive', getAllUserDto.sortIsActive);
     }
+
+
+    try {
+      const data = await query.getMany();
+      const total = await query.getCount();
+      return { statusCode: 201, data: { userList: data, total } };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllUserWithoutPerPage(
+    transactionManager: EntityManager,
+    getAllUserDto: GetAllUserDto,
+  ) {
+    // const { page, filter, sorts, fullTextSearch, perPage } = getAllUserDto;
+    const { page, fullTextSearch, perPage } = getAllUserDto;
+
+    const query = transactionManager
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoin('user.userInformation', 'userInformation')
+      .leftJoin('userInformation.team', 'team')
+      .select([
+        'user.id',
+        'user.uuid',
+        'user.email',
+        'user.username',
+        'user.isDeleted',
+        'user.isActive',
+        'user.createdAt',
+        'user.updatedAt',
+        'userInformation',
+        'team.name',
+      ])
+      .where({ isDeleted: false });
 
 
     try {

@@ -149,7 +149,6 @@ export class UserService {
         join:{
           alias:'user',
           leftJoinAndSelect:{
-            // role:'user.role',
             userInformation:"user.userInformation"
           }
         },
@@ -167,6 +166,7 @@ export class UserService {
             'userInformation.shortDetail',
             'userInformation.isOperator',
           ]).where('userInformation.isOperator = :isOperator', { isOperator: true }).andWhere('user.isDeleted = :isDeleted', { isDeleted: false })
+          .leftJoinAndSelect('user.userLanguage', 'userLanguage', 'userLanguage.isDeleted = false')
         }
       }
     )
@@ -314,6 +314,13 @@ export class UserService {
     getAllUserDto: GetAllUserDto,
   ) {
     return this.usersRepository.getAllUser(transactionManager, getAllUserDto);
+  }
+
+  async getAllUserWithoutPerPage(
+    transactionManager: EntityManager,
+    getAllUserDto: GetAllUserDto,
+  ) {
+    return this.usersRepository.getAllUserWithoutPerPage(transactionManager, getAllUserDto);
   }
 
   /**

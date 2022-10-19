@@ -66,6 +66,20 @@ export class UserController {
     });
   }
 
+  @Get('/userWithoutPerpage')
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách người dùng thành công.',
+  })
+  @ApiOperation({ summary: 'Danh sách người dùng without perPage' })
+  async getAllUserWithoutPerPage(@Query() getAllUserDto: GetAllUserDto) {
+    return await this.connection.transaction((transactionManager) => {
+      return this.userService.getAllUserWithoutPerPage(transactionManager, getAllUserDto);
+    });
+  }
+
   /**
    * @method POST
    * @description create a user

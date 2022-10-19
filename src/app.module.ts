@@ -35,6 +35,7 @@ import { TeamModule } from './team/team.module';
 import { RoomModule } from './room/room.module';
 import { BookingRoomModule } from './booking-room/booking-room.module';
 import { RecruitmentModule } from './recruitment/recruitment.module';
+import { UserLanguageModule } from './user-language/user-language.module';
 @Module({
   imports: [
         DayoffModule, 
@@ -87,7 +88,8 @@ import { RecruitmentModule } from './recruitment/recruitment.module';
     TeamModule,
     RoomModule,
     BookingRoomModule,
-    RecruitmentModule
+    RecruitmentModule,
+    UserLanguageModule
   ],
   controllers: [HealthController, AppController],
   providers: [AppGateway,
