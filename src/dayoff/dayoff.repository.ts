@@ -35,17 +35,17 @@ export class DayoffRepository extends Repository<DayOff> {
     dayOffSearch: DayOffSearch,
   ) {
     const { page, dateFrom, dateTo, status, perPage } = dayOffSearch;
-
     const query = transactionManager
       .getRepository(DayOff)
       .createQueryBuilder('dayoff')
       .leftJoin('dayoff.staff', 'staff')
       .leftJoin('staff.team', 't')
       .select(['dayoff', 'staff', 't.name'])
-      .where('dayoff.isDeleted = :isDeleted', { isDeleted: 'false' })
-      .take(perPage)
-      .skip((page - 1) * perPage || 0)
-      .orderBy('dayoff.createdAt', 'DESC');
+      .where('dayoff.isDeleted = false')
+
+    if (isNullOrUndefined(dateFrom) || isNullOrUndefined(dateTo)) {
+      query.orderBy('dayoff.createdAt', 'DESC');
+    }
 
     // Full text search
     if (!isNullOrUndefined(status) && status !== '') {
@@ -55,10 +55,15 @@ export class DayoffRepository extends Repository<DayOff> {
     }
 
     if (!isNullOrUndefined(dateFrom) && !isNullOrUndefined(dateTo)) {
-      query.andWhere('dayoff.dateLeave between :dateFrom and :dateTo', {
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-      });
+      query.andWhere("dayoff.dateLeave between :dateFrom and :dateTo",
+        { dateFrom, dateTo })
+        .addOrderBy("dayoff.dateLeave", "DESC");
+    }
+
+    if(!isNullOrUndefined(page) && !isNullOrUndefined(perPage)){
+      query
+      .take(perPage)
+      .skip((page - 1) * perPage);
     }
 
     try {
