@@ -43,7 +43,7 @@ export class DayoffRepository extends Repository<DayOff> {
       .leftJoin('staff.team', 't')
       .select(['dayoff', 'staff', 't.name'])
       .where('dayoff.isDeleted = :isDeleted', { isDeleted: 'false' })
-      .take(perPage || 25)
+      .take(perPage)
       .skip((page - 1) * perPage || 0)
       .orderBy('dayoff.createdAt', 'DESC');
 
