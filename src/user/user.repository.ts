@@ -35,7 +35,7 @@ export class UserRepository extends Repository<User> {
     transactionEntityManager: EntityManager,
     createUserDto: CreateUserDto,
   ) {
-    const { email, username, password, userInformation } = createUserDto;
+    const { email, username, password, userInformation, day_off } = createUserDto;
     // Check user existed?
     const query = transactionEntityManager
       .getRepository(User)
@@ -65,6 +65,7 @@ export class UserRepository extends Repository<User> {
       password: hashedPassword,
       salt,
       uuid: uuidv4(),
+      dayOff: day_off
     });
     // save user
     try {
@@ -140,6 +141,7 @@ export class UserRepository extends Repository<User> {
             'user.isFirstLogin',
             'user.createdAt',
             'user.updatedAt',
+            'user.dayOff',
             'userInformation.id',
             'userInformation.uuid',
             'userInformation.firstName',

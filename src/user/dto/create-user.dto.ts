@@ -24,6 +24,8 @@ export class CreateUserDto {
 
   startDate: Date;
 
+  day_off: number;
+
   /* USER INFORMATION */
   @ApiProperty({
     default: {

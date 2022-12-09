@@ -76,7 +76,7 @@ export class UserService {
 
     createUserDto.userInformation.uuid = uuidv4();
     createUserDto.password = uuidv4();
-
+    createUserDto.day_off = createUserDto.userInformation.day_off;
 
     const userCreated = await this.usersRepository.createUser(
       transactionManager,
@@ -247,13 +247,14 @@ export class UserService {
     if (isNullOrUndefined(user)) {
       throw new InternalServerErrorException('Tài khoản không tồn tại.');
     }
-    console.log(updateUserDto);
+    // console.log(updateUserDto);
     //check duplicate email:
     const checkDupEmail: User = await this.usersRepository.findOne({isDeleted:false,email:updateUserDto.email, uuid: Not(uuid)});
     if(!isNullOrUndefined(checkDupEmail)){
         throw new ConflictException(`Email này đã tồn tại !`);
     }
     user.email = updateUserDto.email;
+    user.dayOff = userInformation.day_off;
     if (userInformation.teamId) {
       const team = await transactionManager
         .getRepository(Team)

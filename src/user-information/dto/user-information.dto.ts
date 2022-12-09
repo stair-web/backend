@@ -37,6 +37,8 @@ export class UserInformationDto {
 
     teamId?:number;
 
+    day_off: number;
+
     // isDeleted?: boolean;
 
     constructor() {
