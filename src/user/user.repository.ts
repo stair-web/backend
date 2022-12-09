@@ -74,6 +74,7 @@ export class UserRepository extends Repository<User> {
       userInformation.staffId = userInformation.uuid
         .substr(userInformation.uuid.length - 6)
         .toUpperCase();
+      userInformation.remain = day_off;
       const informationOfUser = transactionEntityManager.create(
         UserInformation,
         userInformation,
