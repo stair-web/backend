@@ -205,6 +205,7 @@ export class PostRepository extends Repository<Post> {
     try {
       await transactionManager.save(post);
     } catch (error) {
+      console.log(error)
       Logger.error(error);
       throw new InternalServerErrorException(
         `Lỗi hệ thống trong quá trình ${

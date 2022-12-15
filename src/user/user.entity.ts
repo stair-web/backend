@@ -80,6 +80,9 @@ export class User extends BaseEntity {
   @Column()
   staffId: number;
 
+  @Column()
+  dayOff: number;
+
   @OneToMany((type) => UserRole, (role) => role.user)
   role: UserRole[];
 

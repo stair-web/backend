@@ -50,7 +50,7 @@ export class CreatePostDto{
   imageSrc?: string;
 
   // @IsString()
-  status: string;
+  status?: string;
 
   @IsUUID()
   @ApiProperty()
