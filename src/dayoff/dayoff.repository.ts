@@ -1380,13 +1380,14 @@ export class DayoffRepository extends Repository<DayOff> {
         .createQueryBuilder('d')
         .leftJoin('d.staff', 'ui')
         .leftJoin('ui.team', 't')
+        .leftJoin('ui.user', 'user')
         .select(
           'd.staff_id, ui.last_name, t.name as team, ui.remain, ui.remote_remain_in_month, ui.remote_day_in_year, sum(CASE WHEN type = 1 THEN time_number ELSE 0 END) as type_1,sum(CASE WHEN type=2 THEN time_number ELSE 0 END) as type_2, sum(CASE WHEN type = 3 THEN remote_number ELSE 0 END) as type_3'
         )
         .groupBy(
           'd.staff_id, ui.last_name, t.name, ui.remain, ui.remote_remain_in_month, ui.remote_day_in_year',
         )
-        .andWhere('d.isDeleted = false and d.status = :status', {
+        .andWhere('d.isDeleted = false and user.isDeleted = false and d.status = :status', {
           status: 'APPROVED',
         });
 
