@@ -5,19 +5,19 @@ networks:
     driver: bridge
 services:
   back-end:
-          container_name: ari-backtend
+          container_name: ari-web-container
           env_file:
-                - ./env/dev.env
+                - ./env/prod.env
           environment:
-                - NODE_ENV=dev
+                - NODE_ENV=prod
           ports:
-                  - "7003:1704"
+                  - "7003:8888"
           build: .
-          deploy:
-                  resources:
-                          limits:
-                                  cpus: 0.5
-                                  memory: 256M
+        #   deploy:
+        #           resources:
+        #                   limits:
+        #                           cpus: 0.5
+        #                           memory: 256M
 
           networks:
                   - web_comp_network
