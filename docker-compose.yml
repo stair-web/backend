@@ -5,7 +5,7 @@ networks:
     driver: bridge
 services:
   back-end:
-          container_name: ari-web-container
+          container_name: stair-web-container
           env_file:
                 - ./env/prod.env
           environment:
