@@ -1,8 +1,5 @@
 version: '3'
 
-networks:
-  web_comp_network:
-    driver: bridge
 services:
   back-end:
           container_name: stair-web-container
@@ -11,14 +8,5 @@ services:
           environment:
                 - NODE_ENV=prod
           ports:
-                  - "7003:8888"
+                  - "7005:8888"
           build: .
-        #   deploy:
-        #           resources:
-        #                   limits:
-        #                           cpus: 0.5
-        #                           memory: 256M
-
-          networks:
-                  - web_comp_network
-          
